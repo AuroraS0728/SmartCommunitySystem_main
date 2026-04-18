@@ -1,0 +1,33 @@
+<view class="section">
+  <view class="hero worker-hero">
+    <view class="hero-title">维修员上门人脸验证</view>
+    <view class="hero-desc">到达现场后拍照，核验是否为已注册维修员</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">当前信息</view>
+    <view class="meta">维修员ID：{{workerId || '--'}}</view>
+    <view class="meta">工单ID：{{orderId || '--'}}</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">验证操作</view>
+    <view class="item-desc">点击后仅调用相机拍照，不允许从相册选择。</view>
+    <view class="btn worker-btn" bindtap="startFaceVerify">
+      {{loading ? '验证中...' : '开始人脸验证'}}
+    </view>
+    <image wx:if="{{imagePath}}" class="preview" src="{{imagePath}}" mode="aspectFill" />
+  </view>
+
+  <view class="item" wx:if="{{!loading && imagePath}}">
+    <view class="item-title">验证结果</view>
+    <view wx:if="{{verified}}">
+      <view class="success">人脸验证通过（分数：{{score.toFixed(4)}}）</view>
+      <view class="meta">系统将自动跳转至工单处理页面</view>
+    </view>
+    <view wx:else>
+      <view class="danger">人脸不匹配，请确认是否为本人（分数：{{score.toFixed(4)}}）</view>
+      <view class="btn worker-btn retry-btn" bindtap="retryVerify">重新验证</view>
+    </view>
+  </view>
+</view>

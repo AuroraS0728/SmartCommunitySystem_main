@@ -3,11 +3,14 @@
 
   <view wx:elif="{{detail && detail.order}}" class="item">
     <view class="item-title">工单 #{{detail.order.id}}</view>
-    <view class="meta">类型：{{detail.order.category || "未知"}}</view>
+    <view class="meta">类型：{{detail.order.category || '未知'}}</view>
     <view class="meta">状态：{{detail.statusText}}</view>
-    <view class="item-desc">{{detail.order.description || "无描述"}}</view>
+    <view class="item-desc">{{detail.order.description || '无描述'}}</view>
 
-    <view wx:if="{{detail.order.status === 1}}" class="btn worker-btn" bindtap="goVerify">现场验码</view>
+    <view wx:if="{{detail.order.status === 1}}" class="btn worker-btn" bindtap="goFaceVerify">上门人脸验证</view>
+    <view wx:if="{{detail.order.status === 1}}" class="btn worker-btn" bindtap="goVerifyCode" style="margin-top: 12rpx">
+      现场验码
+    </view>
     <view wx:if="{{detail.order.status === 2}}" class="btn worker-btn" bindtap="goProcess">进入服务流程</view>
     <view wx:if="{{detail.order.status >= 3}}" class="meta">该工单已进入收尾流程</view>
   </view>

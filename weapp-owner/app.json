@@ -28,6 +28,7 @@
     "pages/worker/task/detail",
     "pages/worker/work/process",
     "pages/worker/verify/code",
+    "pages/worker/verify/face",
     "pages/worker/message/index",
     "pages/worker/profile/index"
   ],
@@ -39,7 +40,7 @@
   },
   "permission": {
     "scope.camera": {
-      "desc": "\u7528\u4e8e\u7269\u4e1a\u5b89\u9632\u95e8\u7981\u626b\u7801\u6838\u9a8c\u8bbf\u5ba2\u52a8\u6001\u4e8c\u7ef4\u7801"
+      "desc": "\u7528\u4e8e\u95e8\u7981\u626b\u7801\u6838\u9a8c\u4e0e\u7ef4\u4fee\u5458\u4e0a\u95e8\u4eba\u8138\u9a8c\u8bc1\u62cd\u7167"
     }
   },
   "style": "v2"

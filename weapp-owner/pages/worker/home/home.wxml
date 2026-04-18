@@ -12,6 +12,14 @@
     <view class="nav-arrow">></view>
   </navigator>
 
+  <navigator class="item nav-item" url="/pages/worker/verify/face">
+    <view class="nav-body">
+      <view class="item-title">上门人脸验证</view>
+      <view class="item-desc">现场拍照并核验维修员人脸身份</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
   <navigator class="item nav-item" url="/pages/worker/verify/code">
     <view class="nav-body">
       <view class="item-title">验证码校验</view>

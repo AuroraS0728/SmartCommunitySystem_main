@@ -19,6 +19,34 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column label="人脸状态" width="120">
+          <template #default="{ row }">
+            <el-tag :type="faceStatusType(row.id)">
+              {{ faceStatusText(row.id) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="人脸注册" min-width="180">
+          <template #default="{ row }">
+            <el-upload
+              class="face-uploader"
+              :show-file-list="false"
+              :auto-upload="false"
+              accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+              :before-upload="(file) => handleFaceBeforeUpload(file, row.id)"
+            >
+              <el-button
+                size="small"
+                type="primary"
+                plain
+                :loading="faceUploadingId === row.id"
+                :disabled="faceUploadingId !== null && faceUploadingId !== row.id"
+              >
+                {{ faceActionText(row.id) }}
+              </el-button>
+            </el-upload>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="260">
           <template #default="{ row }">
             <el-button size="small" text type="primary" @click="loadPerformance(row.id)">绩效</el-button>
@@ -46,7 +74,7 @@
         </article>
         <article>
           <p>估算收入</p>
-          <h4>￥ {{ formatMoney(perf.income) }}</h4>
+          <h4>¥ {{ formatMoney(perf.income) }}</h4>
         </article>
       </div>
     </section>
@@ -72,12 +100,15 @@
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { addWorker, deleteWorker, getWorkerList, getWorkerPerformance, updateWorker } from '@/api/worker'
+import { getWorkerFaceStatus, registerWorkerFace } from '@/api/face'
 
 const keyword = ref('')
 const list = ref([])
 const perf = ref(null)
 const dialogVisible = ref(false)
 const saving = ref(false)
+const faceUploadingId = ref(null)
+const faceStatusMap = ref({})
 const form = ref({
   id: null,
   nickname: '',
@@ -110,9 +141,77 @@ function formatMoney(value) {
   return Number(value || 0).toLocaleString('zh-CN')
 }
 
+function faceStatusText(workerId) {
+  if (faceStatusMap.value[workerId] === undefined) return '检测中'
+  return faceStatusMap.value[workerId] ? '已注册' : '未注册'
+}
+
+function faceStatusType(workerId) {
+  if (faceStatusMap.value[workerId] === undefined) return 'info'
+  return faceStatusMap.value[workerId] ? 'success' : 'warning'
+}
+
+function faceActionText(workerId) {
+  return faceStatusMap.value[workerId] ? '重新注册' : '上传人脸'
+}
+
+function validateFaceFile(file) {
+  const name = String(file?.name || '')
+  const extOk = /\.(jpg|jpeg|png)$/i.test(name)
+  const type = String(file?.type || '').toLowerCase()
+  const typeOk = type === 'image/jpeg' || type === 'image/png'
+  if (!extOk && !typeOk) {
+    ElMessage.error('仅支持 JPG/PNG 图片')
+    return false
+  }
+  const isLt2m = Number(file?.size || 0) / 1024 / 1024 < 2
+  if (!isLt2m) {
+    ElMessage.error('图片大小不能超过 2MB')
+    return false
+  }
+  return true
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : ''
+      const base64 = result.includes(',') ? result.split(',')[1] : result
+      if (!base64) {
+        reject(new Error('图片读取失败'))
+        return
+      }
+      resolve(base64)
+    }
+    reader.onerror = () => reject(new Error('图片读取失败'))
+    reader.readAsDataURL(file)
+  })
+}
+
+async function loadFaceStatus(workers) {
+  if (!workers.length) {
+    faceStatusMap.value = {}
+    return
+  }
+  const entries = await Promise.all(
+    workers.map(async (worker) => {
+      try {
+        const res = await getWorkerFaceStatus(worker.id)
+        return [worker.id, !!res.data?.registered]
+      } catch (error) {
+        return [worker.id, false]
+      }
+    })
+  )
+  faceStatusMap.value = Object.fromEntries(entries)
+}
+
 async function loadWorkers() {
   const res = await getWorkerList()
-  list.value = Array.isArray(res.data) ? res.data : []
+  const workers = Array.isArray(res.data) ? res.data : []
+  list.value = workers
+  await loadFaceStatus(workers)
 }
 
 async function submit() {
@@ -153,6 +252,32 @@ async function loadPerformance(id) {
   }
 }
 
+async function handleFaceBeforeUpload(file, workerId) {
+  if (!validateFaceFile(file)) return false
+  if (!workerId) {
+    ElMessage.error('缺少维修员ID')
+    return false
+  }
+  if (faceUploadingId.value !== null) {
+    ElMessage.warning('正在上传中，请稍候')
+    return false
+  }
+  const wasRegistered = !!faceStatusMap.value[workerId]
+  faceUploadingId.value = workerId
+  try {
+    const imageBase64 = await fileToBase64(file)
+    await registerWorkerFace(workerId, imageBase64)
+    faceStatusMap.value = { ...faceStatusMap.value, [workerId]: true }
+    ElMessage.success(wasRegistered ? '人脸重新注册成功' : '人脸注册成功')
+  } catch (error) {
+    ElMessage.error(error?.message || '人脸注册失败')
+  } finally {
+    faceUploadingId.value = null
+  }
+  // Stop el-upload default HTTP behavior, we call backend API ourselves.
+  return false
+}
+
 onMounted(async () => {
   await loadWorkers()
 })
@@ -188,6 +313,10 @@ onMounted(async () => {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.face-uploader {
+  display: inline-flex;
 }
 
 .perf-panel h3 {
