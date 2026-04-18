@@ -1,0 +1,12 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">发布闲置</view>
+    <view class="hero-desc">发布能力正在建设中。</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">功能预告</view>
+    <view class="item-desc">后续将支持价格设置、图片上传和商品管理。</view>
+    <navigator class="link" url="/pages/neighbor/secondhand/list">返回交易列表 ></navigator>
+  </view>
+</view>

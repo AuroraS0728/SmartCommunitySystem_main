@@ -1,0 +1,12 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">闲置交易</view>
+    <view class="hero-desc">邻里二手交易版块正在建设中。</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">功能预告</view>
+    <view class="item-desc">后续将支持商品发布、筛选浏览和安全沟通。</view>
+    <navigator class="link" url="/pages/service/service">返回服务中心 ></navigator>
+  </view>
+</view>

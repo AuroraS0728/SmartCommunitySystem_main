@@ -1,0 +1,12 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">商品详情</view>
+    <view class="hero-desc">详情页能力正在建设中。</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">功能预告</view>
+    <view class="item-desc">后续将支持商品图册、议价与交易状态跟踪。</view>
+    <navigator class="link" url="/pages/neighbor/secondhand/list">返回交易列表 ></navigator>
+  </view>
+</view>

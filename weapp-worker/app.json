@@ -1,0 +1,17 @@
+﻿{
+  "pages": [
+    "pages/auth/login",
+    "pages/task/list",
+    "pages/task/detail",
+    "pages/work/process",
+    "pages/verify/code",
+    "pages/message/index",
+    "pages/profile/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "智慧社区维修端",
+    "navigationBarBackgroundColor": "#0f766e",
+    "navigationBarTextStyle": "white"
+  },
+  "style": "v2"
+}

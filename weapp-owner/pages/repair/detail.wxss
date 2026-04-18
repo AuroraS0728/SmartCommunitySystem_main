@@ -1,0 +1,22 @@
+.rating-line {
+  margin-top: 14rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.star {
+  color: #cbd5e1;
+  font-size: 42rpx;
+  line-height: 1;
+}
+
+.star.active {
+  color: #f59e0b;
+}
+
+.code-value {
+  font-size: 42rpx;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+}

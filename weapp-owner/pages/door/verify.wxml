@@ -1,0 +1,25 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">动态二维码核验</view>
+    <view class="hero-desc">二维码每 30 秒自动刷新，截图失效，防止盗用</view>
+  </view>
+
+  <view class="item">
+    <view class="field-label">邀请码</view>
+    <input class="input code-input" value="{{code}}" placeholder="请输入6位邀请码" bindinput="onCode" />
+    <view class="action-row">
+      <view class="mini-btn" bindtap="startDynamicFlow">开始动态刷新</view>
+      <view class="mini-btn mini-btn-plain" bindtap="refreshDynamicToken">立即刷新</view>
+    </view>
+  </view>
+
+  <view class="item" wx:if="{{qrImageUrl}}">
+    <view class="row-between">
+      <view class="item-title">门禁动态二维码</view>
+      <view class="status-tag">剩余 {{countdownText}}</view>
+    </view>
+    <image class="qr-image" src="{{qrImageUrl}}" mode="aspectFit" />
+    <view class="meta">仅当前 30 秒内有效，门禁仅接受当前最新 token，截图无效。</view>
+    <view class="meta">Token: {{dynamicToken}}</view>
+  </view>
+</view>

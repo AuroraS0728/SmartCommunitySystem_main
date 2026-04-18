@@ -1,0 +1,46 @@
+{
+  "pages": [
+    "pages/auth/login",
+    "pages/index/index",
+    "pages/service/service",
+    "pages/repair/submit",
+    "pages/repair/list",
+    "pages/repair/detail",
+    "pages/notice/list",
+    "pages/neighbor/secondhand/list",
+    "pages/neighbor/secondhand/detail",
+    "pages/neighbor/secondhand/publish",
+    "pages/neighbor/lostfound/list",
+    "pages/neighbor/lostfound/detail",
+    "pages/neighbor/lostfound/publish",
+    "pages/neighbor/forum/list",
+    "pages/neighbor/forum/detail",
+    "pages/neighbor/forum/post",
+    "pages/door/qrcode",
+    "pages/door/invite",
+    "pages/door/verify",
+    "pages/security/home/home",
+    "pages/security/verify/scan",
+    "pages/complaint/submit",
+    "pages/user/profile",
+    "pages/worker/home/home",
+    "pages/worker/task/list",
+    "pages/worker/task/detail",
+    "pages/worker/work/process",
+    "pages/worker/verify/code",
+    "pages/worker/message/index",
+    "pages/worker/profile/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "\u667a\u6167\u793e\u533a\u4e1a\u4e3b\u7aef",
+    "navigationBarBackgroundColor": "#0f172a",
+    "backgroundColor": "#f3f6fb",
+    "navigationBarTextStyle": "white"
+  },
+  "permission": {
+    "scope.camera": {
+      "desc": "\u7528\u4e8e\u7269\u4e1a\u5b89\u9632\u95e8\u7981\u626b\u7801\u6838\u9a8c\u8bbf\u5ba2\u52a8\u6001\u4e8c\u7ef4\u7801"
+    }
+  },
+  "style": "v2"
+}

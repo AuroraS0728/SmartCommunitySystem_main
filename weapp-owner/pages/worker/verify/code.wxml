@@ -1,0 +1,16 @@
+<view class="section">
+  <view class="item">
+    <view class="field-label">工单ID</view>
+    <input class="input" placeholder="请输入工单ID" bindinput="onOrderId" value="{{orderId}}" />
+
+    <view class="field-label">现场验证码</view>
+    <input class="input" placeholder="请输入业主提供的验证码" bindinput="onCode" value="{{code}}" />
+
+    <view class="btn worker-btn" bindtap="verify">立即校验</view>
+  </view>
+
+  <view class="item" wx:if="{{result}}">
+    <view class="item-title">校验结果</view>
+    <view class="item-desc">{{result}}</view>
+  </view>
+</view>

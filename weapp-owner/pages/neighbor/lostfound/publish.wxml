@@ -1,0 +1,12 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">发布招领</view>
+    <view class="hero-desc">发布能力正在建设中。</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">功能预告</view>
+    <view class="item-desc">后续将支持图片上传、地点时间记录和一键发布。</view>
+    <navigator class="link" url="/pages/neighbor/lostfound/list">返回失物列表 ></navigator>
+  </view>
+</view>

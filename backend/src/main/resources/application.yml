@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: smart-community-backend
+  profiles:
+    active: dev
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+jwt:
+  secret: smart-community-secret-key-1234567890
+  expire-seconds: 86400
+
+wechat:
+  app-id: wx_mock_appid
+  app-secret: mock_secret
+  mch-id: mock_mch_id
+  mch-serial-no: mock_serial_no
+  api-v3-key: mock_api_v3_key
+  notify-url: https://example.com/pay/notify

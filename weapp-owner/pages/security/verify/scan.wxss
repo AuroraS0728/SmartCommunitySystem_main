@@ -1,0 +1,51 @@
+.security-hero {
+  background: linear-gradient(135deg, #92400e, #b45309);
+}
+
+.action-row {
+  margin-top: 16rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.mini-btn {
+  padding: 12rpx 22rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.mini-btn-plain {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+.camera-preview {
+  margin-top: 18rpx;
+  width: 100%;
+  height: 360rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.result {
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.status-tag.ok {
+  border-color: #86efac;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.result-success {
+  color: #047857;
+}
+
+.result-error {
+  color: #b91c1c;
+}

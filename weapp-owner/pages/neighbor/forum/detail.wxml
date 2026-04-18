@@ -1,0 +1,12 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">论坛详情</view>
+    <view class="hero-desc">详情页能力正在建设中。</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">功能预告</view>
+    <view class="item-desc">后续将支持帖子内容、评论列表和点赞收藏。</view>
+    <navigator class="link" url="/pages/neighbor/forum/list">返回论坛列表 ></navigator>
+  </view>
+</view>

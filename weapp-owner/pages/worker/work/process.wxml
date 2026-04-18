@@ -1,0 +1,9 @@
+<view class="section">
+  <view class="item">
+    <view class="item-title">工单ID：{{id || '--'}}</view>
+    <view class="item-desc">当前状态：{{order ? order.status : '--'}}</view>
+  </view>
+
+  <view class="btn worker-btn" bindtap="start" loading="{{loading}}">开始服务</view>
+  <view class="btn worker-btn" bindtap="finish" loading="{{loading}}" style="margin-top: 12rpx">完成服务</view>
+</view>

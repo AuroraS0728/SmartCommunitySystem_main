@@ -1,0 +1,12 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">邻里论坛</view>
+    <view class="hero-desc">社区交流版块正在建设中。</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">功能预告</view>
+    <view class="item-desc">后续将支持帖子列表、评论互动和消息提醒。</view>
+    <navigator class="link" url="/pages/service/service">返回服务中心 ></navigator>
+  </view>
+</view>

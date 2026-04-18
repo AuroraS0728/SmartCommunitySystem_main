@@ -1,0 +1,53 @@
+.section {
+  padding-top: 48rpx;
+  padding-bottom: 88rpx;
+}
+
+.login-card {
+  margin-top: 20rpx;
+  padding-top: 36rpx;
+  padding-bottom: 40rpx;
+}
+
+.role-switch {
+  margin-bottom: 26rpx;
+  padding: 10rpx;
+  border-radius: 18rpx;
+  background: #f1f5f9;
+  display: flex;
+  gap: 10rpx;
+}
+
+.role-item {
+  flex: 1;
+  border-radius: 14rpx;
+  padding: 16rpx 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.login-card .input {
+  min-height: 92rpx;
+  padding-top: 24rpx;
+  padding-bottom: 24rpx;
+  line-height: 1.4;
+}
+
+.role-item.active {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 8rpx 18rpx -14rpx rgba(37, 99, 235, 0.85);
+}
+
+.tip {
+  margin-top: 18rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.8;
+}
+
+.login-btn {
+  margin-top: 30rpx;
+}

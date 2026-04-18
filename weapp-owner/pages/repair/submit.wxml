@@ -1,0 +1,52 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">报修/家政服务提交</view>
+    <view class="hero-desc">请选择服务类型后提交，流程将自动进入派单与现场验证。</view>
+  </view>
+
+  <view class="item">
+    <view class="field-label">服务类型</view>
+
+    <view class="category-trigger" bindtap="toggleCategoryPanel">
+      <view class="category-value">
+        {{categoryMode === 'custom' ? (customCategory || '请输入自定义类型') : selectedCategory}}
+      </view>
+      <view class="category-arrow">{{showCategoryPanel ? '收起' : '选择'}}</view>
+    </view>
+
+    <view wx:if="{{showCategoryPanel}}" class="category-panel">
+      <view class="category-tip">常用类型</view>
+      <view class="category-grid">
+        <view
+          wx:for="{{categoryOptions}}"
+          wx:key="*this"
+          class="category-chip {{categoryMode === 'preset' && selectedCategory === item ? 'active' : ''}}"
+          data-item="{{item}}"
+          bindtap="selectPresetCategory"
+        >
+          {{item}}
+        </view>
+      </view>
+      <view class="category-custom-link" bindtap="switchCustomCategory">自定义类型</view>
+    </view>
+
+    <input
+      wx:if="{{categoryMode === 'custom'}}"
+      class="input"
+      value="{{customCategory}}"
+      placeholder="请输入自定义服务类型"
+      maxlength="20"
+      bindinput="onCustomCategory"
+    />
+
+    <view class="field-label">问题描述</view>
+    <textarea
+      class="input textarea"
+      value="{{description}}"
+      placeholder="请描述具体问题、地址位置、上门时间等"
+      bindinput="onDesc"
+    ></textarea>
+
+    <view class="btn" bindtap="submitRepair">{{submitting ? "提交中..." : "提交工单"}}</view>
+  </view>
+</view>

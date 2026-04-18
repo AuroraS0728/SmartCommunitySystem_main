@@ -1,0 +1,29 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">个人中心</view>
+    <view class="hero-desc">查看个人服务记录和高频入口。</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">账户信息</view>
+    <view class="item-desc">当前账号通过登录态接入，可在此查看常用服务入口。</view>
+  </view>
+
+  <navigator class="item nav-item" url="/pages/repair/list">
+    <view class="nav-body">
+      <view class="item-title">我的报修</view>
+      <view class="item-desc">查看历史工单与处理进度。</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <navigator class="item nav-item" url="/pages/notice/list">
+    <view class="nav-body">
+      <view class="item-title">公告中心</view>
+      <view class="item-desc">回看社区历史公告信息。</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <view class="btn logout-btn" bindtap="onLogout">退出登录</view>
+</view>

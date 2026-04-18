@@ -1,0 +1,12 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">门禁二维码令牌</view>
+    <view class="hero-desc">令牌会周期刷新，请在有效时间内使用。</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">当前通行 Token</view>
+    <view class="item-desc code">{{token ? token : '加载中...'}}</view>
+    <view class="meta">有效期约 30 秒</view>
+  </view>
+</view>

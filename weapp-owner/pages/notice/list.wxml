@@ -1,0 +1,14 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">社区公告</view>
+    <view class="hero-desc">第一时间掌握小区通知和服务动态。</view>
+  </view>
+
+  <view wx:if="{{!list.length}}" class="empty">暂无公告</view>
+
+  <view wx:for="{{list}}" wx:key="id" class="item">
+    <view class="item-title">{{item.title ? item.title : '未命名公告'}}</view>
+    <view class="item-desc">{{item.content ? item.content : '暂无公告摘要'}}</view>
+    <view class="meta">{{item.publishTime ? item.publishTime : '发布时间待更新'}}</view>
+  </view>
+</view>

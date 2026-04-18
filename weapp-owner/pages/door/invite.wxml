@@ -1,0 +1,106 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">访客邀请闭环</view>
+    <view class="hero-desc">提交邀请 -> 生成口令/链接 -> 门禁动态二维码核验 -> 入场通知</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">新建访客邀请</view>
+    <view class="field-label">访客姓名</view>
+    <input class="input" value="{{visitorName}}" placeholder="请输入访客姓名" bindinput="onName" />
+
+    <view class="field-label">访客手机号</view>
+    <input class="input" value="{{visitorPhone}}" type="number" placeholder="请输入手机号" bindinput="onPhone" />
+
+    <view class="field-label">来访时间</view>
+    <view class="time-row">
+      <picker mode="date" value="{{visitDate}}" bindchange="onVisitDateChange">
+        <view class="picker">{{visitDate || '选择日期'}}</view>
+      </picker>
+      <picker mode="time" value="{{visitClock}}" bindchange="onVisitClockChange">
+        <view class="picker">{{visitClock || '选择时间'}}</view>
+      </picker>
+    </view>
+
+    <view class="field-label">有效期方式</view>
+    <view class="validity-row">
+      <view class="chip {{validityType==='SINGLE_2H' ? 'chip-active' : ''}}" data-type="SINGLE_2H" bindtap="chooseValidity">
+        单次有效（2小时）
+      </view>
+      <view class="chip {{validityType==='TODAY_END' ? 'chip-active' : ''}}" data-type="TODAY_END" bindtap="chooseValidity">
+        当天有效（23:59）
+      </view>
+      <view class="chip {{validityType==='CUSTOM' ? 'chip-active' : ''}}" data-type="CUSTOM" bindtap="chooseValidity">
+        自定义
+      </view>
+    </view>
+
+    <view wx:if="{{validityType==='CUSTOM'}}">
+      <view class="field-label">自定义有效期</view>
+      <view class="time-row">
+        <picker mode="date" value="{{customDate}}" bindchange="onCustomDateChange">
+          <view class="picker">{{customDate || '选择日期'}}</view>
+        </picker>
+        <picker mode="time" value="{{customClock}}" bindchange="onCustomClockChange">
+          <view class="picker">{{customClock || '选择时间'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="btn" bindtap="submitInvite">{{submitting ? '生成中...' : '生成邀请码'}}</view>
+  </view>
+
+  <view class="item" wx:if="{{latestInvite}}">
+    <view class="row-between">
+      <view class="item-title">最新邀请码</view>
+      <view class="status-tag">{{latestInvite.statusText || '未使用'}}</view>
+    </view>
+    <view class="code-line">{{latestInvite.code}}</view>
+    <view class="meta">转发链接：{{latestInvite.shareLink}}</view>
+    <view class="meta">到达门禁后请打开“动态二维码核验页”，二维码每 30 秒自动刷新，截图会失效。</view>
+    <view class="action-row">
+      <view class="mini-btn" bindtap="copyCode">复制口令</view>
+      <view class="mini-btn mini-btn-plain" bindtap="copyShareLink">复制链接</view>
+      <view class="mini-btn mini-btn-safe" bindtap="openDynamicVerify">打开动态二维码</view>
+      <button class="mini-share" open-type="share">直接转发</button>
+    </view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">邀请记录</view>
+    <view wx:if="{{!invites.length}}" class="empty-small">暂无邀请记录</view>
+    <view wx:for="{{invites}}" wx:key="id" class="invite-row">
+      <view class="invite-left">{{item.visitorName}}</view>
+      <view class="invite-mid">{{item.code}}</view>
+      <view class="invite-right">
+        <view class="countdown">{{item.countdownText}}</view>
+        <view class="status">{{item.statusText}}</view>
+      </view>
+      <view class="invite-actions">
+        <view wx:if="{{item.canRenew}}" class="link" data-id="{{item.id}}" bindtap="renewInvite">续期</view>
+        <view class="link" data-id="{{item.id}}" bindtap="removeInvite">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">您的访客</view>
+    <view wx:if="{{!visitors.length}}" class="empty-small">暂无历史访客</view>
+    <view wx:for="{{visitors}}" wx:key="visitorPhone" class="history-row">
+      <view>
+        <view class="history-name">{{item.visitorName}}</view>
+        <view class="history-meta">{{item.visitorPhone}} · 邀请 {{item.totalInviteCount}} 次</view>
+      </view>
+      <view class="mini-btn mini-btn-plain" data-index="{{index}}" bindtap="useHistoryVisitor">再次邀请</view>
+    </view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">到访订阅消息</view>
+    <view wx:if="{{!notifications.length}}" class="empty-small">暂无到访通知</view>
+    <view wx:for="{{notifications}}" wx:key="id" class="notify-row">
+      <view class="item-desc">{{item.content}}</view>
+      <view class="meta">{{item.createTime}}</view>
+    </view>
+  </view>
+</view>

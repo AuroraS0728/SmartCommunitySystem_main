@@ -1,0 +1,15 @@
+<view class="section">
+  <view class="item">
+    <view class="item-title">姓名：{{user && user.nickname ? user.nickname : '--'}}</view>
+    <view class="item-desc">手机号：{{user && user.phone ? user.phone : '--'}}</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">绩效信息</view>
+    <view class="item-desc">完成单数：{{perf && perf.completedCount ? perf.completedCount : 0}}</view>
+    <view class="item-desc">评分：{{perf && perf.rating ? perf.rating : '--'}}</view>
+    <view class="item-desc">收入：{{perf && perf.income ? perf.income : 0}}</view>
+  </view>
+
+  <view class="btn worker-btn" bindtap="logout">退出登录</view>
+</view>

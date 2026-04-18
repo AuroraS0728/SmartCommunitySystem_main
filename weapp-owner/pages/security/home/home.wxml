@@ -1,0 +1,21 @@
+<view class="section">
+  <view class="hero security-hero">
+    <view class="hero-title">物业安防工作台</view>
+    <view class="hero-desc">欢迎，{{user && user.nickname ? user.nickname : '安防人员'}}</view>
+  </view>
+
+  <navigator class="item nav-item" url="/pages/security/verify/scan">
+    <view class="nav-body">
+      <view class="item-title">门禁扫码核验</view>
+      <view class="item-desc">申请相机权限后，先用模拟扫码方式核验访客动态二维码。</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <view class="item">
+    <view class="item-title">说明</view>
+    <view class="item-desc">访客二维码每30秒刷新，旧截图 token 自动失效。</view>
+  </view>
+
+  <view class="btn security-btn" bindtap="logout">退出登录</view>
+</view>

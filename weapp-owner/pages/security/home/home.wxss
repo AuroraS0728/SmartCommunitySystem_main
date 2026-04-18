@@ -1,0 +1,8 @@
+.security-hero {
+  background: linear-gradient(135deg, #92400e, #b45309);
+}
+
+.security-btn {
+  margin-top: 12rpx;
+  background: linear-gradient(135deg, #b45309, #d97706);
+}

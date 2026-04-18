@@ -1,0 +1,33 @@
+.code-input {
+  letter-spacing: 4rpx;
+  font-family: Consolas, Monaco, monospace;
+}
+
+.action-row {
+  margin-top: 6rpx;
+  display: flex;
+  gap: 14rpx;
+  flex-wrap: wrap;
+}
+
+.mini-btn {
+  padding: 12rpx 22rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.mini-btn-plain {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+.qr-image {
+  margin-top: 18rpx;
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #e2e8f0;
+  background: #ffffff;
+}

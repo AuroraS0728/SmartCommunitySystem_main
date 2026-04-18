@@ -1,0 +1,12 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">智慧社区业主端</view>
+    <view class="hero-desc">统一物业服务、公告通知与门禁通行</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">服务中心</view>
+    <view class="item-desc">报修、公告、访客邀请、投诉建议等能力统一在这里办理。</view>
+    <navigator class="link" url="/pages/service/service">进入物业服务中心 ></navigator>
+  </view>
+</view>

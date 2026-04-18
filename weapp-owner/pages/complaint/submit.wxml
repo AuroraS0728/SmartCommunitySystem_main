@@ -1,0 +1,16 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">投诉建议</view>
+    <view class="hero-desc">欢迎反馈社区服务问题，我们会尽快处理。</view>
+  </view>
+
+  <view class="item">
+    <view class="field-label">主题</view>
+    <input class="input" value="{{title}}" placeholder="请输入投诉主题" bindinput="onTitle" />
+
+    <view class="field-label">内容</view>
+    <textarea class="input textarea" value="{{content}}" placeholder="请输入详细内容" bindinput="onContent"></textarea>
+
+    <view class="btn" bindtap="submit">{{submitting ? '提交中...' : '提交反馈'}}</view>
+  </view>
+</view>

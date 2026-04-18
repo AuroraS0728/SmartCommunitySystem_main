@@ -1,0 +1,63 @@
+.category-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  padding: 24rpx 24rpx;
+  border: 1rpx solid #dbe3ef;
+  border-radius: 16rpx;
+  background: #f8fafc;
+}
+
+.category-value {
+  color: #0f172a;
+  font-size: 28rpx;
+}
+
+.category-arrow {
+  color: #2563eb;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.category-panel {
+  margin-bottom: 20rpx;
+  padding: 22rpx 20rpx;
+  border: 1rpx solid #dbeafe;
+  border-radius: 16rpx;
+  background: #eff6ff;
+}
+
+.category-tip {
+  margin-bottom: 14rpx;
+  color: #475569;
+  font-size: 24rpx;
+}
+
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.category-chip {
+  padding: 10rpx 18rpx;
+  border: 1rpx solid #bfdbfe;
+  border-radius: 999rpx;
+  background: #fff;
+  color: #1e3a8a;
+  font-size: 24rpx;
+}
+
+.category-chip.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
+}
+
+.category-custom-link {
+  margin-top: 16rpx;
+  color: #2563eb;
+  font-size: 24rpx;
+  font-weight: 600;
+}

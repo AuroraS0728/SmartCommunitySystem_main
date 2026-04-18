@@ -1,0 +1,40 @@
+<view class="section">
+  <view class="hero worker-hero">
+    <view class="hero-title">维修工作台</view>
+    <view class="hero-desc">欢迎，{{user && user.nickname ? user.nickname : '维修人员'}}</view>
+  </view>
+
+  <navigator class="item nav-item" url="/pages/worker/task/list">
+    <view class="nav-body">
+      <view class="item-title">工单列表</view>
+      <view class="item-desc">查看待处理和处理中工单</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <navigator class="item nav-item" url="/pages/worker/verify/code">
+    <view class="nav-body">
+      <view class="item-title">验证码校验</view>
+      <view class="item-desc">校验业主提供的服务验证码</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <navigator class="item nav-item" url="/pages/worker/message/index">
+    <view class="nav-body">
+      <view class="item-title">消息通知</view>
+      <view class="item-desc">查看新工单与催单提醒</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <navigator class="item nav-item" url="/pages/worker/profile/index">
+    <view class="nav-body">
+      <view class="item-title">个人中心</view>
+      <view class="item-desc">查看个人信息与绩效数据</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <view class="btn worker-btn" bindtap="logout">退出登录</view>
+</view>

@@ -1,0 +1,38 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">智慧社区统一端</view>
+    <view class="hero-desc">支持业主端、物业安防端、维修端登录</view>
+  </view>
+
+  <view class="item login-card">
+    <view class="role-switch">
+      <view class="role-item {{role===1 ? 'active' : ''}}" bindtap="chooseOwner">业主端</view>
+      <view class="role-item {{role===2 ? 'active' : ''}}" bindtap="chooseSecurity">安防端</view>
+      <view class="role-item {{role===3 ? 'active' : ''}}" bindtap="chooseWorker">维修端</view>
+    </view>
+
+    <view class="field-label">{{accountLabel}}</view>
+    <input
+      class="input"
+      type="text"
+      maxlength="10"
+      placeholder="{{accountPlaceholder}}"
+      value="{{account}}"
+      bindinput="onAccountInput"
+    />
+
+    <view class="field-label">登录密码</view>
+    <input
+      class="input"
+      type="password"
+      password
+      maxlength="6"
+      placeholder="{{passwordPlaceholder}}"
+      value="{{password}}"
+      bindinput="onPasswordInput"
+    />
+
+    <view class="tip">{{tip}}</view>
+    <button class="btn login-btn" loading="{{loading}}" bindtap="submit">登录</button>
+  </view>
+</view>

@@ -1,0 +1,103 @@
+# ----------------------------
+# OS / System
+# ----------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+*.lnk
+
+# ----------------------------
+# IDE / Editor
+# ----------------------------
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
+
+# ----------------------------
+# Logs / Temp
+# ----------------------------
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.pid
+*.seed
+*.pid.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ----------------------------
+# Java / Maven / Spring Boot
+# ----------------------------
+**/target/
+**/out/
+**/.classpath
+**/.project
+**/.settings/
+**/*.class
+**/hs_err_pid*
+**/.attach_pid*
+
+# ----------------------------
+# Node / Frontend
+# ----------------------------
+**/node_modules/
+**/dist/
+**/.vite/
+**/.cache/
+**/coverage/
+**/*.tsbuildinfo
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ----------------------------
+# Env / Secrets
+# ----------------------------
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+
+# ----------------------------
+# WeChat Mini Program
+# ----------------------------
+**/project.private.config.json
+**/project.local.config.json
+**/miniprogram_npm/
+**/.wxcp/
+**/.weapp/
+**/unpackage/
+**/.hbuilderx/
+
+# ----------------------------
+# Database / Dumps
+# ----------------------------
+*.sqlitedb
+*.sqlite
+*.db
+*.bak
+*.dump
+
+# ----------------------------
+# Archives / Binary outputs
+# ----------------------------
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar

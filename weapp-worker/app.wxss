@@ -1,0 +1,79 @@
+page {
+  background: #f3f6fb;
+  color: #0f172a;
+  font-size: 30rpx;
+  line-height: 1.65;
+}
+
+navigator {
+  color: inherit;
+}
+
+.section {
+  padding: 34rpx;
+}
+
+.hero {
+  margin-bottom: 30rpx;
+  padding: 36rpx 34rpx;
+  border-radius: 28rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #115e59, #0f766e);
+  box-shadow: 0 16rpx 36rpx -20rpx rgba(15, 118, 110, 0.72);
+}
+
+.hero-title {
+  font-size: 38rpx;
+  font-weight: 700;
+}
+
+.hero-desc {
+  margin-top: 14rpx;
+  color: #ccfbf1;
+  font-size: 26rpx;
+}
+
+.item {
+  margin-bottom: 22rpx;
+  padding: 30rpx 28rpx;
+  background: #fff;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 22rpx;
+  box-shadow: 0 12rpx 24rpx -22rpx rgba(15, 23, 42, 0.65);
+}
+
+.field-label {
+  margin-bottom: 12rpx;
+  color: #334155;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 22rpx;
+  padding: 22rpx 24rpx;
+  border: 1rpx solid #dbe3ef;
+  border-radius: 16rpx;
+  background: #f8fafc;
+}
+
+.tip {
+  margin-top: 12rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.btn {
+  margin-top: 14rpx;
+  padding: 24rpx 22rpx;
+  border-radius: 18rpx;
+  text-align: center;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+  box-shadow: 0 12rpx 24rpx -16rpx rgba(15, 118, 110, 0.75);
+}

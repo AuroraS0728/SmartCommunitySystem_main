@@ -1,0 +1,13 @@
+<view class="section">
+  <block wx:if="{{list.length}}">
+    <view wx:for="{{list}}" wx:key="id" class="item">
+      <view class="row-between">
+        <view class="item-title">#{{item.id}} {{item.category || "工单"}}</view>
+        <view class="status-tag">{{item.statusText}}</view>
+      </view>
+      <view class="item-desc">{{item.description || "无描述"}}</view>
+      <navigator class="link" url="/pages/worker/task/detail?id={{item.id}}">查看详情 ></navigator>
+    </view>
+  </block>
+  <view wx:else class="empty">暂无工单</view>
+</view>

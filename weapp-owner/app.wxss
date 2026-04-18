@@ -1,0 +1,158 @@
+page {
+  background: #f3f6fb;
+  color: #0f172a;
+  font-size: 30rpx;
+  line-height: 1.65;
+}
+
+navigator {
+  color: inherit;
+}
+
+.section {
+  padding: 52rpx 36rpx 68rpx;
+}
+
+.hero {
+  margin-bottom: 44rpx;
+  padding: 46rpx 38rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  box-shadow: 0 16rpx 36rpx -20rpx rgba(15, 23, 42, 0.55);
+}
+
+.hero-title {
+  color: #ffffff;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.hero-desc {
+  margin-top: 14rpx;
+  color: #cbd5e1;
+  font-size: 26rpx;
+}
+
+.group-title {
+  margin: 38rpx 0 26rpx;
+  color: #64748b;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.item {
+  margin-bottom: 34rpx;
+  padding: 40rpx 32rpx;
+  background: #ffffff;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 22rpx;
+  box-shadow: 0 12rpx 24rpx -22rpx rgba(15, 23, 42, 0.65);
+}
+
+.item-title {
+  color: #0f172a;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.item-desc {
+  margin-top: 16rpx;
+  color: #64748b;
+  font-size: 26rpx;
+}
+
+.meta {
+  margin-top: 18rpx;
+  color: #94a3b8;
+  font-size: 24rpx;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-arrow {
+  margin-left: 22rpx;
+  color: #94a3b8;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.status-tag {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #bfdbfe;
+  background: #dbeafe;
+  color: #1e3a8a;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.field-label {
+  margin-bottom: 18rpx;
+  color: #334155;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 34rpx;
+  padding: 28rpx 28rpx;
+  border: 1rpx solid #dbe3ef;
+  border-radius: 16rpx;
+  background: #f8fafc;
+}
+
+.textarea {
+  min-height: 240rpx;
+}
+
+.btn {
+  margin-top: 28rpx;
+  padding: 30rpx 24rpx;
+  border-radius: 18rpx;
+  text-align: center;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 12rpx 24rpx -16rpx rgba(37, 99, 235, 0.75);
+}
+
+.link {
+  margin-top: 20rpx;
+  color: #2563eb;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.empty {
+  margin-bottom: 26rpx;
+  padding: 58rpx 34rpx;
+  border: 1rpx dashed #cbd5e1;
+  border-radius: 20rpx;
+  background: #ffffff;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.code {
+  color: #0f172a;
+  word-break: break-all;
+  font-family: Consolas, Monaco, monospace;
+}

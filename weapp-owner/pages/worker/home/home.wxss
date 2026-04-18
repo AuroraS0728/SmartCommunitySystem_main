@@ -1,0 +1,8 @@
+.worker-hero {
+  background: linear-gradient(135deg, #115e59, #0f766e);
+}
+
+.worker-btn {
+  margin-top: 10rpx;
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+}
