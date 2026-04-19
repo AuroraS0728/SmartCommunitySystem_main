@@ -3,6 +3,7 @@ package com.smartcommunity.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.smartcommunity.common.AuthContext;
 import com.smartcommunity.common.Result;
+import com.smartcommunity.common.StatusCode;
 import com.smartcommunity.dto.request.PayFeeReq;
 import com.smartcommunity.entity.FeeBill;
 import com.smartcommunity.entity.ParkingOrder;
@@ -10,7 +11,7 @@ import com.smartcommunity.entity.UserProperty;
 import com.smartcommunity.mapper.FeeBillMapper;
 import com.smartcommunity.mapper.ParkingOrderMapper;
 import com.smartcommunity.mapper.UserPropertyMapper;
-import com.smartcommunity.utils.WechatUtil;
+import com.smartcommunity.service.PointsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FeeController {
 
-    private final WechatUtil wechatUtil;
+    private final PointsService pointsService;
     private final FeeBillMapper feeBillMapper;
     private final ParkingOrderMapper parkingOrderMapper;
     private final UserPropertyMapper userPropertyMapper;
@@ -54,25 +55,32 @@ public class FeeController {
     @Transactional(rollbackFor = Exception.class)
     @PostMapping("/pay")
     public Result<Map<String, Object>> pay(@RequestBody PayFeeReq req) {
-        FeeBill bill = feeBillMapper.selectById(req.getBillId());
-        if (bill == null) {
-            return Result.fail("bill not found");
+        Integer role = AuthContext.getRole();
+        Long userId = AuthContext.getUserId();
+        if (role == null || userId == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
         }
-        BigDecimal paid = bill.getPaidAmount() == null ? BigDecimal.ZERO : bill.getPaidAmount();
-        BigDecimal amount = req.getAmount() == null ? bill.getAmount() : req.getAmount();
-        bill.setPaidAmount(paid.add(amount));
-        int status = bill.getPaidAmount().compareTo(bill.getAmount()) >= 0 ? 2 : 1;
-        bill.setStatus(status);
-        bill.setPaymentTime(LocalDateTime.now());
-        String outTradeNo = "FEE_" + bill.getId() + "_" + System.currentTimeMillis();
-        bill.setTransactionId(outTradeNo);
-        bill.setUpdateTime(LocalDateTime.now());
-        feeBillMapper.updateById(bill);
-        return Result.success(wechatUtil.mockMiniPay(outTradeNo, amount));
+        if (role != 1) {
+            return Result.fail(StatusCode.FORBIDDEN, "only owner can pay bill");
+        }
+        if (req == null || req.getBillId() == null) {
+            return Result.fail("billId is required");
+        }
+        PointsService.ConsumeResult consumeResult = pointsService.consume(userId, 1, req.getBillId());
+        return Result.success(Map.of(
+                "billId", req.getBillId(),
+                "consumePoints", consumeResult.getConsumePoints(),
+                "beforePoints", consumeResult.getBeforePoints(),
+                "afterPoints", consumeResult.getAfterPoints(),
+                "balance", consumeResult.getAfterPoints()
+        ));
     }
 
     @PostMapping("/bill")
     public Result<FeeBill> createBill(@RequestBody FeeBill bill) {
+        if (bill.getAmount() != null) {
+            bill.setNeedPoints(toNeedPoints(bill.getAmount()));
+        }
         bill.setCreateTime(LocalDateTime.now());
         bill.setUpdateTime(LocalDateTime.now());
         bill.setIsDeleted(0);
@@ -95,6 +103,9 @@ public class FeeController {
         bill.setPropertyId(req.getPropertyId());
         bill.setBillPeriod(req.getBillPeriod());
         bill.setAmount(req.getAmount());
+        if (req.getAmount() != null) {
+            bill.setNeedPoints(toNeedPoints(req.getAmount()));
+        }
         bill.setPaidAmount(req.getPaidAmount());
         bill.setStatus(req.getStatus());
         bill.setDueDate(req.getDueDate());
@@ -119,11 +130,12 @@ public class FeeController {
         req.setUpdateTime(LocalDateTime.now());
         req.setIsDeleted(0);
         parkingOrderMapper.insert(req);
-        String outTradeNo = "PARK_" + req.getId() + "_" + System.currentTimeMillis();
-        req.setTransactionId(outTradeNo);
-        req.setUpdateTime(LocalDateTime.now());
-        parkingOrderMapper.updateById(req);
-        return Result.success(wechatUtil.mockMiniPay(outTradeNo, req.getAmount()));
+        Integer needPoints = toNeedPoints(req.getAmount());
+        return Result.success(Map.of(
+                "orderId", req.getId(),
+                "needPoints", needPoints,
+                "status", req.getStatus()
+        ));
     }
 
     @GetMapping("/parking/orders")
@@ -135,5 +147,19 @@ public class FeeController {
         }
         wrapper.orderByAsc(ParkingOrder::getId);
         return Result.success(parkingOrderMapper.selectList(wrapper));
+    }
+
+    /**
+     * 积分与金额换算规则：1元 = 1积分。
+     */
+    private int toNeedPoints(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("amount must be greater than 0");
+        }
+        try {
+            return amount.stripTrailingZeros().intValueExact();
+        } catch (ArithmeticException ex) {
+            throw new IllegalArgumentException("amount must be integer yuan for points payment");
+        }
     }
 }
