@@ -314,17 +314,13 @@ public class PointsService {
 
     /**
      * 积分与金额换算规则：1元 = 1积分。
-     * 为确保扣费精度不被隐式四舍五入，系统要求金额必须是整数元。
+     * 账单金额可能带小数（如面积*单价），此处采用向上取整，保证足额抵扣。
      */
     private int amountToPoints(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("金额必须大于0");
         }
-        try {
-            return amount.stripTrailingZeros().intValueExact();
-        } catch (ArithmeticException ex) {
-            throw new IllegalArgumentException("金额必须为整数元，才能按1元=1积分抵扣");
-        }
+        return amount.setScale(0, java.math.RoundingMode.UP).intValue();
     }
 
     private String businessTypeText(Integer businessType) {
