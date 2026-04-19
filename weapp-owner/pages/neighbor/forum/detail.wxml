@@ -1,12 +1,59 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">论坛详情</view>
-    <view class="hero-desc">详情页能力正在建设中。</view>
+    <view class="hero-title">帖子详情</view>
+    <view class="hero-desc">查看内容，参与评论与点赞互动</view>
   </view>
 
-  <view class="item">
-    <view class="item-title">功能预告</view>
-    <view class="item-desc">后续将支持帖子内容、评论列表和点赞收藏。</view>
-    <navigator class="link" url="/pages/neighbor/forum/list">返回论坛列表 ></navigator>
-  </view>
+  <view wx:if="{{loading}}" class="meta">加载中...</view>
+
+  <block wx:if="{{!loading && post}}">
+    <view class="item">
+      <view class="row-between">
+        <view class="title">{{post.title}}</view>
+        <view wx:if="{{post.isTop == 1}}" class="badge top">置顶</view>
+        <view wx:elif="{{post.isEssence == 1}}" class="badge essence">精华</view>
+      </view>
+      <view class="meta-line">{{post.boardText}} · {{post.timeText}}</view>
+      <view class="content">{{post.content || "暂无内容"}}</view>
+      <view class="meta-line">浏览 {{post.viewCount || 0}} · 点赞 {{post.likeCnt || 0}} · 评论 {{post.replyCnt || 0}}</view>
+      <view class="action-row">
+        <view class="small-btn primary" bindtap="onToggleLike">{{liked ? "取消点赞" : "点赞"}}</view>
+        <view wx:if="{{isOwner}}" class="small-btn danger" bindtap="onDeletePost">删除帖子</view>
+      </view>
+    </view>
+
+    <view class="item">
+      <view class="field-label">评论列表</view>
+      <view wx:if="{{commentsLoading}}" class="meta">加载中...</view>
+      <view wx:if="{{!commentsLoading && !comments.length}}" class="empty small-empty">暂无评论</view>
+      <block wx:for="{{comments}}" wx:key="id">
+        <view class="comment-card">
+          <view class="row-between">
+            <view class="comment-user">用户 #{{item.userId}}</view>
+            <view class="comment-time">{{item.timeText}}</view>
+          </view>
+          <view class="comment-content">{{item.content}}</view>
+          <view class="comment-action">
+            <view class="comment-link" data-id="{{item.id}}" data-user-id="{{item.userId}}" bindtap="onReply">回复</view>
+            <view wx:if="{{item.canDelete}}" class="comment-link danger" data-id="{{item.id}}" bindtap="onDeleteComment">删除</view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view class="item">
+      <view class="row-between">
+        <view class="field-label no-gap">发表评论</view>
+        <view wx:if="{{replyToId}}" class="reply-tip" bindtap="cancelReply">{{replyHint}}（取消）</view>
+      </view>
+      <textarea
+        class="input textarea comment-input"
+        value="{{commentText}}"
+        maxlength="300"
+        placeholder="{{replyToId ? '请输入回复内容' : '请输入评论内容'}}"
+        bindinput="onCommentInput"
+      />
+      <view class="btn" bindtap="submitComment">{{commentSubmitting ? "提交中..." : "提交评论"}}</view>
+    </view>
+  </block>
 </view>

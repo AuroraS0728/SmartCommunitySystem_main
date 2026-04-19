@@ -1,1 +1,149 @@
-/* Page styles are unified in app.wxss */
+.search-card {
+  margin-bottom: 24rpx;
+}
+
+.search-input {
+  margin-bottom: 20rpx;
+}
+
+.search-btn {
+  margin-top: 0;
+}
+
+.publish-btn {
+  margin-top: 16rpx;
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+}
+
+.filter-card {
+  margin-bottom: 24rpx;
+}
+
+.chip-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.chip {
+  display: inline-block;
+  margin-right: 14rpx;
+  margin-bottom: 10rpx;
+  padding: 12rpx 20rpx;
+  border: 1rpx solid #bfdbfe;
+  border-radius: 999rpx;
+  color: #1e3a8a;
+  background: #eff6ff;
+  font-size: 24rpx;
+}
+
+.chip.active {
+  color: #fff;
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.mine-row {
+  margin-top: 16rpx;
+}
+
+.mine-label {
+  color: #334155;
+  font-size: 26rpx;
+}
+
+.status-row {
+  margin-top: 16rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.mini-chip {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #dbe3ef;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 24rpx;
+}
+
+.mini-chip.active {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.sort-row {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #eef2f7;
+}
+
+.sort-label {
+  color: #0f172a;
+  font-size: 26rpx;
+}
+
+.sort-arrow {
+  color: #2563eb;
+  font-size: 24rpx;
+}
+
+.goods-card {
+  margin-bottom: 24rpx;
+  padding: 0;
+  overflow: hidden;
+}
+
+.thumb-wrap {
+  width: 100%;
+  height: 280rpx;
+  background: #f1f5f9;
+}
+
+.thumb {
+  width: 100%;
+  height: 100%;
+}
+
+.thumb-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 26rpx;
+}
+
+.goods-body {
+  padding: 28rpx 30rpx 30rpx;
+}
+
+.goods-title {
+  max-width: 72%;
+  color: #0f172a;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.goods-meta {
+  margin-top: 14rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.goods-footer {
+  margin-top: 18rpx;
+}
+
+.goods-price {
+  color: #dc2626;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.goods-time {
+  color: #94a3b8;
+  font-size: 24rpx;
+}

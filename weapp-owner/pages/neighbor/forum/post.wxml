@@ -1,12 +1,41 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">发布帖子</view>
-    <view class="hero-desc">发帖功能正在建设中。</view>
+    <view class="hero-desc">选择板块并填写标题、正文后即可发布</view>
   </view>
 
   <view class="item">
-    <view class="item-title">功能预告</view>
-    <view class="item-desc">后续将支持图文发布、话题标签与草稿保存。</view>
-    <navigator class="link" url="/pages/neighbor/forum/list">返回论坛列表 ></navigator>
+    <view class="field-label">帖子板块</view>
+    <view class="board-row">
+      <view
+        wx:for="{{boardOptions}}"
+        wx:key="value"
+        class="chip {{board === item.value ? 'active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onBoardTap"
+      >
+        {{item.label}}
+      </view>
+    </view>
+
+    <view class="field-label">标题</view>
+    <input
+      class="input"
+      value="{{title}}"
+      maxlength="60"
+      placeholder="请输入帖子标题"
+      bindinput="onTitleInput"
+    />
+
+    <view class="field-label">正文内容</view>
+    <textarea
+      class="input textarea"
+      value="{{content}}"
+      maxlength="1200"
+      placeholder="请输入帖子内容"
+      bindinput="onContentInput"
+    />
+
+    <view class="btn" bindtap="onSubmit">{{submitting ? "发布中..." : "确认发布"}}</view>
   </view>
 </view>

@@ -1,7 +1,7 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">物业服务中心</view>
-    <view class="hero-desc">统一办理报修、访客、费用缴纳等常用服务</view>
+    <view class="hero-desc">统一办理报修、公告、访客、费用与邻里互助服务</view>
   </view>
 
   <view class="item points-card">
@@ -9,7 +9,7 @@
       <view class="item-title">当前可用积分</view>
       <view class="points-value">{{ points }}</view>
     </view>
-    <view class="item-desc">1 积分 = 1 元，物业费和停车费均使用积分支付</view>
+    <view class="item-desc">1 积分 = 1 元，可用于物业费和停车费支付</view>
     <navigator class="link" url="/pages/points/detail/index">查看积分明细 ></navigator>
   </view>
 
@@ -26,7 +26,7 @@
   <navigator class="item nav-item" url="/pages/points/parking/index">
     <view class="nav-body">
       <view class="item-title">停车费缴纳</view>
-      <view class="item-desc">月卡续费、临停车均支持积分抵扣</view>
+      <view class="item-desc">月卡续费、临停缴费均支持积分抵扣</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -36,7 +36,7 @@
   <navigator class="item nav-item" url="/pages/repair/submit">
     <view class="nav-body">
       <view class="item-title">报修提交</view>
-      <view class="item-desc">新建维修工单并提交问题描述</view>
+      <view class="item-desc">新建维修/家政工单并提交问题描述</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -56,6 +56,34 @@
     </view>
     <view class="nav-arrow">></view>
   </navigator>
+
+  <view class="group-title">邻里互助</view>
+
+  <navigator class="item nav-item" url="/pages/neighbor/secondhand/list">
+    <view class="nav-body">
+      <view class="item-title">闲置交易</view>
+      <view class="item-desc">发布二手物品、收藏与举报管理</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <navigator class="item nav-item" url="/pages/neighbor/lostfound/list">
+    <view class="nav-body">
+      <view class="item-title">失物招领</view>
+      <view class="item-desc">失物/招领发布与认领流程</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <navigator class="item nav-item" url="/pages/neighbor/forum/list">
+    <view class="nav-body">
+      <view class="item-title">社区论坛</view>
+      <view class="item-desc">板块发帖、评论互动、点赞</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <view class="group-title">门禁与其他</view>
 
   <navigator class="item nav-item" url="/pages/door/qrcode">
     <view class="nav-body">

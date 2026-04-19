@@ -1,12 +1,51 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">商品详情</view>
-    <view class="hero-desc">详情页能力正在建设中。</view>
+    <view class="hero-desc">查看商品信息、联系卖家与交易状态</view>
   </view>
 
-  <view class="item">
-    <view class="item-title">功能预告</view>
-    <view class="item-desc">后续将支持商品图册、议价与交易状态跟踪。</view>
-    <navigator class="link" url="/pages/neighbor/secondhand/list">返回交易列表 ></navigator>
-  </view>
+  <view wx:if="{{loading}}" class="meta">加载中...</view>
+
+  <block wx:if="{{!loading && item}}">
+    <view class="item goods-card">
+      <swiper wx:if="{{item.images.length}}" class="gallery" indicator-dots autoplay>
+        <swiper-item wx:for="{{item.images}}" wx:key="*this">
+          <image class="gallery-image" src="{{item}}" mode="aspectFill" data-url="{{item}}" bindtap="onPreviewImage" />
+        </swiper-item>
+      </swiper>
+      <view wx:else class="gallery-empty">暂无图片</view>
+
+      <view class="goods-body">
+        <view class="row-between">
+          <view class="goods-title">{{item.title}}</view>
+          <view class="status-tag">{{item.statusText}}</view>
+        </view>
+        <view class="goods-price">{{item.priceText}}</view>
+        <view class="goods-desc">{{item.description || "暂无描述"}}</view>
+        <view class="goods-meta">分类：{{item.category || "other"}} · 浏览：{{item.viewCount || 0}}</view>
+        <view class="goods-meta">发布时间：{{item.timeText}}</view>
+      </view>
+    </view>
+
+    <view class="item">
+      <view class="field-label">联系方式</view>
+      <view class="contact-text">{{item.contact || "暂无联系方式"}}</view>
+      <view class="action-row">
+        <view class="small-btn {{favorited ? 'active' : ''}}" bindtap="onToggleFavorite">
+          {{favorited ? "取消收藏" : "收藏"}}
+        </view>
+        <view class="small-btn" bindtap="onReport">举报</view>
+        <view class="small-btn primary" bindtap="onContact">联系卖家</view>
+      </view>
+    </view>
+
+    <view wx:if="{{isOwner}}" class="item">
+      <view class="field-label">我的管理操作</view>
+      <view class="action-row">
+        <view class="small-btn primary" bindtap="onMarkSold">标记已售</view>
+        <view class="small-btn" bindtap="onOffline">下架</view>
+        <view class="small-btn danger" bindtap="onDelete">删除</view>
+      </view>
+    </view>
+  </block>
 </view>

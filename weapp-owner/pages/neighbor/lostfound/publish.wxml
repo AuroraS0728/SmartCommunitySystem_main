@@ -1,12 +1,68 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">发布招领</view>
-    <view class="hero-desc">发布能力正在建设中。</view>
+    <view class="hero-title">发布失物/招领</view>
+    <view class="hero-desc">支持图文发布，后续可在详情页处理认领流程</view>
   </view>
 
   <view class="item">
-    <view class="item-title">功能预告</view>
-    <view class="item-desc">后续将支持图片上传、地点时间记录和一键发布。</view>
-    <navigator class="link" url="/pages/neighbor/lostfound/list">返回失物列表 ></navigator>
+    <view class="field-label">信息类型</view>
+    <view class="type-row">
+      <view
+        wx:for="{{typeOptions}}"
+        wx:key="value"
+        class="chip {{type === item.value ? 'active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onTypeTap"
+      >
+        {{item.label}}
+      </view>
+    </view>
+
+    <view class="field-label">标题</view>
+    <input
+      class="input"
+      value="{{title}}"
+      maxlength="60"
+      placeholder="例如：捡到一串钥匙"
+      bindinput="onTitleInput"
+    />
+
+    <view class="field-label">详细描述</view>
+    <textarea
+      class="input textarea"
+      value="{{description}}"
+      maxlength="300"
+      placeholder="请描述物品特征、时间、可证明信息等"
+      bindinput="onDescInput"
+    />
+
+    <view class="field-label">地点（可选）</view>
+    <input
+      class="input"
+      value="{{location}}"
+      maxlength="80"
+      placeholder="例如：3栋1单元门口"
+      bindinput="onLocationInput"
+    />
+
+    <view class="field-label">联系方式（可选）</view>
+    <input
+      class="input"
+      value="{{contact}}"
+      maxlength="80"
+      placeholder="手机号 / 微信号"
+      bindinput="onContactInput"
+    />
+
+    <view class="field-label">图片（最多 3 张）</view>
+    <view class="image-grid">
+      <view wx:for="{{imageList}}" wx:key="*this" class="image-item">
+        <image class="image" src="{{item}}" mode="aspectFill" data-url="{{item}}" bindtap="previewImage" />
+        <view class="remove" data-index="{{index}}" bindtap="removeImage">×</view>
+      </view>
+      <view wx:if="{{imageList.length < 3}}" class="image-add" bindtap="chooseImage">+ 添加</view>
+    </view>
+
+    <view class="btn" bindtap="onSubmit">{{submitting ? "提交中..." : "确认发布"}}</view>
   </view>
 </view>

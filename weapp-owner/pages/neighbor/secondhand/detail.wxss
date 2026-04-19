@@ -1,1 +1,99 @@
-/* Page styles are unified in app.wxss */
+.goods-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.gallery {
+  width: 100%;
+  height: 420rpx;
+  background: #f1f5f9;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-empty {
+  height: 280rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 26rpx;
+}
+
+.goods-body {
+  padding: 28rpx 30rpx 32rpx;
+}
+
+.goods-title {
+  flex: 1;
+  min-width: 0;
+  margin-right: 16rpx;
+  color: #0f172a;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.goods-price {
+  margin-top: 14rpx;
+  color: #dc2626;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.goods-desc {
+  margin-top: 16rpx;
+  color: #334155;
+  font-size: 26rpx;
+  line-height: 1.8;
+}
+
+.goods-meta {
+  margin-top: 12rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.contact-text {
+  color: #0f172a;
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+.action-row {
+  margin-top: 24rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.small-btn {
+  padding: 16rpx 24rpx;
+  border-radius: 14rpx;
+  border: 1rpx solid #dbe3ef;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.small-btn.primary {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.small-btn.active {
+  border-color: #1d4ed8;
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.small-btn.danger {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: #fef2f2;
+}

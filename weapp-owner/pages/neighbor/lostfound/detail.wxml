@@ -1,12 +1,92 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">失物详情</view>
-    <view class="hero-desc">详情页能力正在建设中。</view>
+    <view class="hero-desc">查看信息、发起认领与处理认领记录</view>
   </view>
 
-  <view class="item">
-    <view class="item-title">功能预告</view>
-    <view class="item-desc">后续将支持联系方式保护与进度更新。</view>
-    <navigator class="link" url="/pages/neighbor/lostfound/list">返回失物列表 ></navigator>
+  <view wx:if="{{loading}}" class="meta">加载中...</view>
+
+  <block wx:if="{{!loading && item}}">
+    <view class="item">
+      <view class="row-between">
+        <view class="title">{{item.title}}</view>
+        <view class="status-tag">{{item.statusText}}</view>
+      </view>
+      <view class="meta-line">类型：{{item.typeText}}</view>
+      <view class="meta-line">地点：{{item.location || "未填写"}}</view>
+      <view class="meta-line">更新时间：{{item.timeText}}</view>
+      <view class="desc">{{item.description || "暂无描述"}}</view>
+    </view>
+
+    <view wx:if="{{item.imageList.length}}" class="item">
+      <view class="field-label">相关图片</view>
+      <view class="image-grid">
+        <image
+          wx:for="{{item.imageList}}"
+          wx:key="*this"
+          class="image"
+          src="{{item}}"
+          mode="aspectFill"
+          data-url="{{item}}"
+          bindtap="onPreviewImage"
+        />
+      </view>
+    </view>
+
+    <view class="item">
+      <view class="field-label">联系方式</view>
+      <view class="contact">{{item.contact || "未填写联系方式"}}</view>
+      <view class="action-row">
+        <view class="small-btn" bindtap="onContact">联系发布人</view>
+        <view
+          wx:if="{{!isOwner && item.type == 2 && item.status == 1}}"
+          class="small-btn primary"
+          bindtap="openClaimPopup"
+        >
+          我要认领
+        </view>
+        <view wx:if="{{isOwner && item.status == 1}}" class="small-btn primary" bindtap="onResolve">标记完成</view>
+        <view wx:if="{{isOwner}}" class="small-btn danger" bindtap="onDelete">删除</view>
+      </view>
+    </view>
+
+    <view wx:if="{{isOwner && item.type == 2}}" class="item">
+      <view class="row-between">
+        <view class="field-label no-gap">认领申请</view>
+        <view wx:if="{{claimsLoading}}" class="meta">加载中...</view>
+      </view>
+      <view wx:if="{{!claims.length}}" class="empty small-empty">暂无认领记录</view>
+      <block wx:for="{{claims}}" wx:key="id">
+        <view class="claim-card">
+          <view class="row-between">
+            <view class="claim-user">用户 #{{item.userId}}</view>
+            <view class="claim-status">{{item.statusText}}</view>
+          </view>
+          <view class="claim-proof">{{item.proof}}</view>
+          <view class="claim-time">{{item.timeText}}</view>
+          <view wx:if="{{item.status == 0}}" class="action-row claim-action">
+            <view class="small-btn primary" data-id="{{item.id}}" data-status="1" bindtap="onReviewClaim">通过</view>
+            <view class="small-btn danger" data-id="{{item.id}}" data-status="2" bindtap="onReviewClaim">驳回</view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <view wx:if="{{claimPopup}}" class="mask">
+    <view class="popup">
+      <view class="popup-title">填写认领说明</view>
+      <textarea
+        class="input textarea popup-input"
+        value="{{claimProof}}"
+        maxlength="200"
+        placeholder="请填写可证明物品归属的信息"
+        bindinput="onClaimProofInput"
+      />
+      <view class="popup-row">
+        <view class="small-btn" bindtap="closeClaimPopup">取消</view>
+        <view class="small-btn primary" bindtap="submitClaim">{{actionLoading ? "提交中..." : "提交认领"}}</view>
+      </view>
+    </view>
   </view>
 </view>

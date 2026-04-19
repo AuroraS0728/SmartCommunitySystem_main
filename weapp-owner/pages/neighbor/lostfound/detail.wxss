@@ -1,1 +1,156 @@
-/* Page styles are unified in app.wxss */
+.title {
+  flex: 1;
+  min-width: 0;
+  margin-right: 16rpx;
+  color: #0f172a;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.meta-line {
+  margin-top: 12rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.desc {
+  margin-top: 18rpx;
+  color: #334155;
+  font-size: 26rpx;
+  line-height: 1.8;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.image {
+  width: 188rpx;
+  height: 188rpx;
+  border-radius: 14rpx;
+  background: #f1f5f9;
+}
+
+.contact {
+  color: #0f172a;
+  font-size: 28rpx;
+}
+
+.action-row {
+  margin-top: 22rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.small-btn {
+  padding: 14rpx 24rpx;
+  border-radius: 14rpx;
+  border: 1rpx solid #dbe3ef;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.small-btn.primary {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.small-btn.danger {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.no-gap {
+  margin-bottom: 0;
+}
+
+.small-empty {
+  margin-top: 14rpx;
+  margin-bottom: 0;
+  padding: 40rpx 28rpx;
+}
+
+.claim-card {
+  margin-top: 18rpx;
+  padding: 22rpx;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 16rpx;
+  background: #f8fafc;
+}
+
+.claim-user {
+  color: #0f172a;
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.claim-status {
+  color: #1d4ed8;
+  font-size: 24rpx;
+}
+
+.claim-proof {
+  margin-top: 10rpx;
+  color: #334155;
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.claim-time {
+  margin-top: 8rpx;
+  color: #94a3b8;
+  font-size: 22rpx;
+}
+
+.claim-action {
+  margin-top: 14rpx;
+}
+
+.mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(2, 6, 23, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+  padding: 0 40rpx;
+}
+
+.popup {
+  width: 100%;
+  max-width: 620rpx;
+  padding: 30rpx;
+  border-radius: 22rpx;
+  background: #fff;
+}
+
+.popup-title {
+  color: #0f172a;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.popup-input {
+  margin-top: 20rpx;
+  margin-bottom: 0;
+  min-height: 220rpx;
+}
+
+.popup-row {
+  margin-top: 22rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12rpx;
+}

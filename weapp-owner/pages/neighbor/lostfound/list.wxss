@@ -1,1 +1,103 @@
-/* Page styles are unified in app.wxss */
+.search-card {
+  margin-bottom: 24rpx;
+}
+
+.search-input {
+  margin-bottom: 20rpx;
+}
+
+.search-btn {
+  margin-top: 0;
+}
+
+.publish-btn {
+  margin-top: 16rpx;
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+}
+
+.filter-card {
+  margin-bottom: 24rpx;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.chip {
+  padding: 10rpx 20rpx;
+  border: 1rpx solid #bfdbfe;
+  border-radius: 999rpx;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.chip.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
+}
+
+.mine-row {
+  margin-top: 18rpx;
+}
+
+.mine-label {
+  color: #334155;
+  font-size: 26rpx;
+}
+
+.status-row {
+  margin-top: 16rpx;
+}
+
+.mini-chip {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #dbe3ef;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 24rpx;
+}
+
+.mini-chip.active {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.card {
+  margin-bottom: 24rpx;
+}
+
+.card-title {
+  flex: 1;
+  min-width: 0;
+  margin-right: 18rpx;
+  color: #0f172a;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.meta-line {
+  margin-top: 10rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.thumb-wrap {
+  margin-top: 18rpx;
+  width: 100%;
+  height: 260rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.thumb {
+  width: 100%;
+  height: 100%;
+}

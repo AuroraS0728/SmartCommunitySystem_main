@@ -1,12 +1,69 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">失物招领</view>
-    <view class="hero-desc">物品寻回服务正在建设中。</view>
+    <view class="hero-desc">支持失物发布、招领认领与进度处理</view>
   </view>
 
-  <view class="item">
-    <view class="item-title">功能预告</view>
-    <view class="item-desc">后续将支持失物发布、线索匹配和认领确认。</view>
-    <navigator class="link" url="/pages/service/service">返回服务中心 ></navigator>
+  <view class="item search-card">
+    <input
+      class="input search-input"
+      value="{{keyword}}"
+      placeholder="搜索标题、描述或地点"
+      confirm-type="search"
+      bindinput="onKeywordInput"
+      bindconfirm="onSearch"
+    />
+    <view class="btn search-btn" bindtap="onSearch">搜索</view>
+    <view class="btn publish-btn" bindtap="goPublish">发布信息</view>
   </view>
+
+  <view class="item filter-card">
+    <view class="chip-row">
+      <view
+        wx:for="{{typeOptions}}"
+        wx:key="label"
+        class="chip {{String(type) === String(item.value) ? 'active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onTypeTap"
+      >
+        {{item.label}}
+      </view>
+    </view>
+
+    <view class="row-between mine-row">
+      <view class="mine-label">仅看我的发布</view>
+      <switch checked="{{mine}}" color="#2563eb" bindchange="onMineSwitch" />
+    </view>
+
+    <view wx:if="{{mine}}" class="chip-row status-row">
+      <view
+        wx:for="{{statusOptions}}"
+        wx:key="label"
+        class="mini-chip {{String(status) === String(item.value) ? 'active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onStatusTap"
+      >
+        {{item.label}}
+      </view>
+    </view>
+  </view>
+
+  <block wx:if="{{list.length}}">
+    <view wx:for="{{list}}" wx:key="id" class="item card" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="row-between">
+        <view class="card-title">{{item.title}}</view>
+        <view class="status-tag">{{item.statusText}}</view>
+      </view>
+      <view class="meta-line">{{item.typeText}} · {{item.location || "未填写地点"}}</view>
+      <view class="meta-line">{{item.timeText}}</view>
+      <view wx:if="{{item.cover}}" class="thumb-wrap">
+        <image class="thumb" src="{{item.cover}}" mode="aspectFill" />
+      </view>
+    </view>
+  </block>
+
+  <view wx:else class="empty">暂无失物招领数据</view>
+
+  <view wx:if="{{loading}}" class="meta">加载中...</view>
+  <view wx:else-if="{{!hasMore && list.length}}" class="meta">没有更多了</view>
 </view>
