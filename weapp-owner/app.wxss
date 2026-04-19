@@ -133,10 +133,9 @@ navigator {
 }
 
 .btn {
-  min-height: 98rpx;
-  margin-top: 34rpx;
-  padding: 34rpx 28rpx;
-  border-radius: 20rpx;
+  margin-top: 28rpx;
+  padding: 30rpx 24rpx;
+  border-radius: 18rpx;
   text-align: center;
   color: #ffffff;
   font-size: 30rpx;

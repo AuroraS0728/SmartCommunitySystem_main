@@ -58,10 +58,9 @@
 }
 
 .btn {
-  min-height: 96rpx;
-  margin-top: 30rpx;
-  padding: 30rpx 26rpx;
-  border-radius: 20rpx;
+  margin-top: 22rpx;
+  padding: 24rpx 22rpx;
+  border-radius: 18rpx;
   text-align: center;
   color: #fff;
   font-size: 30rpx;

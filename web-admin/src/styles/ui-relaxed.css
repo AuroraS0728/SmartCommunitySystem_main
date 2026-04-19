@@ -60,9 +60,9 @@
 }
 
 .el-button {
-  min-height: var(--ui-control-height);
-  padding-left: 18px;
-  padding-right: 18px;
+  min-height: 42px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .el-input-number {
@@ -74,5 +74,9 @@
     --ui-control-height: 44px;
     --ui-control-padding-x: 12px;
     --ui-form-item-gap: 16px;
+  }
+
+  .el-button {
+    min-height: 40px;
   }
 }
