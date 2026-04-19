@@ -6,6 +6,7 @@ Page({
     detail: {},
     loading: false,
     evaluating: false,
+    confirmingFinish: false,
     rating: 5,
     comment: ""
   },
@@ -53,7 +54,7 @@ Page({
         }
       })
     } catch (error) {
-      // Keep quiet, code might not be available yet.
+      // keep silent
     }
   },
   onRatingTap(e) {
@@ -63,6 +64,36 @@ Page({
   },
   onCommentInput(e) {
     this.setData({ comment: e.detail.value })
+  },
+  async confirmFinish() {
+    if (!this.data.id || this.data.confirmingFinish) return
+    const confirmed = await new Promise((resolve) => {
+      wx.showModal({
+        title: "确认结束服务",
+        content: "确认本次家政/维修服务已完成吗？确认后将等待维修端共同确认。",
+        success: (res) => resolve(!!res.confirm),
+        fail: () => resolve(false)
+      })
+    })
+    if (!confirmed) return
+    this.setData({ confirmingFinish: true })
+    try {
+      await request({
+        url: "/repair/status",
+        method: "POST",
+        data: {
+          orderId: this.data.id,
+          status: 3,
+          remark: "owner confirmed finish"
+        }
+      })
+      wx.showToast({ title: "已提交结束确认", icon: "none" })
+      await this.loadDetail()
+    } catch (error) {
+      wx.showToast({ title: error?.message || "提交失败", icon: "none" })
+    } finally {
+      this.setData({ confirmingFinish: false })
+    }
   },
   async submitEvaluation() {
     if (this.data.evaluating || !this.data.id) return
@@ -90,3 +121,4 @@ Page({
     }
   }
 })
+

@@ -30,7 +30,7 @@ Page({
         method: "POST",
         data: { orderId: this.data.id, status, remark }
       })
-      wx.showToast({ title: successTip, icon: "success" })
+      wx.showToast({ title: successTip, icon: "none" })
       await this.loadDetail()
     } catch (error) {
       wx.showToast({ title: error?.message || "提交失败", icon: "none" })
@@ -42,6 +42,7 @@ Page({
     this.updateStatus(2, "service started", "已进入服务中")
   },
   finish() {
-    this.updateStatus(3, "service done, waiting owner rating", "已完成服务，待业主评价")
+    this.updateStatus(3, "worker confirmed finish", "已提交结束确认")
   }
 })
+

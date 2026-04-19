@@ -1,1 +1,6 @@
-﻿<view class="section"><view class="item">工单ID：{{id}}</view><view class="btn" bindtap="start">开始处理</view><view class="btn" bindtap="finish" style="margin-top:12rpx">完成工单</view></view>
+<view class="section">
+  <view class="item">工单ID：{{id}}</view>
+  <view class="btn" bindtap="start">开始处理</view>
+  <view class="btn" bindtap="finish">确认结束（维修端）</view>
+</view>
+

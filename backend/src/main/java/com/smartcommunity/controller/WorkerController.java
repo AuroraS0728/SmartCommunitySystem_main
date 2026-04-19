@@ -152,6 +152,11 @@ public class WorkerController {
             if (!Integer.valueOf(STATUS_IN_SERVICE).equals(order.getStatus())) {
                 order.setStatus(STATUS_IN_SERVICE);
                 order.setRemark("on-site verification passed, service in progress");
+                order.setOwnerFinishConfirmed(0);
+                order.setOwnerFinishTime(null);
+                order.setWorkerFinishConfirmed(0);
+                order.setWorkerFinishTime(null);
+                order.setCompletionTime(null);
                 order.setUpdateTime(LocalDateTime.now());
                 repairOrderMapper.updateById(order);
             }
@@ -168,9 +173,13 @@ public class WorkerController {
     public Result<Map<String, Object>> performance(@RequestParam Long workerId) {
         List<RepairOrder> orders = repairOrderMapper.selectList(new LambdaQueryWrapper<RepairOrder>()
                 .eq(RepairOrder::getAssignee, workerId));
-        long completed = orders.stream().filter(o -> Integer.valueOf(STATUS_COMPLETED).equals(o.getStatus())).count();
+        long completed = orders.stream()
+                .filter(o -> Integer.valueOf(STATUS_WAIT_EVALUATE).equals(o.getStatus())
+                        || Integer.valueOf(STATUS_COMPLETED).equals(o.getStatus()))
+                .count();
         List<Long> completedOrderIds = orders.stream()
-                .filter(o -> Integer.valueOf(STATUS_COMPLETED).equals(o.getStatus()))
+                .filter(o -> Integer.valueOf(STATUS_WAIT_EVALUATE).equals(o.getStatus())
+                        || Integer.valueOf(STATUS_COMPLETED).equals(o.getStatus()))
                 .map(RepairOrder::getId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());

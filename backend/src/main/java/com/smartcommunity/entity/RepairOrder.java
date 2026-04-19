@@ -21,6 +21,10 @@ public class RepairOrder {
     private Long assignee;
     private LocalDateTime assignedTime;
     private String remark;
+    private Integer ownerFinishConfirmed;
+    private LocalDateTime ownerFinishTime;
+    private Integer workerFinishConfirmed;
+    private LocalDateTime workerFinishTime;
     private LocalDateTime completionTime;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

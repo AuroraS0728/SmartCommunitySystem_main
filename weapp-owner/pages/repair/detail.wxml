@@ -1,7 +1,7 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">工单详情</view>
-    <view class="hero-desc">报修闭环：提交 -> 派单 -> 验码 -> 服务 -> 评价</view>
+    <view class="hero-desc">提交报修 -> 派单 -> 验码 -> 服务 -> 双方确认 -> 评价</view>
   </view>
 
   <view wx:if="{{loading}}" class="empty">加载中...</view>
@@ -19,6 +19,18 @@
       <view class="item-title">现场验证码</view>
       <view class="item-desc code-value">{{detail.verifyCode}}</view>
       <view class="meta">维修人员上门后，请当面提供验证码进行核验。</view>
+    </view>
+
+    <view class="item">
+      <view class="item-title">结束确认</view>
+      <view class="meta">业主确认：{{detail.ownerFinishConfirmed ? "已确认" : "未确认"}}</view>
+      <view class="meta">维修端确认：{{detail.workerFinishConfirmed ? "已确认" : "未确认"}}</view>
+      <view class="btn" wx:if="{{detail.canOwnerFinish}}" bindtap="confirmFinish">
+        {{confirmingFinish ? "提交中..." : "确认服务结束"}}
+      </view>
+      <view class="meta" wx:if="{{!detail.canOwnerFinish && detail.order.status === 2}}">
+        需双方都点击“结束”后，系统才进入完单结算流程。
+      </view>
     </view>
 
     <view class="item" wx:if="{{detail.evaluation}}">
@@ -54,3 +66,4 @@
 
   <view wx:else class="empty">未找到工单详情</view>
 </view>
+

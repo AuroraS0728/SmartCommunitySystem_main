@@ -58,6 +58,11 @@ public class RepairController {
         order.setImages(req.getImages());
         order.setStatus(STATUS_WAIT_DISPATCH);
         order.setRemark("submitted");
+        order.setOwnerFinishConfirmed(0);
+        order.setOwnerFinishTime(null);
+        order.setWorkerFinishConfirmed(0);
+        order.setWorkerFinishTime(null);
+        order.setCompletionTime(null);
         order.setCreateTime(LocalDateTime.now());
         order.setUpdateTime(LocalDateTime.now());
         order.setIsDeleted(0);
@@ -116,11 +121,29 @@ public class RepairController {
         }
 
         Map<String, Object> data = new HashMap<>();
+        boolean ownerFinishConfirmed = isConfirmed(order.getOwnerFinishConfirmed());
+        boolean workerFinishConfirmed = isConfirmed(order.getWorkerFinishConfirmed());
         data.put("order", order);
         data.put("evaluation", eval);
         data.put("statusText", statusText(order.getStatus()));
         data.put("verifyCode", showVerifyCode ? verifyCode : null);
         data.put("verifyPassed", verifyPassed);
+        data.put("ownerFinishConfirmed", ownerFinishConfirmed);
+        data.put("workerFinishConfirmed", workerFinishConfirmed);
+        data.put("ownerFinishTime", order.getOwnerFinishTime());
+        data.put("workerFinishTime", order.getWorkerFinishTime());
+        data.put("canOwnerFinish", role != null
+                && role == 1
+                && uid != null
+                && uid.equals(order.getUserId())
+                && Integer.valueOf(STATUS_IN_SERVICE).equals(order.getStatus())
+                && !ownerFinishConfirmed);
+        data.put("canWorkerFinish", role != null
+                && role == 3
+                && uid != null
+                && uid.equals(order.getAssignee())
+                && Integer.valueOf(STATUS_IN_SERVICE).equals(order.getStatus())
+                && !workerFinishConfirmed);
         data.put("canEvaluate", role != null && role == 1
                 && uid != null
                 && uid.equals(order.getUserId())
@@ -162,6 +185,11 @@ public class RepairController {
         order.setAssignedTime(LocalDateTime.now());
         order.setStatus(STATUS_WAIT_DISPATCH);
         order.setRemark(StringUtils.hasText(req.getRemark()) ? req.getRemark().trim() : "assigned");
+        order.setOwnerFinishConfirmed(0);
+        order.setOwnerFinishTime(null);
+        order.setWorkerFinishConfirmed(0);
+        order.setWorkerFinishTime(null);
+        order.setCompletionTime(null);
         order.setUpdateTime(LocalDateTime.now());
         repairOrderMapper.updateById(order);
 
@@ -223,20 +251,37 @@ public class RepairController {
 
         Integer role = AuthContext.getRole();
         Long uid = AuthContext.getUserId();
+        Integer target = req.getStatus();
+        boolean isOwner = uid != null && uid.equals(order.getUserId());
+        boolean isWorker = uid != null && uid.equals(order.getAssignee());
+
+        if (Integer.valueOf(STATUS_COMPLETED).equals(order.getStatus())
+                || Integer.valueOf(STATUS_CANCELED).equals(order.getStatus())) {
+            return Result.fail(StatusCode.BAD_REQUEST, "order already closed");
+        }
+
         if (role != null && role == 3) {
-            if (order.getAssignee() == null || !order.getAssignee().equals(uid)) {
+            if (!isWorker) {
                 return Result.fail(StatusCode.FORBIDDEN, "not your order");
             }
+            if (Integer.valueOf(STATUS_CANCELED).equals(target)) {
+                return Result.fail(StatusCode.FORBIDDEN, "worker can not cancel order");
+            }
         } else if (role != null && role == 1) {
-            boolean isOwner = uid != null && uid.equals(order.getUserId());
-            boolean isCancel = Integer.valueOf(STATUS_CANCELED).equals(req.getStatus());
-            if (!isOwner || !isCancel) {
-                return Result.fail(StatusCode.FORBIDDEN, "owner can only cancel own order");
+            if (!isOwner) {
+                return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+            }
+            boolean isCancel = Integer.valueOf(STATUS_CANCELED).equals(target);
+            boolean isOwnerFinish = Integer.valueOf(STATUS_WAIT_EVALUATE).equals(target);
+            if (!isCancel && !isOwnerFinish) {
+                return Result.fail(StatusCode.FORBIDDEN, "owner can only confirm finish or cancel");
             }
         }
 
-        Integer target = req.getStatus();
         if (Integer.valueOf(STATUS_IN_SERVICE).equals(target)) {
+            if (Integer.valueOf(STATUS_WAIT_EVALUATE).equals(order.getStatus())) {
+                return Result.fail(StatusCode.BAD_REQUEST, "order already waiting evaluation");
+            }
             boolean verified = false;
             try {
                 verified = redisUtil.hasKey(verifyPassKey(order.getId()));
@@ -247,12 +292,46 @@ public class RepairController {
                 return Result.fail(StatusCode.BAD_REQUEST, "verify code not passed");
             }
             order.setStatus(STATUS_IN_SERVICE);
+            order.setOwnerFinishConfirmed(0);
+            order.setOwnerFinishTime(null);
+            order.setWorkerFinishConfirmed(0);
+            order.setWorkerFinishTime(null);
+            order.setCompletionTime(null);
         } else if (Integer.valueOf(STATUS_WAIT_EVALUATE).equals(target)) {
             if (!Integer.valueOf(STATUS_IN_SERVICE).equals(order.getStatus())) {
                 return Result.fail(StatusCode.BAD_REQUEST, "order not in service");
             }
-            order.setStatus(STATUS_WAIT_EVALUATE);
-            order.setCompletionTime(LocalDateTime.now());
+            LocalDateTime now = LocalDateTime.now();
+            if (role != null && role == 1) {
+                order.setOwnerFinishConfirmed(1);
+                if (order.getOwnerFinishTime() == null) {
+                    order.setOwnerFinishTime(now);
+                }
+            } else if (role != null && role == 3) {
+                order.setWorkerFinishConfirmed(1);
+                if (order.getWorkerFinishTime() == null) {
+                    order.setWorkerFinishTime(now);
+                }
+            } else if (role != null && role == 2) {
+                // Admin fallback: force both confirmations for exceptional handling.
+                order.setOwnerFinishConfirmed(1);
+                order.setWorkerFinishConfirmed(1);
+                if (order.getOwnerFinishTime() == null) {
+                    order.setOwnerFinishTime(now);
+                }
+                if (order.getWorkerFinishTime() == null) {
+                    order.setWorkerFinishTime(now);
+                }
+            }
+
+            if (isConfirmed(order.getOwnerFinishConfirmed()) && isConfirmed(order.getWorkerFinishConfirmed())) {
+                order.setStatus(STATUS_WAIT_EVALUATE);
+                if (order.getCompletionTime() == null) {
+                    order.setCompletionTime(now);
+                }
+            } else {
+                order.setStatus(STATUS_IN_SERVICE);
+            }
         } else if (Integer.valueOf(STATUS_CANCELED).equals(target)) {
             order.setStatus(STATUS_CANCELED);
         } else {
@@ -356,6 +435,10 @@ public class RepairController {
 
     private String randomVerifyCode() {
         return String.format("%06d", ThreadLocalRandom.current().nextInt(1_000_000));
+    }
+
+    private boolean isConfirmed(Integer value) {
+        return value != null && value == 1;
     }
 
     private String statusText(Integer status) {
