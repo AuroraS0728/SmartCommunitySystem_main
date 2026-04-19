@@ -1,0 +1,12 @@
+.change {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.income {
+  color: #16a34a;
+}
+
+.expense {
+  color: #dc2626;
+}

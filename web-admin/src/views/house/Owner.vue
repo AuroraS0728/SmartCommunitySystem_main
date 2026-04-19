@@ -6,83 +6,174 @@
         <h3>{{ ownerRows.length }}</h3>
       </article>
       <article class="summary-card">
-        <p>已认证业主</p>
-        <h3>{{ verifiedCount }}</h3>
+        <p>积分总量</p>
+        <h3>{{ totalPoints }}</h3>
       </article>
       <article class="summary-card">
-        <p>本月新增</p>
-        <h3>{{ monthlyAdded }}</h3>
+        <p>平均积分</p>
+        <h3>{{ averagePoints }}</h3>
       </article>
     </section>
 
     <section class="panel">
       <div class="panel-header">
-        <h3>业主信息</h3>
-        <el-input v-model="keyword" placeholder="按姓名/房号搜索" clearable style="max-width: 260px" />
+        <h3>业主积分管理</h3>
+        <el-input v-model="keyword" placeholder="按昵称/账号/手机号搜索" clearable style="max-width: 280px" />
       </div>
-      <el-table :data="displayList" stripe>
-        <el-table-column prop="name" label="业主姓名" min-width="120" />
-        <el-table-column prop="phone" label="联系电话" min-width="130" />
-        <el-table-column prop="property" label="房屋信息" min-width="180" />
-        <el-table-column prop="bindTime" label="绑定时间" min-width="160" />
-        <el-table-column label="认证状态" min-width="120">
+
+      <el-table v-loading="loading" :data="displayList" stripe>
+        <el-table-column prop="id" label="ID" width="90" />
+        <el-table-column prop="nickname" label="业主昵称" min-width="140" />
+        <el-table-column prop="account" label="账号" min-width="150" />
+        <el-table-column prop="phone" label="手机号" min-width="130" />
+        <el-table-column prop="points" label="当前积分" min-width="120" />
+        <el-table-column label="状态" min-width="110">
           <template #default="{ row }">
-            <el-tag :type="row.verified ? 'success' : 'warning'">{{ row.verified ? '已认证' : '待认证' }}</el-tag>
+            <el-tag :type="Number(row.status) === 1 ? 'success' : 'danger'">
+              {{ Number(row.status) === 1 ? '正常' : '禁用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="注册时间" min-width="180" />
+        <el-table-column label="操作" width="140" fixed="right">
+          <template #default="{ row }">
+            <el-button type="primary" link @click="openRecharge(row)">积分充值</el-button>
           </template>
         </el-table-column>
       </el-table>
     </section>
+
+    <el-dialog v-model="rechargeVisible" title="积分充值" width="420px" destroy-on-close>
+      <el-form label-width="88px">
+        <el-form-item label="业主">
+          <span>{{ rechargeForm.userName }}</span>
+        </el-form-item>
+        <el-form-item label="充值积分">
+          <el-input-number
+            v-model="rechargeForm.amount"
+            :min="1"
+            :max="10000"
+            :step="1"
+            step-strictly
+            controls-position="right"
+          />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="rechargeForm.remark" maxlength="255" show-word-limit placeholder="如：物业赠送" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="rechargeVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="submitRecharge">确认充值</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { getHouseList } from '@/api/house'
+import { ElMessage } from 'element-plus'
+import { getUsers } from '@/api/user'
+import { rechargePoints } from '@/api/points'
 
+const loading = ref(false)
+const submitLoading = ref(false)
 const keyword = ref('')
 const ownerRows = ref([])
-
-const fallbackOwners = [
-  { name: '张敏', phone: '13800001234', property: '1号楼 1单元 101', bindTime: '2026-03-08 11:20', verified: true },
-  { name: '李华', phone: '13900004567', property: '2号楼 2单元 1001', bindTime: '2026-03-15 09:40', verified: true },
-  { name: '陈然', phone: '13700007890', property: '8号楼 2单元 201', bindTime: '2026-04-10 13:12', verified: false }
-]
+const rechargeVisible = ref(false)
+const rechargeForm = ref({
+  userId: null,
+  userName: '',
+  amount: 100,
+  remark: '物业充值'
+})
 
 const displayList = computed(() => {
-  if (!keyword.value.trim()) return ownerRows.value
-  const text = keyword.value.trim()
-  return ownerRows.value.filter((row) => row.name.includes(text) || row.property.includes(text))
+  const text = keyword.value.trim().toLowerCase()
+  if (!text) return ownerRows.value
+  return ownerRows.value.filter((row) => {
+    return (
+      String(row.nickname || '').toLowerCase().includes(text) ||
+      String(row.account || '').toLowerCase().includes(text) ||
+      String(row.phone || '').toLowerCase().includes(text)
+    )
+  })
 })
 
-const verifiedCount = computed(() => ownerRows.value.filter((item) => item.verified).length)
-const monthlyAdded = computed(() => {
-  const now = new Date()
-  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-  return ownerRows.value.filter((item) => String(item.bindTime).startsWith(monthKey)).length
+const totalPoints = computed(() => ownerRows.value.reduce((sum, item) => sum + Number(item.points || 0), 0))
+const averagePoints = computed(() => {
+  if (!ownerRows.value.length) return 0
+  return Math.round(totalPoints.value / ownerRows.value.length)
 })
+
+function formatTime(value) {
+  if (!value) return '--'
+  if (typeof value === 'string') return value.replace('T', ' ').slice(0, 19)
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '--'
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  const hh = String(date.getHours()).padStart(2, '0')
+  const mm = String(date.getMinutes()).padStart(2, '0')
+  const ss = String(date.getSeconds()).padStart(2, '0')
+  return `${y}-${m}-${d} ${hh}:${mm}:${ss}`
+}
 
 async function loadData() {
+  loading.value = true
   try {
-    const res = await getHouseList()
-    const source = Array.isArray(res.data) ? res.data : []
-    const rows = source
-      .filter((item) => item.ownerName)
-      .map((item) => ({
-        name: item.ownerName,
-        phone: item.ownerPhone || '--',
-        property: `${item.building || '--'} ${item.unit || '--'} ${item.room || '--'}`,
-        bindTime: item.bindTime || item.createTime || '--',
-        verified: item.verified ?? true
-      }))
-    ownerRows.value = rows.length ? rows : fallbackOwners
-  } catch (error) {
-    ownerRows.value = fallbackOwners
+    const res = await getUsers({ pageNum: 1, pageSize: 1000, role: 1 })
+    const records = Array.isArray(res?.data?.records) ? res.data.records : []
+    ownerRows.value = records.map((item) => ({
+      ...item,
+      nickname: item.nickname || '-',
+      account: item.account || '-',
+      phone: item.phone || '-',
+      points: Number(item.points || 0),
+      createTime: formatTime(item.createTime)
+    }))
+  } finally {
+    loading.value = false
   }
 }
 
-onMounted(async () => {
-  await loadData()
-})
+function openRecharge(row) {
+  rechargeForm.value = {
+    userId: row.id,
+    userName: row.nickname || row.account || `用户${row.id}`,
+    amount: 100,
+    remark: '物业充值'
+  }
+  rechargeVisible.value = true
+}
+
+async function submitRecharge() {
+  const amount = Number(rechargeForm.value.amount || 0)
+  if (!rechargeForm.value.userId) {
+    ElMessage.error('未选择充值业主')
+    return
+  }
+  if (!Number.isInteger(amount) || amount < 1 || amount > 10000) {
+    ElMessage.error('充值积分需为 1 ~ 10000 的整数')
+    return
+  }
+  submitLoading.value = true
+  try {
+    const res = await rechargePoints({
+      userId: rechargeForm.value.userId,
+      amount,
+      remark: rechargeForm.value.remark || '物业充值'
+    })
+    ElMessage.success(`充值成功，最新积分：${res?.data?.balance ?? '-'}`)
+    rechargeVisible.value = false
+    await loadData()
+  } finally {
+    submitLoading.value = false
+  }
+}
+
+onMounted(loadData)
 </script>
 
 <style scoped>

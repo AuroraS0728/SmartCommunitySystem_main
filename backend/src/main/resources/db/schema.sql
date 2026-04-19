@@ -20,6 +20,8 @@ DROP TABLE IF EXISTS repair_evaluation;
 DROP TABLE IF EXISTS repair_order;
 DROP TABLE IF EXISTS parking_order;
 DROP TABLE IF EXISTS fee_bill;
+DROP TABLE IF EXISTS points_consumption_record;
+DROP TABLE IF EXISTS points_recharge_record;
 DROP TABLE IF EXISTS user_property;
 DROP TABLE IF EXISTS property;
 DROP TABLE IF EXISTS `user`;
@@ -35,6 +37,7 @@ CREATE TABLE `user` (
   `nickname` VARCHAR(50) DEFAULT NULL,
   `avatar_url` VARCHAR(255) DEFAULT NULL,
   `phone` VARCHAR(32) DEFAULT NULL,
+  `points` INT NOT NULL DEFAULT 0,
   `status` TINYINT NOT NULL DEFAULT 1,
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -82,6 +85,7 @@ CREATE TABLE `fee_bill` (
   `property_id` BIGINT NOT NULL,
   `bill_period` VARCHAR(10) NOT NULL,
   `amount` DECIMAL(10,2) NOT NULL,
+  `need_points` INT NOT NULL DEFAULT 0,
   `paid_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `status` TINYINT NOT NULL DEFAULT 0,
   `due_date` DATETIME NOT NULL,
@@ -94,6 +98,39 @@ CREATE TABLE `fee_bill` (
   UNIQUE KEY `uk_transaction_id` (`transaction_id`),
   KEY `idx_property_id` (`property_id`),
   KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `points_recharge_record` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `operator_id` BIGINT NOT NULL,
+  `amount` INT NOT NULL,
+  `before_points` INT NOT NULL,
+  `after_points` INT NOT NULL,
+  `remark` VARCHAR(255) DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_recharge_user_id` (`user_id`),
+  KEY `idx_recharge_operator_id` (`operator_id`),
+  KEY `idx_recharge_create_time` (`create_time`),
+  CONSTRAINT `fk_points_recharge_user` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`),
+  CONSTRAINT `fk_points_recharge_operator` FOREIGN KEY (`operator_id`) REFERENCES `user`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `points_consumption_record` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `business_type` TINYINT NOT NULL,
+  `business_id` BIGINT NOT NULL,
+  `points` INT NOT NULL,
+  `before_points` INT NOT NULL,
+  `after_points` INT NOT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_consumption_user_id` (`user_id`),
+  KEY `idx_consumption_business` (`business_type`,`business_id`),
+  KEY `idx_consumption_create_time` (`create_time`),
+  CONSTRAINT `fk_points_consumption_user` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `parking_order` (

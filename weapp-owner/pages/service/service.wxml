@@ -1,15 +1,42 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">物业服务中心</view>
-    <view class="hero-desc">业主常用功能统一入口，支持报修、门禁、公告与反馈。</view>
+    <view class="hero-desc">统一办理报修、访客、费用缴纳等常用服务</view>
   </view>
+
+  <view class="item points-card">
+    <view class="row-between">
+      <view class="item-title">当前可用积分</view>
+      <view class="points-value">{{ points }}</view>
+    </view>
+    <view class="item-desc">1 积分 = 1 元，物业费和停车费均使用积分支付</view>
+    <navigator class="link" url="/pages/points/detail/index">查看积分明细 ></navigator>
+  </view>
+
+  <view class="group-title">费用缴纳</view>
+
+  <navigator class="item nav-item" url="/pages/points/bills/index">
+    <view class="nav-body">
+      <view class="item-title">物业费缴纳</view>
+      <view class="item-desc">查看账单并使用积分支付物业费</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <navigator class="item nav-item" url="/pages/points/parking/index">
+    <view class="nav-body">
+      <view class="item-title">停车费缴纳</view>
+      <view class="item-desc">月卡续费、临停车均支持积分抵扣</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
 
   <view class="group-title">常用服务</view>
 
   <navigator class="item nav-item" url="/pages/repair/submit">
     <view class="nav-body">
       <view class="item-title">报修提交</view>
-      <view class="item-desc">新建维修工单并提交问题描述。</view>
+      <view class="item-desc">新建维修工单并提交问题描述</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -17,7 +44,7 @@
   <navigator class="item nav-item" url="/pages/repair/list">
     <view class="nav-body">
       <view class="item-title">报修列表</view>
-      <view class="item-desc">查看工单状态与处理进度。</view>
+      <view class="item-desc">查看工单状态与处理进度</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -25,7 +52,7 @@
   <navigator class="item nav-item" url="/pages/notice/list">
     <view class="nav-body">
       <view class="item-title">社区公告</view>
-      <view class="item-desc">最新通知、活动和物业提醒。</view>
+      <view class="item-desc">最新通知、活动和物业提醒</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -33,7 +60,7 @@
   <navigator class="item nav-item" url="/pages/door/qrcode">
     <view class="nav-body">
       <view class="item-title">门禁二维码</view>
-      <view class="item-desc">获取当前通行令牌，便捷开门。</view>
+      <view class="item-desc">获取当前通行令牌，便捷开门</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -41,7 +68,7 @@
   <navigator class="item nav-item" url="/pages/door/invite">
     <view class="nav-body">
       <view class="item-title">访客邀请</view>
-      <view class="item-desc">创建访客邀请码并分享使用。</view>
+      <view class="item-desc">创建访客邀请码并分享使用</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -49,7 +76,7 @@
   <navigator class="item nav-item" url="/pages/complaint/submit">
     <view class="nav-body">
       <view class="item-title">投诉建议</view>
-      <view class="item-desc">提交意见反馈，持续优化服务。</view>
+      <view class="item-desc">提交意见反馈，持续优化服务</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -57,7 +84,7 @@
   <navigator class="item nav-item" url="/pages/user/profile">
     <view class="nav-body">
       <view class="item-title">个人中心</view>
-      <view class="item-desc">查看个人服务记录与常用入口。</view>
+      <view class="item-desc">查看个人服务记录与常用入口</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>

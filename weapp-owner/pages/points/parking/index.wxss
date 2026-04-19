@@ -1,0 +1,10 @@
+.pay-btn {
+  margin-top: 24rpx;
+}
+
+.paid-text {
+  margin-top: 24rpx;
+  color: #16a34a;
+  font-size: 26rpx;
+  font-weight: 600;
+}

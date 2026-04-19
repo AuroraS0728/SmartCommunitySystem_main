@@ -16,17 +16,19 @@ TRUNCATE TABLE repair_evaluation;
 TRUNCATE TABLE repair_order;
 TRUNCATE TABLE parking_order;
 TRUNCATE TABLE fee_bill;
+TRUNCATE TABLE points_consumption_record;
+TRUNCATE TABLE points_recharge_record;
 TRUNCATE TABLE user_property;
 TRUNCATE TABLE property;
 TRUNCATE TABLE `user`;
 SET FOREIGN_KEY_CHECKS = 1;
 
-INSERT INTO `user` (`id`, `openid`, `unionid`, `account`, `password`, `role`, `nickname`, `avatar_url`, `phone`, `status`, `create_time`, `update_time`, `is_deleted`) VALUES
-(1, 'openid_owner_001', 'unionid_001', 'XQYZ123456', '654321', 1, 'Owner-A', NULL, '13800000001', 1, NOW() - INTERVAL 40 DAY, NOW() - INTERVAL 40 DAY, 0),
-(2, 'openid_owner_002', 'unionid_002', 'XQYZ234567', '765432', 1, 'Owner-B', NULL, '13800000002', 1, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, 0),
-(3, 'openid_owner_003', 'unionid_003', 'XQYZ345678', '876543', 1, 'Owner-C', NULL, '13800000003', 1, NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY, 0),
-(10, 'openid_admin_001', 'unionid_010', 'WTGL456789', '987654', 2, 'Admin-A', NULL, 'ENC_13900000010', 1, NOW() - INTERVAL 100 DAY, NOW() - INTERVAL 100 DAY, 0),
-(20, 'openid_worker_001', 'unionid_020', 'JZWX567890', '098765', 3, 'Worker-A', NULL, '13700000020', 1, NOW() - INTERVAL 80 DAY, NOW() - INTERVAL 80 DAY, 0);
+INSERT INTO `user` (`id`, `openid`, `unionid`, `account`, `password`, `role`, `nickname`, `avatar_url`, `phone`, `points`, `status`, `create_time`, `update_time`, `is_deleted`) VALUES
+(1, 'openid_owner_001', 'unionid_001', 'XQYZ123456', '654321', 1, 'Owner-A', NULL, '13800000001', 1000, 1, NOW() - INTERVAL 40 DAY, NOW() - INTERVAL 40 DAY, 0),
+(2, 'openid_owner_002', 'unionid_002', 'XQYZ234567', '765432', 1, 'Owner-B', NULL, '13800000002', 500, 1, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, 0),
+(3, 'openid_owner_003', 'unionid_003', 'XQYZ345678', '876543', 1, 'Owner-C', NULL, '13800000003', 0, 1, NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY, 0),
+(10, 'openid_admin_001', 'unionid_010', 'WTGL456789', '987654', 2, 'Admin-A', NULL, 'ENC_13900000010', 0, 1, NOW() - INTERVAL 100 DAY, NOW() - INTERVAL 100 DAY, 0),
+(20, 'openid_worker_001', 'unionid_020', 'JZWX567890', '098765', 3, 'Worker-A', NULL, '13700000020', 0, 1, NOW() - INTERVAL 80 DAY, NOW() - INTERVAL 80 DAY, 0);
 
 INSERT INTO `property` (`id`, `community`, `building`, `unit`, `room`, `owner_name`, `area`, `status`, `create_time`, `update_time`, `is_deleted`) VALUES
 (1001, 'Smart Garden', '1', '1', '101', 'Owner-A', 98.50, 4, NOW() - INTERVAL 50 DAY, NOW() - INTERVAL 50 DAY, 0),
@@ -38,10 +40,10 @@ INSERT INTO `user_property` (`id`, `user_id`, `property_id`, `relation`, `is_pri
 (2002, 2, 1002, 'self', 1, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, 0),
 (2003, 3, 1003, 'family', 0, NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY, 0);
 
-INSERT INTO `fee_bill` (`id`, `property_id`, `bill_period`, `amount`, `paid_amount`, `status`, `due_date`, `payment_time`, `transaction_id`, `create_time`, `update_time`, `is_deleted`) VALUES
-(3001, 1001, DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m'), 360.00, 360.00, 2, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 18 DAY, 'TXN_FEE_3001', NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 18 DAY, 0),
-(3002, 1002, DATE_FORMAT(NOW(), '%Y-%m'), 320.00, 100.00, 1, NOW() + INTERVAL 8 DAY, NOW() - INTERVAL 1 DAY, 'TXN_FEE_3002', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 1 DAY, 0),
-(3003, 1003, DATE_FORMAT(NOW(), '%Y-%m'), 450.00, 0.00, 0, NOW() - INTERVAL 2 DAY, NULL, NULL, NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY, 0);
+INSERT INTO `fee_bill` (`id`, `property_id`, `bill_period`, `amount`, `need_points`, `paid_amount`, `status`, `due_date`, `payment_time`, `transaction_id`, `create_time`, `update_time`, `is_deleted`) VALUES
+(3001, 1001, DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m'), 360.00, 360, 360.00, 2, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 18 DAY, 'TXN_FEE_3001', NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 18 DAY, 0),
+(3002, 1002, DATE_FORMAT(NOW(), '%Y-%m'), 320.00, 320, 100.00, 1, NOW() + INTERVAL 8 DAY, NOW() - INTERVAL 1 DAY, 'TXN_FEE_3002', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 1 DAY, 0),
+(3003, 1003, DATE_FORMAT(NOW(), '%Y-%m'), 450.00, 450, 0.00, 0, NOW() - INTERVAL 2 DAY, NULL, NULL, NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY, 0);
 
 INSERT INTO `parking_order` (`id`, `user_id`, `property_id`, `vehicle_no`, `order_type`, `amount`, `start_time`, `end_time`, `status`, `transaction_id`, `create_time`, `update_time`, `is_deleted`) VALUES
 (4001, 1, 1001, 'A12345', 2, 300.00, NOW() - INTERVAL 20 DAY, NOW() + INTERVAL 10 DAY, 1, 'TXN_PARK_4001', NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, 0),

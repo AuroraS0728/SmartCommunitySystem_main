@@ -16,6 +16,7 @@ public class FeeBill {
     private Long propertyId;
     private String billPeriod;
     private BigDecimal amount;
+    private Integer needPoints;
     private BigDecimal paidAmount;
     private Integer status;
     private LocalDateTime dueDate;

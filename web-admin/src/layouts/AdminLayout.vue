@@ -89,7 +89,8 @@ const menuGroups = [
     title: '系统设置',
     items: [
       { label: '角色权限', path: '/system/role' },
-      { label: '操作日志', path: '/system/log' }
+      { label: '操作日志', path: '/system/log' },
+      { label: '积分充值记录', path: '/system/points-recharge' }
     ]
   }
 ]
@@ -106,12 +107,7 @@ function isActive(path) {
 
 function updateTime() {
   const now = new Date()
-  const text = `${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(
-    now.getDate()
-  ).padStart(2, '0')}日 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(
-    2,
-    '0'
-  )}:${String(now.getSeconds()).padStart(2, '0')}`
+  const text = `${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
   currentTime.value = text
 }
 
@@ -119,7 +115,7 @@ async function handleLogout() {
   try {
     await logout()
   } catch (error) {
-    // Ignore API logout failure and continue local logout
+    // ignore server logout failure and continue local logout
   }
   userStore.logout()
   ElMessage.success('已退出登录')
