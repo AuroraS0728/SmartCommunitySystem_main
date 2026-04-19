@@ -16,6 +16,7 @@ public class ForumPost {
     private String board;
     private String title;
     private String content;
+    private Integer viewCount;
     private Integer likeCnt;
     private Integer replyCnt;
     private Integer isTop;

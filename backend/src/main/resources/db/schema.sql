@@ -13,7 +13,11 @@ DROP TABLE IF EXISTS visitor_invite;
 DROP TABLE IF EXISTS access_token;
 DROP TABLE IF EXISTS forum_comment;
 DROP TABLE IF EXISTS forum_post;
+DROP TABLE IF EXISTS forum_post_like;
+DROP TABLE IF EXISTS lost_found_claim;
 DROP TABLE IF EXISTS lost_found;
+DROP TABLE IF EXISTS second_hand_report;
+DROP TABLE IF EXISTS second_hand_favorite;
 DROP TABLE IF EXISTS second_hand;
 DROP TABLE IF EXISTS notice;
 DROP TABLE IF EXISTS repair_evaluation;
@@ -283,11 +287,15 @@ CREATE TABLE `notice` (
 CREATE TABLE `second_hand` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
+  `community` VARCHAR(50) NOT NULL DEFAULT 'Smart Garden',
   `title` VARCHAR(100) NOT NULL,
   `category` VARCHAR(20) NOT NULL DEFAULT 'other',
+  `description` TEXT DEFAULT NULL,
   `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `images` VARCHAR(2000) NOT NULL,
   `status` TINYINT NOT NULL DEFAULT 1,
+  `view_count` INT NOT NULL DEFAULT 0,
+  `report_count` INT NOT NULL DEFAULT 0,
   `contact` VARCHAR(50) DEFAULT NULL,
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -297,12 +305,37 @@ CREATE TABLE `second_hand` (
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `second_hand_favorite` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `second_hand_id` BIGINT NOT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_goods` (`user_id`,`second_hand_id`),
+  KEY `idx_goods` (`second_hand_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `second_hand_report` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `second_hand_id` BIGINT NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `reason` VARCHAR(255) DEFAULT NULL,
+  `status` TINYINT NOT NULL DEFAULT 0,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_report_goods` (`second_hand_id`),
+  KEY `idx_report_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `lost_found` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
   `type` TINYINT NOT NULL,
   `title` VARCHAR(100) NOT NULL,
   `description` TEXT NOT NULL,
+  `location` VARCHAR(100) DEFAULT NULL,
   `contact` VARCHAR(50) NOT NULL,
   `status` TINYINT NOT NULL DEFAULT 1,
   `images` VARCHAR(2000) DEFAULT NULL,
@@ -314,12 +347,27 @@ CREATE TABLE `lost_found` (
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `lost_found_claim` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `lost_found_id` BIGINT NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `proof` TEXT DEFAULT NULL,
+  `status` TINYINT NOT NULL DEFAULT 0,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_claim_lost_found` (`lost_found_id`),
+  KEY `idx_claim_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `forum_post` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
   `board` VARCHAR(20) NOT NULL,
   `title` VARCHAR(100) NOT NULL,
   `content` TEXT NOT NULL,
+  `view_count` INT NOT NULL DEFAULT 0,
   `like_cnt` INT NOT NULL DEFAULT 0,
   `reply_cnt` INT NOT NULL DEFAULT 0,
   `is_top` TINYINT(1) NOT NULL DEFAULT 0,
@@ -331,6 +379,15 @@ CREATE TABLE `forum_post` (
   KEY `idx_user_id` (`user_id`),
   KEY `idx_board` (`board`),
   KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `forum_post_like` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `post_id` BIGINT NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_post_user` (`post_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `forum_comment` (

@@ -8,19 +8,12 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("lost_found")
-public class LostFound {
+@TableName("forum_post_like")
+public class ForumPostLike {
     @TableId(type = IdType.AUTO)
     private Long id;
+    private Long postId;
     private Long userId;
-    private Integer type;
-    private String title;
-    private String description;
-    private String location;
-    private String contact;
-    private Integer status;
-    private String images;
     private LocalDateTime createTime;
-    private LocalDateTime updateTime;
-    private Integer isDeleted;
 }
+

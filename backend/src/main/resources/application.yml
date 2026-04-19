@@ -44,3 +44,13 @@ seetaface:
     - SeetaFaceLandmarker600
     - SeetaFaceRecognizer610
     - SeetaFace6JNI
+
+neighbor:
+  default-page-size: 10
+  max-page-size: 50
+  sensitive-words:
+    - 赌博
+    - 诈骗
+    - 涉黄
+    - 毒品
+    - 暴恐

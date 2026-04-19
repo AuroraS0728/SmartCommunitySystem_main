@@ -5,26 +5,19 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("second_hand")
-public class SecondHand {
+@TableName("lost_found_claim")
+public class LostFoundClaim {
     @TableId(type = IdType.AUTO)
     private Long id;
+    private Long lostFoundId;
     private Long userId;
-    private String community;
-    private String title;
-    private String category;
-    private String description;
-    private BigDecimal price;
-    private String images;
+    private String proof;
     private Integer status;
-    private Integer viewCount;
-    private Integer reportCount;
-    private String contact;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Integer isDeleted;
 }
+
