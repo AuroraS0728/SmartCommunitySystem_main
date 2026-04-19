@@ -15,7 +15,13 @@ public class FeeBill {
     private Long id;
     private Long propertyId;
     private String billPeriod;
+    // 历史账单快照，避免后续面积调整影响旧账单。
+    private BigDecimal areaSnapshot;
+    // 固定单价快照，默认 5 元/平方米/月。
+    private BigDecimal unitPrice;
     private BigDecimal amount;
+    // 折扣金额（例如预缴一年减免一个月）。
+    private BigDecimal discountAmount;
     private Integer needPoints;
     private BigDecimal paidAmount;
     private Integer status;
