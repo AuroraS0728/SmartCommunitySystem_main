@@ -18,6 +18,7 @@ public class User {
     private String account;
     @JsonIgnore
     private String password;
+    private Integer mustChangePassword;
     private Integer role;
     private String nickname;
     private String avatarUrl;

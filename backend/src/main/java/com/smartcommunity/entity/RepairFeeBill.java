@@ -9,18 +9,21 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("property")
-public class Property {
+@TableName("repair_fee_bill")
+public class RepairFeeBill {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String community;
-    private String building;
-    private String unit;
-    private String room;
-    private String propertyCode;
-    private String ownerName;
-    private BigDecimal area;
+    private Long orderId;
+    private Long userId;
+    private Long propertyId;
+    private BigDecimal amount;
+    private Integer needPoints;
+    private Integer paidPoints;
     private Integer status;
+    private LocalDateTime dueDate;
+    private LocalDateTime paymentTime;
+    private String transactionId;
+    private String remark;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Integer isDeleted;

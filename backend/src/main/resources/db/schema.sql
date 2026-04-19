@@ -21,6 +21,7 @@ DROP TABLE IF EXISTS second_hand_favorite;
 DROP TABLE IF EXISTS second_hand;
 DROP TABLE IF EXISTS notice;
 DROP TABLE IF EXISTS repair_evaluation;
+DROP TABLE IF EXISTS repair_fee_bill;
 DROP TABLE IF EXISTS repair_order;
 DROP TABLE IF EXISTS worker_staffing;
 DROP TABLE IF EXISTS owner_parking_quota;
@@ -40,6 +41,7 @@ CREATE TABLE `user` (
   `unionid` VARCHAR(64) DEFAULT NULL,
   `account` VARCHAR(32) DEFAULT NULL,
   `password` VARCHAR(64) DEFAULT NULL,
+  `must_change_password` TINYINT(1) NOT NULL DEFAULT 0,
   `role` TINYINT NOT NULL DEFAULT 1,
   `nickname` VARCHAR(50) DEFAULT NULL,
   `avatar_url` VARCHAR(255) DEFAULT NULL,
@@ -81,6 +83,7 @@ CREATE TABLE `property` (
   `building` VARCHAR(20) NOT NULL,
   `unit` VARCHAR(20) NOT NULL,
   `room` VARCHAR(20) NOT NULL,
+  `property_code` VARCHAR(32) DEFAULT NULL,
   `owner_name` VARCHAR(20) NOT NULL,
   `area` DECIMAL(10,2) NOT NULL,
   `status` TINYINT NOT NULL DEFAULT 1,
@@ -88,6 +91,7 @@ CREATE TABLE `property` (
   `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_property_code` (`property_code`),
   KEY `idx_building` (`building`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -257,6 +261,29 @@ CREATE TABLE `repair_order` (
   KEY `idx_appointment_date_slot` (`appointment_date`,`appointment_time_slot`),
   KEY `idx_status` (`status`),
   KEY `idx_assignee` (`assignee`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `repair_fee_bill` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `order_id` BIGINT NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `property_id` BIGINT NOT NULL,
+  `amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `need_points` INT NOT NULL DEFAULT 0,
+  `paid_points` INT NOT NULL DEFAULT 0,
+  `status` TINYINT NOT NULL DEFAULT 0,
+  `due_date` DATETIME DEFAULT NULL,
+  `payment_time` DATETIME DEFAULT NULL,
+  `transaction_id` VARCHAR(64) DEFAULT NULL,
+  `remark` VARCHAR(255) DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_order_id` (`order_id`),
+  UNIQUE KEY `uk_transaction_id` (`transaction_id`),
+  KEY `idx_user_status` (`user_id`,`status`),
+  KEY `idx_property_status` (`property_id`,`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `repair_evaluation` (

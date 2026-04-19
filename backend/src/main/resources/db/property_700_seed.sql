@@ -21,7 +21,7 @@ BEGIN
   DECLARE v_reg DATETIME;
   DECLARE v_room_no VARCHAR(20);
   DECLARE v_owner_name VARCHAR(20);
-  DECLARE v_account_suffix VARCHAR(12);
+  DECLARE v_property_code VARCHAR(32);
   DECLARE v_phone VARCHAR(32);
 
   SET @start_property_id := (SELECT IFNULL(MAX(id), 1000) + 1 FROM property);
@@ -42,10 +42,18 @@ BEGIN
         SET v_occupied = IF(RAND() < 0.58, 1, 0);
         SET v_owner_name = IF(v_occupied = 1, CONCAT('业主', LPAD(v_property_id, 4, '0')), '');
 
+        SET v_property_code = CONCAT(
+          'YZ',
+          LPAD(v_building, 2, '0'),
+          LPAD(v_unit, 2, '0'),
+          LPAD(v_room, 2, '0'),
+          DATE_FORMAT(v_reg, '%y')
+        );
+
         INSERT INTO property (
-          id, community, building, unit, room, owner_name, area, status, create_time, update_time, is_deleted
+          id, community, building, unit, room, property_code, owner_name, area, status, create_time, update_time, is_deleted
         ) VALUES (
-          v_property_id, 'Smart Garden', CAST(v_building AS CHAR), CAST(v_unit AS CHAR), v_room_no,
+          v_property_id, 'Smart Garden', CAST(v_building AS CHAR), CAST(v_unit AS CHAR), v_room_no, v_property_code,
           v_owner_name, v_area, IF(v_occupied = 1, 4, 3), v_reg, v_reg, 0
         );
 
@@ -53,7 +61,6 @@ BEGIN
           SET v_user_id = @start_user_id + v_owner_offset;
           SET v_owner_offset = v_owner_offset + 1;
 
-          SET v_account_suffix = CONCAT('U', LPAD(v_user_id, 9, '0'));
           SET v_phone = CONCAT('13', LPAD(MOD(v_user_id * 37, 1000000000), 9, '0'));
 
           INSERT INTO `user` (
@@ -62,8 +69,8 @@ BEGIN
             v_user_id,
             CONCAT('seed-owner-', v_user_id),
             CONCAT('seed-union-', v_user_id),
-            CONCAT('XQYZ', v_account_suffix),
-            REVERSE(RIGHT(v_account_suffix, 6)),
+            v_property_code,
+            REVERSE(RIGHT(CONCAT('000000', REGEXP_REPLACE(v_property_code, '[^0-9]', '')), 6)),
             1,
             v_owner_name,
             NULL,

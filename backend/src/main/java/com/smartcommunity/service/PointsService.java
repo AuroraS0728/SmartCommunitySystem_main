@@ -7,12 +7,14 @@ import com.smartcommunity.entity.FeeBill;
 import com.smartcommunity.entity.ParkingOrder;
 import com.smartcommunity.entity.PointsConsumptionRecord;
 import com.smartcommunity.entity.PointsRechargeRecord;
+import com.smartcommunity.entity.RepairFeeBill;
 import com.smartcommunity.entity.User;
 import com.smartcommunity.entity.UserProperty;
 import com.smartcommunity.mapper.FeeBillMapper;
 import com.smartcommunity.mapper.ParkingOrderMapper;
 import com.smartcommunity.mapper.PointsConsumptionRecordMapper;
 import com.smartcommunity.mapper.PointsRechargeRecordMapper;
+import com.smartcommunity.mapper.RepairFeeBillMapper;
 import com.smartcommunity.mapper.UserMapper;
 import com.smartcommunity.mapper.UserPropertyMapper;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,19 +46,20 @@ public class PointsService {
     private final UserPropertyMapper userPropertyMapper;
     private final FeeBillMapper feeBillMapper;
     private final ParkingOrderMapper parkingOrderMapper;
+    private final RepairFeeBillMapper repairFeeBillMapper;
     private final PointsRechargeRecordMapper pointsRechargeRecordMapper;
     private final PointsConsumptionRecordMapper pointsConsumptionRecordMapper;
 
     @Transactional(rollbackFor = Exception.class)
     public RechargeResult recharge(Long userId, Integer amount, Long operatorId, String remark) {
         if (operatorId == null || operatorId <= 0) {
-            throw new IllegalArgumentException("operatorId无效");
+            throw new IllegalArgumentException("operatorId invalid");
         }
         if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("userId无效");
+            throw new IllegalArgumentException("userId invalid");
         }
         if (amount == null || amount <= 0) {
-            throw new IllegalArgumentException("充值积分必须大于0");
+            throw new IllegalArgumentException("amount must be greater than 0");
         }
         User user = lockUser(userId);
         int before = safePoints(user.getPoints());
@@ -81,15 +85,16 @@ public class PointsService {
     @Transactional(rollbackFor = Exception.class)
     public ConsumeResult consume(Long userId, Integer businessType, Long businessId) {
         if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("userId无效");
+            throw new IllegalArgumentException("userId invalid");
         }
         if (businessType == null || businessType < 1 || businessType > 3) {
-            throw new IllegalArgumentException("businessType取值范围为1~3");
+            throw new IllegalArgumentException("businessType range is 1~3");
         }
         if (businessId == null || businessId <= 0) {
-            throw new IllegalArgumentException("businessId无效");
+            throw new IllegalArgumentException("businessId invalid");
         }
         BusinessTarget target = resolveBusinessTarget(userId, businessType, businessId);
+
         User user = lockUser(userId);
         int before = safePoints(user.getPoints());
         if (before < target.getNeedPoints()) {
@@ -118,7 +123,7 @@ public class PointsService {
     public Integer getBalance(Long userId) {
         User user = userMapper.selectById(userId);
         if (user == null) {
-            throw new IllegalArgumentException("用户不存在");
+            throw new IllegalArgumentException("user not found");
         }
         return safePoints(user.getPoints());
     }
@@ -228,37 +233,57 @@ public class PointsService {
                     .eq(FeeBill::getId, businessId)
                     .last("for update"));
             if (bill == null) {
-                throw new IllegalArgumentException("物业费账单不存在");
+                throw new IllegalArgumentException("fee bill not found");
             }
             UserProperty userProperty = userPropertyMapper.selectOne(new LambdaQueryWrapper<UserProperty>()
                     .eq(UserProperty::getUserId, userId)
                     .eq(UserProperty::getPropertyId, bill.getPropertyId())
                     .last("limit 1"));
             if (userProperty == null) {
-                throw new IllegalArgumentException("无权限支付该账单");
+                throw new IllegalArgumentException("no permission to pay this fee bill");
             }
             if (bill.getStatus() != null && bill.getStatus() == 2) {
-                throw new IllegalArgumentException("该账单已支付");
+                throw new IllegalArgumentException("fee bill already paid");
             }
             int needPoints = bill.getNeedPoints() != null && bill.getNeedPoints() > 0
                     ? bill.getNeedPoints()
                     : amountToPoints(bill.getAmount());
-            return new BusinessTarget(businessType, businessId, needPoints, bill, null);
+            return new BusinessTarget(businessType, businessId, needPoints, bill, null, null);
         }
-        ParkingOrder order = parkingOrderMapper.selectOne(new LambdaQueryWrapper<ParkingOrder>()
-                .eq(ParkingOrder::getId, businessId)
+
+        if (businessType == 2) {
+            ParkingOrder order = parkingOrderMapper.selectOne(new LambdaQueryWrapper<ParkingOrder>()
+                    .eq(ParkingOrder::getId, businessId)
+                    .last("for update"));
+            if (order == null) {
+                throw new IllegalArgumentException("parking order not found");
+            }
+            if (!userId.equals(order.getUserId())) {
+                throw new IllegalArgumentException("no permission to pay this parking order");
+            }
+            if (order.getStatus() != null && order.getStatus() == 1) {
+                throw new IllegalArgumentException("parking order already paid");
+            }
+            int needPoints = amountToPoints(order.getAmount());
+            return new BusinessTarget(businessType, businessId, needPoints, null, order, null);
+        }
+
+        RepairFeeBill repairBill = repairFeeBillMapper.selectOne(new LambdaQueryWrapper<RepairFeeBill>()
+                .eq(RepairFeeBill::getId, businessId)
                 .last("for update"));
-        if (order == null) {
-            throw new IllegalArgumentException("停车订单不存在");
+        if (repairBill == null) {
+            throw new IllegalArgumentException("repair fee bill not found");
         }
-        if (!userId.equals(order.getUserId())) {
-            throw new IllegalArgumentException("无权限支付该停车订单");
+        if (!userId.equals(repairBill.getUserId())) {
+            throw new IllegalArgumentException("no permission to pay this repair fee bill");
         }
-        if (order.getStatus() != null && order.getStatus() == 1) {
-            throw new IllegalArgumentException("该停车订单已支付");
+        if (repairBill.getStatus() != null && repairBill.getStatus() == 1) {
+            throw new IllegalArgumentException("repair fee bill already paid");
         }
-        int needPoints = amountToPoints(order.getAmount());
-        return new BusinessTarget(businessType, businessId, needPoints, null, order);
+        int needPoints = repairBill.getNeedPoints() != null && repairBill.getNeedPoints() > 0
+                ? repairBill.getNeedPoints()
+                : amountToPoints(repairBill.getAmount());
+        return new BusinessTarget(businessType, businessId, needPoints, null, null, repairBill);
     }
 
     private void completeBusiness(BusinessTarget target) {
@@ -277,9 +302,21 @@ public class PointsService {
         if (target.getParkingOrder() != null) {
             ParkingOrder order = target.getParkingOrder();
             order.setStatus(1);
+            order.setPaymentTime(now);
             order.setTransactionId("POINTS_PARK_" + order.getId() + "_" + System.currentTimeMillis());
             order.setUpdateTime(now);
             parkingOrderMapper.updateById(order);
+            return;
+        }
+        if (target.getRepairFeeBill() != null) {
+            RepairFeeBill bill = target.getRepairFeeBill();
+            bill.setNeedPoints(target.getNeedPoints());
+            bill.setPaidPoints(target.getNeedPoints());
+            bill.setStatus(1);
+            bill.setPaymentTime(now);
+            bill.setTransactionId("POINTS_REPAIR_" + bill.getId() + "_" + System.currentTimeMillis());
+            bill.setUpdateTime(now);
+            repairFeeBillMapper.updateById(bill);
         }
     }
 
@@ -288,7 +325,7 @@ public class PointsService {
                 .eq(User::getId, userId)
                 .last("for update"));
         if (user == null) {
-            throw new IllegalArgumentException("用户不存在");
+            throw new IllegalArgumentException("user not found");
         }
         return user;
     }
@@ -313,14 +350,14 @@ public class PointsService {
     }
 
     /**
-     * 积分与金额换算规则：1元 = 1积分。
-     * 账单金额可能带小数（如面积*单价），此处采用向上取整，保证足额抵扣。
+     * 1 point = 1 CNY.
+     * Amount may include decimals, use ceiling so points can fully cover the amount.
      */
     private int amountToPoints(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("金额必须大于0");
+            throw new IllegalArgumentException("amount must be greater than 0");
         }
-        return amount.setScale(0, java.math.RoundingMode.UP).intValue();
+        return amount.setScale(0, RoundingMode.UP).intValue();
     }
 
     private String businessTypeText(Integer businessType) {
@@ -330,7 +367,7 @@ public class PointsService {
         return switch (businessType) {
             case 1 -> "物业费缴纳";
             case 2 -> "停车费缴纳";
-            case 3 -> "其他服务费缴纳";
+            case 3 -> "维修费用缴纳";
             default -> "积分消费";
         };
     }
@@ -343,6 +380,7 @@ public class PointsService {
         private Integer needPoints;
         private FeeBill feeBill;
         private ParkingOrder parkingOrder;
+        private RepairFeeBill repairFeeBill;
     }
 
     @Data

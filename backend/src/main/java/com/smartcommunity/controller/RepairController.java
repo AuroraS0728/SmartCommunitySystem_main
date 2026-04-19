@@ -9,10 +9,12 @@ import com.smartcommunity.dto.request.EvaluateRepairReq;
 import com.smartcommunity.dto.request.SubmitRepairReq;
 import com.smartcommunity.dto.request.UpdateRepairStatusReq;
 import com.smartcommunity.entity.RepairEvaluation;
+import com.smartcommunity.entity.RepairFeeBill;
 import com.smartcommunity.entity.RepairOrder;
 import com.smartcommunity.entity.User;
 import com.smartcommunity.entity.WorkerStaffing;
 import com.smartcommunity.mapper.RepairEvaluationMapper;
+import com.smartcommunity.mapper.RepairFeeBillMapper;
 import com.smartcommunity.mapper.RepairOrderMapper;
 import com.smartcommunity.mapper.UserMapper;
 import com.smartcommunity.mapper.WorkerStaffingMapper;
@@ -70,6 +72,7 @@ public class RepairController {
 
     private final RepairOrderMapper repairOrderMapper;
     private final RepairEvaluationMapper repairEvaluationMapper;
+    private final RepairFeeBillMapper repairFeeBillMapper;
     private final UserMapper userMapper;
     private final WorkerStaffingMapper workerStaffingMapper;
     private final RedisUtil redisUtil;
@@ -205,6 +208,37 @@ public class RepairController {
         return Result.success(repairOrderMapper.selectList(wrapper));
     }
 
+    @GetMapping("/fee-bills")
+    public Result<List<RepairFeeBill>> feeBills(@RequestParam(required = false) Integer status) {
+        Integer role = AuthContext.getRole();
+        Long uid = AuthContext.getUserId();
+        if (role == null || uid == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
+        }
+        LambdaQueryWrapper<RepairFeeBill> wrapper = new LambdaQueryWrapper<RepairFeeBill>()
+                .eq(RepairFeeBill::getIsDeleted, 0);
+        if (status != null) {
+            wrapper.eq(RepairFeeBill::getStatus, status);
+        }
+        if (role == 1) {
+            wrapper.eq(RepairFeeBill::getUserId, uid);
+        } else if (role == 3) {
+            List<Long> orderIds = repairOrderMapper.selectList(new LambdaQueryWrapper<RepairOrder>()
+                            .eq(RepairOrder::getAssignee, uid)
+                            .eq(RepairOrder::getIsDeleted, 0))
+                    .stream()
+                    .map(RepairOrder::getId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            if (orderIds.isEmpty()) {
+                return Result.success(List.of());
+            }
+            wrapper.in(RepairFeeBill::getOrderId, orderIds);
+        }
+        wrapper.orderByDesc(RepairFeeBill::getId);
+        return Result.success(repairFeeBillMapper.selectList(wrapper));
+    }
+
     @GetMapping("/{id}")
     public Result<Map<String, Object>> detail(@PathVariable Long id) {
         RepairOrder order = repairOrderMapper.selectById(id);
@@ -218,6 +252,10 @@ public class RepairController {
         RepairEvaluation eval = repairEvaluationMapper.selectOne(new LambdaQueryWrapper<RepairEvaluation>()
                 .eq(RepairEvaluation::getOrderId, id)
                 .last("LIMIT 1"));
+        RepairFeeBill repairFeeBill = repairFeeBillMapper.selectOne(new LambdaQueryWrapper<RepairFeeBill>()
+                .eq(RepairFeeBill::getOrderId, id)
+                .eq(RepairFeeBill::getIsDeleted, 0)
+                .last("limit 1"));
 
         Integer role = AuthContext.getRole();
         Long uid = AuthContext.getUserId();
@@ -238,6 +276,7 @@ public class RepairController {
         boolean workerFinishConfirmed = isConfirmed(order.getWorkerFinishConfirmed());
         data.put("order", order);
         data.put("evaluation", eval);
+        data.put("repairFeeBill", repairFeeBill);
         data.put("statusText", statusText(order.getStatus()));
         data.put("verifyCode", showVerifyCode ? verifyCode : null);
         data.put("verifyPassed", verifyPassed);
@@ -368,6 +407,7 @@ public class RepairController {
         return Result.success(data);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @PostMapping("/status")
     public Result<RepairOrder> updateStatus(@RequestBody UpdateRepairStatusReq req) {
         if (req.getOrderId() == null || req.getStatus() == null) {
@@ -489,6 +529,7 @@ public class RepairController {
                 if (order.getCompletionTime() == null) {
                     order.setCompletionTime(now);
                 }
+                createOrUpdateRepairFeeBill(order, now);
             } else {
                 order.setStatus(STATUS_IN_SERVICE);
             }
@@ -887,6 +928,63 @@ public class RepairController {
     }
 
     private record ScoredWorker(Long workerId, int score, int load) {
+    }
+
+    private void createOrUpdateRepairFeeBill(RepairOrder order, LocalDateTime now) {
+        BigDecimal amount = order.getChargeAmount() == null ? BigDecimal.ZERO : order.getChargeAmount();
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            amount = BigDecimal.ZERO;
+        }
+        RepairFeeBill bill = repairFeeBillMapper.selectOne(new LambdaQueryWrapper<RepairFeeBill>()
+                .eq(RepairFeeBill::getOrderId, order.getId())
+                .eq(RepairFeeBill::getIsDeleted, 0)
+                .last("limit 1"));
+        int needPoints = amountToPoints(amount);
+        if (bill == null && needPoints <= 0) {
+            return;
+        }
+        if (bill == null) {
+            bill = new RepairFeeBill();
+            bill.setOrderId(order.getId());
+            bill.setUserId(order.getUserId());
+            bill.setPropertyId(order.getPropertyId());
+            bill.setCreateTime(now);
+            bill.setIsDeleted(0);
+        }
+
+        if (bill.getStatus() != null && bill.getStatus() == 1) {
+            return;
+        }
+
+        bill.setAmount(amount.setScale(2, java.math.RoundingMode.HALF_UP));
+        bill.setNeedPoints(needPoints);
+        bill.setRemark(order.getChargeRemark());
+        bill.setUpdateTime(now);
+        bill.setDueDate(now.plusDays(7));
+        if (needPoints <= 0) {
+            bill.setStatus(1);
+            bill.setPaidPoints(0);
+            bill.setPaymentTime(now);
+            bill.setTransactionId("FREE_REPAIR_" + order.getId());
+        } else {
+            bill.setStatus(0);
+            bill.setPaidPoints(0);
+            bill.setPaymentTime(null);
+            bill.setTransactionId(null);
+        }
+
+        if (bill.getId() == null) {
+            repairFeeBillMapper.insert(bill);
+        } else {
+            repairFeeBillMapper.updateById(bill);
+        }
+    }
+
+    private int amountToPoints(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return 0;
+        }
+        return amount.setScale(0, java.math.RoundingMode.UP).intValue();
     }
 
     private String statusText(Integer status) {
