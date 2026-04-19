@@ -17,11 +17,16 @@ public class ParkingOrder {
     private Long propertyId;
     private String vehicleNo;
     private Integer orderType;
+    private Integer sourceType;
     private BigDecimal amount;
+    private Integer parkHours;
+    private Integer freeHours;
+    private BigDecimal dailyCap;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Integer status;
     private String transactionId;
+    private LocalDateTime paymentTime;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Integer isDeleted;
