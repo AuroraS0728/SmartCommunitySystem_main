@@ -9,23 +9,23 @@ function roleMeta(role) {
     return {
       accountLabel: '安防账号',
       accountPlaceholder: 'WTGL + 6位数字',
-      passwordPlaceholder: '6位倒序数字密码',
-      tip: '物业安防端规则：账号 WTGL + 6位数字，密码为这6位数字倒序。'
+      passwordPlaceholder: '6位数字密码',
+      tip: '物业安防端账号规则：WTGL + 6位数字。'
     }
   }
   if (role === ROLE_WORKER) {
     return {
       accountLabel: '维修账号',
       accountPlaceholder: 'JZWX + 6位数字',
-      passwordPlaceholder: '6位倒序数字密码',
-      tip: '维修端规则：账号 JZWX + 6位数字，密码为这6位数字倒序。'
+      passwordPlaceholder: '6位数字密码',
+      tip: '维修端账号规则：JZWX + 6位数字。'
     }
   }
   return {
-    accountLabel: '业主账号',
-    accountPlaceholder: 'XQYZ + 6位数字',
-    passwordPlaceholder: '6位倒序数字密码',
-    tip: '业主端规则：账号 XQYZ + 6位数字，密码为这6位数字倒序。'
+    accountLabel: '房产号',
+    accountPlaceholder: 'YZ + 楼号2位 + 单元2位 + 房间2位 + 注册年后2位',
+    passwordPlaceholder: '初始密码为房产号后6位倒序',
+    tip: '业主首次登录后必须修改密码，否则不能使用功能。'
   }
 }
 
@@ -48,6 +48,16 @@ Page({
   onShow() {
     if (app.globalData.token) {
       app.goHome()
+      return
+    }
+    const prefill = wx.getStorageSync('prefillOwnerLogin')
+    if (prefill?.account && prefill?.password) {
+      wx.removeStorageSync('prefillOwnerLogin')
+      this.setData({
+        role: ROLE_OWNER,
+        account: String(prefill.account).toUpperCase(),
+        password: String(prefill.password)
+      }, () => this.syncRoleMeta())
     }
   },
 
@@ -69,7 +79,7 @@ Page({
   },
 
   onAccountInput(e) {
-    this.setData({ account: (e.detail.value || '').trim() })
+    this.setData({ account: (e.detail.value || '').trim().toUpperCase() })
   },
 
   onPasswordInput(e) {
@@ -86,6 +96,11 @@ Page({
     })
   },
 
+  goOwnerRegister() {
+    if (this.data.role !== ROLE_OWNER) return
+    wx.navigateTo({ url: '/pages/auth/register' })
+  },
+
   submit() {
     const { role, account, password, loading } = this.data
     if (loading) return
@@ -97,8 +112,12 @@ Page({
     this.setData({ loading: true })
     app
       .loginWithAccount(account, password, role)
-      .then(() => {
-        wx.showToast({ title: '登录成功', icon: 'success' })
+      .then((data) => {
+        if (role === ROLE_OWNER && data?.mustChangePassword) {
+          wx.showToast({ title: '请先修改密码', icon: 'none' })
+        } else {
+          wx.showToast({ title: '登录成功', icon: 'success' })
+        }
         app.goHome()
       })
       .catch((error) => {

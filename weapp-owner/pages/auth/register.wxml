@@ -1,0 +1,24 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">业主注册</view>
+    <view class="hero-desc">请输入手机号与房产号完成注册</view>
+  </view>
+
+  <view class="item">
+    <view class="field-label">手机号</view>
+    <input class="input" type="number" maxlength="11" value="{{phone}}" bindinput="onPhoneInput" placeholder="请输入11位手机号" />
+
+    <view class="field-label">房产号</view>
+    <input
+      class="input"
+      type="text"
+      maxlength="10"
+      value="{{propertyCode}}"
+      bindinput="onPropertyCodeInput"
+      placeholder="例如：YZ01020126"
+    />
+
+    <view class="tip">房产号规则：YZ + 楼号2位 + 单元2位 + 房间2位 + 房屋注册年份后2位。</view>
+    <button class="btn" loading="{{loading}}" bindtap="submit">提交注册</button>
+  </view>
+</view>

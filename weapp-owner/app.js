@@ -1,4 +1,5 @@
 const LOGIN_PAGE = '/pages/auth/login'
+const CHANGE_PASSWORD_PAGE = '/pages/auth/change-password'
 const OWNER_HOME_PAGE = '/pages/index/index'
 const SECURITY_HOME_PAGE = '/pages/security/home/home'
 const WORKER_HOME_PAGE = '/pages/worker/home/home'
@@ -16,7 +17,8 @@ App({
     baseUrl: 'http://localhost:8080/api',
     token: wx.getStorageSync('token') || '',
     userInfo: wx.getStorageSync('userInfo') || null,
-    role: toRole(wx.getStorageSync('role') || wx.getStorageSync('userInfo')?.role)
+    role: toRole(wx.getStorageSync('role') || wx.getStorageSync('userInfo')?.role),
+    mustChangePassword: !!wx.getStorageSync('mustChangePassword')
   },
 
   onLaunch() {
@@ -50,9 +52,11 @@ App({
           this.globalData.token = body.data.token
           this.globalData.userInfo = userInfo
           this.globalData.role = toRole(userInfo?.role || targetRole)
+          this.globalData.mustChangePassword = !!body.data.mustChangePassword
           wx.setStorageSync('token', this.globalData.token)
           wx.setStorageSync('userInfo', userInfo)
           wx.setStorageSync('role', this.globalData.role)
+          wx.setStorageSync('mustChangePassword', this.globalData.mustChangePassword)
           resolve(body.data)
         },
         fail: reject
@@ -64,12 +68,19 @@ App({
     this.globalData.token = ''
     this.globalData.userInfo = null
     this.globalData.role = 1
+    this.globalData.mustChangePassword = false
     wx.removeStorageSync('token')
     wx.removeStorageSync('userInfo')
     wx.removeStorageSync('role')
+    wx.removeStorageSync('mustChangePassword')
     if (redirect) {
       this.gotoLogin()
     }
+  },
+
+  setMustChangePassword(flag) {
+    this.globalData.mustChangePassword = !!flag
+    wx.setStorageSync('mustChangePassword', this.globalData.mustChangePassword)
   },
 
   gotoLogin() {
@@ -82,6 +93,15 @@ App({
   },
 
   goHome() {
+    if (this.globalData.role === 1 && this.globalData.mustChangePassword) {
+      const pages = getCurrentPages()
+      const current = pages[pages.length - 1]
+      if (!current || `/${current.route}` !== CHANGE_PASSWORD_PAGE) {
+        wx.reLaunch({ url: CHANGE_PASSWORD_PAGE })
+      }
+      return
+    }
+
     let homePage = OWNER_HOME_PAGE
     if (this.globalData.role === 2) {
       homePage = SECURITY_HOME_PAGE

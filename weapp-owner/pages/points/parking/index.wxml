@@ -1,7 +1,7 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">停车缴费</view>
-    <view class="hero-desc">月卡 500 元/30天；临停 2 元/小时（当日封顶 30 元）</view>
+    <view class="hero-title">停车费缴纳</view>
+    <view class="hero-desc">当前可用积分：{{points}}</view>
   </view>
 
   <view class="item">
@@ -11,7 +11,7 @@
       <view class="btn" bindtap="onQueryByPlate">查询待缴订单</view>
       <view class="btn" bindtap="onSettleExit">车辆出场结算</view>
     </view>
-    <view class="btn" bindtap="onRenewMonthCard">购买/续费月卡</view>
+    <view class="btn" bindtap="onRenewMonthCard">购买/续费月卡（500积分）</view>
   </view>
 
   <view wx:if="{{queryResult}}" class="item">
@@ -20,15 +20,16 @@
       月卡有效期至：{{queryResult.activeMonthCard.endTime}}
     </view>
     <view wx:if="{{queryResult.unpaidTempOrder}}" class="item-desc">
-      临停待缴金额：{{queryResult.unpaidTempOrder.amount}} 元
+      临停待缴金额：{{queryResult.unpaidTempOrder.amount}} 元（需 {{queryResult.unpaidNeedPoints}} 积分）
     </view>
     <view
       wx:if="{{queryResult.unpaidTempOrder}}"
       class="btn pay-btn"
       bindtap="onPayTempOrder"
       data-id="{{queryResult.unpaidTempOrder.id}}"
+      data-need-points="{{queryResult.unpaidNeedPoints}}"
     >
-      支付临停订单
+      支付临停订单（积分）
     </view>
   </view>
 
@@ -43,7 +44,17 @@
     <view class="item-desc">订单ID：{{ item.id }}</view>
     <view class="item-desc">车牌号：{{ item.vehicleNo || '--' }}</view>
     <view class="item-desc">金额：{{ item.amountText }} 元</view>
+    <view class="item-desc">所需积分：{{ item.needPointsText }}</view>
     <view class="item-desc">开始：{{ item.startTimeText }}</view>
     <view class="item-desc">结束：{{ item.endTimeText }}</view>
+    <view
+      wx:if="{{item.canPay}}"
+      class="btn pay-btn"
+      bindtap="onPayTempOrder"
+      data-id="{{item.id}}"
+      data-need-points="{{item.needPointsText}}"
+    >
+      立即支付（积分）
+    </view>
   </view>
 </view>

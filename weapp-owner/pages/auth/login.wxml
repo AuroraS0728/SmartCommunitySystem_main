@@ -15,7 +15,7 @@
     <input
       class="input"
       type="text"
-      maxlength="10"
+      maxlength="20"
       placeholder="{{accountPlaceholder}}"
       value="{{account}}"
       bindinput="onAccountInput"
@@ -26,13 +26,15 @@
       class="input"
       type="password"
       password
-      maxlength="6"
+      maxlength="20"
       placeholder="{{passwordPlaceholder}}"
       value="{{password}}"
       bindinput="onPasswordInput"
     />
 
     <view class="tip">{{tip}}</view>
+
+    <view class="register-link" wx:if="{{role===1}}" bindtap="goOwnerRegister">没有账号？业主注册</view>
     <button class="btn login-btn" loading="{{loading}}" bindtap="submit">登录</button>
   </view>
 </view>

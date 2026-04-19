@@ -15,6 +15,18 @@
       <view class="meta" wx:if="{{detail.order.assignee}}">维修人员ID：{{detail.order.assignee}}</view>
     </view>
 
+    <view class="item" wx:if="{{detail.repairFeeBill}}">
+      <view class="item-title">维修费用账单</view>
+      <view class="meta">账单ID：{{detail.repairFeeBill.id}}</view>
+      <view class="meta">金额：{{detail.repairFeeBill.amount}} 元</view>
+      <view class="meta">需支付积分：{{detail.repairFeeNeedPoints}}</view>
+      <view class="meta">状态：{{detail.repairFeeBillStatusText}}</view>
+      <view class="meta">截止时间：{{detail.repairFeeBill.dueDate || '--'}}</view>
+      <view wx:if="{{detail.repairFeeBill.status !== 1}}" class="btn" bindtap="payRepairFee">
+        {{payingRepairFee ? "支付中..." : "使用积分支付维修费用"}}
+      </view>
+    </view>
+
     <view class="item" wx:if="{{detail.verifyCode}}">
       <view class="item-title">现场验证码</view>
       <view class="item-desc code-value">{{detail.verifyCode}}</view>
@@ -29,7 +41,7 @@
         {{confirmingFinish ? "提交中..." : "确认服务结束"}}
       </view>
       <view class="meta" wx:if="{{!detail.canOwnerFinish && detail.order.status === 2}}">
-        需双方都点击“结束”后，系统才进入完单结算流程。
+        需业主与维修端都点击“结束”后，系统才进入完单结算流程。
       </view>
     </view>
 
@@ -66,4 +78,3 @@
 
   <view wx:else class="empty">未找到工单详情</view>
 </view>
-

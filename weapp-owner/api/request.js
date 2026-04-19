@@ -18,6 +18,18 @@ function handleUnauthorized() {
   wx.reLaunch({ url: '/pages/auth/login' })
 }
 
+function handleMustChangePassword() {
+  if (typeof app.setMustChangePassword === 'function') {
+    app.setMustChangePassword(true)
+  }
+  const pages = getCurrentPages()
+  const current = pages[pages.length - 1]
+  if (current && current.route === 'pages/auth/change-password') {
+    return
+  }
+  wx.reLaunch({ url: '/pages/auth/change-password' })
+}
+
 function request({ url, method = 'GET', data = {}, skipAuth = false }) {
   const doRequest = () =>
     new Promise((resolve, reject) => {
@@ -34,6 +46,15 @@ function request({ url, method = 'GET', data = {}, skipAuth = false }) {
             reject(new Error('登录已失效，请重新登录'))
             return
           }
+
+          const mustChangePassword =
+            res.statusCode === 403 || body.code === 403 || body.message === 'must change password'
+          if (mustChangePassword) {
+            handleMustChangePassword()
+            reject(new Error('首次登录必须先修改密码'))
+            return
+          }
+
           if (body.code === 200) {
             resolve(body.data)
             return

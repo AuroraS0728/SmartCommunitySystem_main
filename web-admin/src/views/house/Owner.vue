@@ -18,13 +18,13 @@
     <section class="panel">
       <div class="panel-header">
         <h3>业主积分管理</h3>
-        <el-input v-model="keyword" placeholder="按昵称/账号/手机号搜索" clearable style="max-width: 280px" />
+        <el-input v-model="keyword" placeholder="按昵称/房产号/手机号搜索" clearable style="max-width: 280px" />
       </div>
 
       <el-table v-loading="loading" :data="displayList" stripe>
         <el-table-column prop="id" label="ID" width="90" />
         <el-table-column prop="nickname" label="业主昵称" min-width="140" />
-        <el-table-column prop="account" label="账号" min-width="150" />
+        <el-table-column prop="account" label="房产号" min-width="150" />
         <el-table-column prop="phone" label="手机号" min-width="130" />
         <el-table-column prop="points" label="当前积分" min-width="120" />
         <el-table-column label="状态" min-width="110">

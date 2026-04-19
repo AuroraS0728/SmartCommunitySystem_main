@@ -1,0 +1,6 @@
+.tip {
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
