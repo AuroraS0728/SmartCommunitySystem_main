@@ -19,10 +19,9 @@
         <el-table-column prop="visitorPhone" label="手机号" min-width="130" />
         <el-table-column prop="code" label="邀请码" min-width="120" />
         <el-table-column prop="visitTime" label="来访时间" min-width="170" />
-        <el-table-column prop="expireTime" label="有效期至" min-width="170" />
-        <el-table-column label="倒计时" min-width="110">
+        <el-table-column label="有效截止时间" min-width="170">
           <template #default="{ row }">
-            <span>{{ countdownText(row) }}</span>
+            <span>{{ expireText(row) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="状态" min-width="90">
@@ -110,14 +109,8 @@ function statusTagType(status) {
   return 'warning'
 }
 
-function countdownText(row) {
-  if (row.status !== 'UNUSED') return '--'
-  const sec = Number(row.countdownSeconds || 0)
-  if (sec <= 0) return '00:00:00'
-  const h = String(Math.floor(sec / 3600)).padStart(2, '0')
-  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0')
-  const s = String(sec % 60).padStart(2, '0')
-  return `${h}:${m}:${s}`
+function expireText(row) {
+  return row?.expireTime || '--'
 }
 
 function isPhoneBlacklisted(phone) {

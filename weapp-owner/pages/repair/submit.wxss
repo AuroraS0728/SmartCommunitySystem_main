@@ -1,3 +1,26 @@
+.type-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-bottom: 22rpx;
+}
+
+.type-chip {
+  padding: 14rpx 20rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #cbd5e1;
+  color: #334155;
+  background: #ffffff;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.type-chip.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
 .category-trigger {
   display: flex;
   align-items: center;

@@ -2,21 +2,26 @@
   <div class="page-grid">
     <section class="panel">
       <div class="panel-header">
-        <h3>服务人员列表</h3>
+        <h3>人员定编管理</h3>
         <div class="actions">
-          <el-input v-model="keyword" placeholder="搜索姓名或电话" clearable style="width: 240px" />
+          <el-input v-model="keyword" placeholder="搜索姓名/电话/擅长类型" clearable style="width: 260px" />
           <el-button type="primary" @click="openCreate">新增人员</el-button>
         </div>
       </div>
+
       <el-table :data="displayList" stripe>
-        <el-table-column prop="id" label="ID" width="90" />
+        <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="nickname" label="姓名" min-width="120" />
-        <el-table-column prop="phone" label="电话" min-width="140" />
+        <el-table-column prop="phone" label="电话" min-width="130" />
+        <el-table-column label="人员类型" min-width="120">
+          <template #default="{ row }">{{ staffTypeText(row.staffType) }}</template>
+        </el-table-column>
+        <el-table-column prop="position" label="岗位" min-width="120" />
+        <el-table-column prop="shiftGroup" label="排班" width="90" />
+        <el-table-column prop="specialties" label="擅长类型" min-width="220" show-overflow-tooltip />
         <el-table-column label="状态" width="110">
           <template #default="{ row }">
-            <el-tag :type="Number(row.status) === 1 ? 'success' : 'danger'">
-              {{ Number(row.status) === 1 ? '在岗' : '停用' }}
-            </el-tag>
+            <el-tag :type="statusTagType(row.currentStatus)">{{ staffStatusText(row.currentStatus) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="人脸状态" width="120">
@@ -47,7 +52,7 @@
             </el-upload>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="260">
+        <el-table-column label="操作" width="260" fixed="right">
           <template #default="{ row }">
             <el-button size="small" text type="primary" @click="loadPerformance(row.id)">绩效</el-button>
             <el-button size="small" text type="primary" @click="openEdit(row)">编辑</el-button>
@@ -74,18 +79,63 @@
         </article>
         <article>
           <p>估算收入</p>
-          <h4>¥ {{ formatMoney(perf.income) }}</h4>
+          <h4>￥{{ formatMoney(perf.income) }}</h4>
         </article>
       </div>
     </section>
 
-    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑人员' : '新增人员'" width="520px">
-      <el-form label-width="80px">
+    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑人员' : '新增人员'" width="640px">
+      <el-form label-width="110px">
         <el-form-item label="姓名">
           <el-input v-model="form.nickname" />
         </el-form-item>
         <el-form-item label="电话">
           <el-input v-model="form.phone" />
+        </el-form-item>
+        <el-form-item label="人员类型">
+          <el-select v-model="form.staffType" style="width: 100%">
+            <el-option :value="1" label="固定人员-家政保洁" />
+            <el-option :value="2" label="维修-水工" />
+            <el-option :value="3" label="维修-电工" />
+            <el-option :value="4" label="维修-家电" />
+            <el-option :value="5" label="外包合作公司" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="岗位名称">
+          <el-input v-model="form.position" placeholder="如：水电维修员、家政保洁员" />
+        </el-form-item>
+        <el-form-item label="排班组">
+          <el-select v-model="form.shiftGroup" style="width: 100%">
+            <el-option value="A" label="A班" />
+            <el-option value="B" label="B班" />
+            <el-option value="C" label="C班" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="资质证书">
+          <el-input
+            v-model="form.certificates"
+            type="textarea"
+            :rows="2"
+            placeholder="逗号分隔，如：电工证,高空作业证"
+          />
+        </el-form-item>
+        <el-form-item label="擅长类型">
+          <el-input
+            v-model="form.skills"
+            type="textarea"
+            :rows="3"
+            placeholder="逗号分隔，如：水电维修,下水道堵塞,空调不制冷"
+          />
+        </el-form-item>
+        <el-form-item label="日最大接单">
+          <el-input-number v-model="form.maxDailyOrders" :min="1" :max="30" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="在岗状态">
+          <el-select v-model="form.currentStatus" style="width: 100%">
+            <el-option :value="1" label="空闲" />
+            <el-option :value="2" label="忙碌" />
+            <el-option :value="3" label="休息/离线" />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -99,7 +149,14 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { addWorker, deleteWorker, getWorkerList, getWorkerPerformance, updateWorker } from '@/api/worker'
+import {
+  addWorker,
+  deleteWorker,
+  getWorkerPerformance,
+  getWorkerStaffingList,
+  saveWorkerStaffing,
+  updateWorker
+} from '@/api/worker'
 import { getWorkerFaceStatus, registerWorkerFace } from '@/api/face'
 
 const keyword = ref('')
@@ -109,22 +166,45 @@ const dialogVisible = ref(false)
 const saving = ref(false)
 const faceUploadingId = ref(null)
 const faceStatusMap = ref({})
+
 const form = ref({
   id: null,
   nickname: '',
-  phone: ''
+  phone: '',
+  staffType: 2,
+  position: '',
+  shiftGroup: 'A',
+  skills: '',
+  certificates: '',
+  maxDailyOrders: 5,
+  currentStatus: 1
 })
 
 const displayList = computed(() => {
   if (!keyword.value.trim()) return list.value
   const text = keyword.value.trim()
-  return list.value.filter(
-    (item) => String(item.nickname || '').includes(text) || String(item.phone || '').includes(text)
-  )
+  return list.value.filter((item) => {
+    return (
+      String(item.nickname || '').includes(text) ||
+      String(item.phone || '').includes(text) ||
+      String(item.specialties || '').includes(text)
+    )
+  })
 })
 
 function resetForm() {
-  form.value = { id: null, nickname: '', phone: '' }
+  form.value = {
+    id: null,
+    nickname: '',
+    phone: '',
+    staffType: 2,
+    position: '',
+    shiftGroup: 'A',
+    skills: '',
+    certificates: '',
+    maxDailyOrders: 5,
+    currentStatus: 1
+  }
 }
 
 function openCreate() {
@@ -133,8 +213,43 @@ function openCreate() {
 }
 
 function openEdit(row) {
-  form.value = { id: row.id, nickname: row.nickname || '', phone: row.phone || '' }
+  form.value = {
+    id: row.id,
+    nickname: row.nickname || '',
+    phone: row.phone || '',
+    staffType: Number(row.staffType || 2),
+    position: row.position || '',
+    shiftGroup: row.shiftGroup || 'A',
+    skills: row.specialties || '',
+    certificates: row.certificates || '',
+    maxDailyOrders: Number(row.maxDailyOrders || 5),
+    currentStatus: Number(row.currentStatus || 1)
+  }
   dialogVisible.value = true
+}
+
+function staffTypeText(type) {
+  const map = {
+    1: '固定人员-家政保洁',
+    2: '维修-水工',
+    3: '维修-电工',
+    4: '维修-家电',
+    5: '外包合作公司'
+  }
+  return map[Number(type)] || '--'
+}
+
+function staffStatusText(status) {
+  const map = { 1: '空闲', 2: '忙碌', 3: '休息' }
+  return map[Number(status)] || '--'
+}
+
+function statusTagType(status) {
+  const s = Number(status)
+  if (s === 1) return 'success'
+  if (s === 2) return 'warning'
+  if (s === 3) return 'info'
+  return 'info'
 }
 
 function formatMoney(value) {
@@ -199,7 +314,7 @@ async function loadFaceStatus(workers) {
       try {
         const res = await getWorkerFaceStatus(worker.id)
         return [worker.id, !!res.data?.registered]
-      } catch (error) {
+      } catch {
         return [worker.id, false]
       }
     })
@@ -208,7 +323,7 @@ async function loadFaceStatus(workers) {
 }
 
 async function loadWorkers() {
-  const res = await getWorkerList()
+  const res = await getWorkerStaffingList()
   const workers = Array.isArray(res.data) ? res.data : []
   list.value = workers
   await loadFaceStatus(workers)
@@ -221,11 +336,32 @@ async function submit() {
   }
   saving.value = true
   try {
+    const payload = {
+      nickname: form.value.nickname,
+      phone: form.value.phone,
+      skills: form.value.skills,
+      staffType: Number(form.value.staffType || 2),
+      position: form.value.position,
+      shiftGroup: form.value.shiftGroup,
+      certificates: form.value.certificates,
+      maxDailyOrders: Number(form.value.maxDailyOrders || 5),
+      currentStatus: Number(form.value.currentStatus || 1)
+    }
     if (form.value.id) {
-      await updateWorker(form.value.id, { nickname: form.value.nickname, phone: form.value.phone })
+      await updateWorker(form.value.id, payload)
+      await saveWorkerStaffing({
+        workerId: form.value.id,
+        staffType: payload.staffType,
+        position: payload.position,
+        shiftGroup: payload.shiftGroup,
+        certificates: payload.certificates,
+        specialties: payload.skills,
+        maxDailyOrders: payload.maxDailyOrders,
+        currentStatus: payload.currentStatus
+      })
       ElMessage.success('更新成功')
     } else {
-      await addWorker({ nickname: form.value.nickname, phone: form.value.phone })
+      await addWorker(payload)
       ElMessage.success('新增成功')
     }
     dialogVisible.value = false
@@ -274,7 +410,6 @@ async function handleFaceBeforeUpload(file, workerId) {
   } finally {
     faceUploadingId.value = null
   }
-  // Stop el-upload default HTTP behavior, we call backend API ourselves.
   return false
 }
 
@@ -369,3 +504,4 @@ onMounted(async () => {
   }
 }
 </style>
+

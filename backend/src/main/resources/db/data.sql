@@ -14,6 +14,7 @@ TRUNCATE TABLE second_hand;
 TRUNCATE TABLE notice;
 TRUNCATE TABLE repair_evaluation;
 TRUNCATE TABLE repair_order;
+TRUNCATE TABLE worker_staffing;
 TRUNCATE TABLE owner_parking_quota;
 TRUNCATE TABLE user_vehicle;
 TRUNCATE TABLE parking_order;
@@ -31,6 +32,9 @@ INSERT INTO `user` (`id`, `openid`, `unionid`, `account`, `password`, `role`, `n
 (3, 'openid_owner_003', 'unionid_003', 'XQYZ345678', '876543', 1, 'Owner-C', NULL, '13800000003', 0, 1, NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY, 0),
 (10, 'openid_admin_001', 'unionid_010', 'WTGL456789', '987654', 2, 'Admin-A', NULL, 'ENC_13900000010', 0, 1, NOW() - INTERVAL 100 DAY, NOW() - INTERVAL 100 DAY, 0),
 (20, 'openid_worker_001', 'unionid_020', 'JZWX567890', '098765', 3, 'Worker-A', NULL, '13700000020', 0, 1, NOW() - INTERVAL 80 DAY, NOW() - INTERVAL 80 DAY, 0);
+
+INSERT INTO `worker_staffing` (`id`, `worker_id`, `staff_type`, `position`, `shift_group`, `certificates`, `specialties`, `max_daily_orders`, `current_status`, `create_time`, `update_time`, `is_deleted`) VALUES
+(1, 20, 2, '维修-水工', 'A', '水工证', '水电维修,水管漏水,下水道堵塞', 8, 1, NOW() - INTERVAL 80 DAY, NOW() - INTERVAL 1 DAY, 0);
 
 INSERT INTO `property` (`id`, `community`, `building`, `unit`, `room`, `owner_name`, `area`, `status`, `create_time`, `update_time`, `is_deleted`) VALUES
 (1001, 'Smart Garden', '1', '1', '101', 'Owner-A', 98.50, 4, NOW() - INTERVAL 50 DAY, NOW() - INTERVAL 50 DAY, 0),

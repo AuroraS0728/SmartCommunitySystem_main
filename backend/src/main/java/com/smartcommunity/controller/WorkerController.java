@@ -6,19 +6,23 @@ import com.smartcommunity.common.Result;
 import com.smartcommunity.common.StatusCode;
 import com.smartcommunity.dto.request.AddWorkerReq;
 import com.smartcommunity.dto.request.VerifyCodeReq;
+import com.smartcommunity.dto.request.WorkerStaffingReq;
 import com.smartcommunity.dto.request.WorkerScheduleReq;
 import com.smartcommunity.entity.RepairEvaluation;
 import com.smartcommunity.entity.RepairOrder;
 import com.smartcommunity.entity.User;
+import com.smartcommunity.entity.WorkerStaffing;
 import com.smartcommunity.mapper.RepairEvaluationMapper;
 import com.smartcommunity.mapper.RepairOrderMapper;
 import com.smartcommunity.mapper.UserMapper;
+import com.smartcommunity.mapper.WorkerStaffingMapper;
 import com.smartcommunity.utils.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,10 +38,12 @@ public class WorkerController {
     private static final int STATUS_WAIT_EVALUATE = 3;
     private static final int STATUS_COMPLETED = 4;
     private static final long VERIFY_PASS_EXPIRE_SECONDS = 24 * 60 * 60;
+    private static final int STAFF_STATUS_IDLE = 1;
 
     private final UserMapper userMapper;
     private final RepairOrderMapper repairOrderMapper;
     private final RepairEvaluationMapper repairEvaluationMapper;
+    private final WorkerStaffingMapper workerStaffingMapper;
     private final RedisUtil redisUtil;
 
     @GetMapping("/list")
@@ -45,6 +51,45 @@ public class WorkerController {
         return Result.success(userMapper.selectList(new LambdaQueryWrapper<User>()
                 .eq(User::getRole, 3)
                 .orderByAsc(User::getId)));
+    }
+
+    @GetMapping("/staffing/list")
+    public Result<List<Map<String, Object>>> staffingList() {
+        Integer role = AuthContext.getRole();
+        if (role == null || role != 2) {
+            return Result.fail(StatusCode.FORBIDDEN, "only admin can query staffing");
+        }
+        List<User> workers = userMapper.selectList(new LambdaQueryWrapper<User>()
+                .eq(User::getRole, 3)
+                .eq(User::getIsDeleted, 0)
+                .orderByAsc(User::getId));
+        if (workers.isEmpty()) {
+            return Result.success(List.of());
+        }
+        Map<Long, WorkerStaffing> staffingMap = workerStaffingMapper.selectList(new LambdaQueryWrapper<WorkerStaffing>()
+                        .in(WorkerStaffing::getWorkerId, workers.stream().map(User::getId).toList())
+                        .eq(WorkerStaffing::getIsDeleted, 0))
+                .stream()
+                .filter(item -> item.getWorkerId() != null)
+                .collect(Collectors.toMap(WorkerStaffing::getWorkerId, item -> item, (a, b) -> a));
+
+        List<Map<String, Object>> result = workers.stream().map(worker -> {
+            WorkerStaffing staffing = staffingMap.get(worker.getId());
+            Map<String, Object> row = new HashMap<>();
+            row.put("id", worker.getId());
+            row.put("nickname", worker.getNickname());
+            row.put("phone", worker.getPhone());
+            row.put("status", worker.getStatus());
+            row.put("staffType", staffing == null ? null : staffing.getStaffType());
+            row.put("position", staffing == null ? null : staffing.getPosition());
+            row.put("shiftGroup", staffing == null ? null : staffing.getShiftGroup());
+            row.put("certificates", staffing == null ? null : staffing.getCertificates());
+            row.put("specialties", staffing == null ? null : staffing.getSpecialties());
+            row.put("maxDailyOrders", staffing == null ? null : staffing.getMaxDailyOrders());
+            row.put("currentStatus", staffing == null ? null : staffing.getCurrentStatus());
+            return row;
+        }).toList();
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")
@@ -67,6 +112,8 @@ public class WorkerController {
         user.setUpdateTime(LocalDateTime.now());
         user.setIsDeleted(0);
         userMapper.insert(user);
+
+        upsertStaffing(user.getId(), req);
         return Result.success(user);
     }
 
@@ -80,12 +127,53 @@ public class WorkerController {
         user.setPhone(req.getPhone());
         user.setUpdateTime(LocalDateTime.now());
         userMapper.updateById(user);
+        upsertStaffing(user.getId(), req);
         return Result.success(user);
+    }
+
+    @PostMapping("/staffing/save")
+    public Result<WorkerStaffing> saveStaffing(@RequestBody WorkerStaffingReq req) {
+        Integer role = AuthContext.getRole();
+        if (role == null || role != 2) {
+            return Result.fail(StatusCode.FORBIDDEN, "only admin can save staffing");
+        }
+        if (req.getWorkerId() == null) {
+            return Result.fail(StatusCode.BAD_REQUEST, "workerId is empty");
+        }
+        User worker = userMapper.selectById(req.getWorkerId());
+        if (worker == null || worker.getRole() == null || worker.getRole() != 3) {
+            return Result.fail(StatusCode.BAD_REQUEST, "worker not found");
+        }
+        WorkerStaffing staffing = workerStaffingMapper.selectOne(new LambdaQueryWrapper<WorkerStaffing>()
+                .eq(WorkerStaffing::getWorkerId, req.getWorkerId())
+                .eq(WorkerStaffing::getIsDeleted, 0)
+                .last("LIMIT 1"));
+        if (staffing == null) {
+            staffing = new WorkerStaffing();
+            staffing.setWorkerId(req.getWorkerId());
+            staffing.setCreateTime(LocalDateTime.now());
+            staffing.setIsDeleted(0);
+        }
+        staffing.setStaffType(req.getStaffType() == null ? 2 : req.getStaffType());
+        staffing.setPosition(req.getPosition());
+        staffing.setShiftGroup(req.getShiftGroup());
+        staffing.setCertificates(req.getCertificates());
+        staffing.setSpecialties(req.getSpecialties());
+        staffing.setMaxDailyOrders(req.getMaxDailyOrders() == null ? 5 : req.getMaxDailyOrders());
+        staffing.setCurrentStatus(req.getCurrentStatus() == null ? STAFF_STATUS_IDLE : req.getCurrentStatus());
+        staffing.setUpdateTime(LocalDateTime.now());
+        if (staffing.getId() == null) {
+            workerStaffingMapper.insert(staffing);
+        } else {
+            workerStaffingMapper.updateById(staffing);
+        }
+        return Result.success(staffing);
     }
 
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         userMapper.deleteById(id);
+        workerStaffingMapper.delete(new LambdaQueryWrapper<WorkerStaffing>().eq(WorkerStaffing::getWorkerId, id));
         return Result.success("deleted", null);
     }
 
@@ -216,5 +304,34 @@ public class WorkerController {
 
     private String verifyPassKey(Long orderId) {
         return "repair:verify:pass:" + orderId;
+    }
+
+    private void upsertStaffing(Long workerId, AddWorkerReq req) {
+        if (workerId == null) {
+            return;
+        }
+        WorkerStaffing staffing = workerStaffingMapper.selectOne(new LambdaQueryWrapper<WorkerStaffing>()
+                .eq(WorkerStaffing::getWorkerId, workerId)
+                .eq(WorkerStaffing::getIsDeleted, 0)
+                .last("LIMIT 1"));
+        if (staffing == null) {
+            staffing = new WorkerStaffing();
+            staffing.setWorkerId(workerId);
+            staffing.setCreateTime(LocalDateTime.now());
+            staffing.setIsDeleted(0);
+        }
+        staffing.setStaffType(req.getStaffType() == null ? 2 : req.getStaffType());
+        staffing.setPosition(req.getPosition());
+        staffing.setShiftGroup(req.getShiftGroup());
+        staffing.setCertificates(req.getCertificates());
+        staffing.setSpecialties(StringUtils.hasText(req.getSkills()) ? req.getSkills().trim() : req.getSkills());
+        staffing.setMaxDailyOrders(req.getMaxDailyOrders() == null ? 5 : req.getMaxDailyOrders());
+        staffing.setCurrentStatus(req.getCurrentStatus() == null ? STAFF_STATUS_IDLE : req.getCurrentStatus());
+        staffing.setUpdateTime(LocalDateTime.now());
+        if (staffing.getId() == null) {
+            workerStaffingMapper.insert(staffing);
+        } else {
+            workerStaffingMapper.updateById(staffing);
+        }
     }
 }

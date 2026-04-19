@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS second_hand;
 DROP TABLE IF EXISTS notice;
 DROP TABLE IF EXISTS repair_evaluation;
 DROP TABLE IF EXISTS repair_order;
+DROP TABLE IF EXISTS worker_staffing;
 DROP TABLE IF EXISTS owner_parking_quota;
 DROP TABLE IF EXISTS user_vehicle;
 DROP TABLE IF EXISTS parking_order;
@@ -49,6 +50,25 @@ CREATE TABLE `user` (
   UNIQUE KEY `uk_account` (`account`),
   KEY `idx_phone` (`phone`),
   KEY `idx_role` (`role`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `worker_staffing` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `worker_id` BIGINT NOT NULL,
+  `staff_type` TINYINT NOT NULL DEFAULT 2,
+  `position` VARCHAR(50) DEFAULT NULL,
+  `shift_group` VARCHAR(20) DEFAULT NULL,
+  `certificates` VARCHAR(2000) DEFAULT NULL,
+  `specialties` VARCHAR(2000) DEFAULT NULL,
+  `max_daily_orders` INT NOT NULL DEFAULT 5,
+  `current_status` TINYINT NOT NULL DEFAULT 1,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_worker_id` (`worker_id`),
+  KEY `idx_staff_type_status` (`staff_type`,`current_status`),
+  CONSTRAINT `fk_worker_staffing_worker` FOREIGN KEY (`worker_id`) REFERENCES `user`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `property` (
@@ -201,9 +221,17 @@ CREATE TABLE `repair_order` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
   `property_id` BIGINT NOT NULL,
-  `category` VARCHAR(20) NOT NULL,
+  `service_type` TINYINT NOT NULL DEFAULT 1,
+  `service_major` VARCHAR(50) DEFAULT NULL,
+  `service_sub_type` VARCHAR(100) DEFAULT NULL,
+  `category` VARCHAR(100) NOT NULL,
   `description` TEXT NOT NULL,
   `images` VARCHAR(2000) DEFAULT NULL,
+  `before_images` VARCHAR(2000) DEFAULT NULL,
+  `after_images` VARCHAR(2000) DEFAULT NULL,
+  `charge_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `charge_remark` VARCHAR(255) DEFAULT NULL,
+  `need_outsource` TINYINT(1) NOT NULL DEFAULT 0,
   `status` TINYINT NOT NULL DEFAULT 1,
   `assignee` BIGINT DEFAULT NULL,
   `assigned_time` DATETIME DEFAULT NULL,
@@ -219,6 +247,7 @@ CREATE TABLE `repair_order` (
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_property_id` (`property_id`),
+  KEY `idx_service_type` (`service_type`),
   KEY `idx_status` (`status`),
   KEY `idx_assignee` (`assignee`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

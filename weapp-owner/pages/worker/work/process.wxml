@@ -4,6 +4,21 @@
     <view class="item-desc">当前状态：{{order ? order.status : "--"}}</view>
   </view>
 
+  <view class="item">
+    <view class="field-label">服务前照片</view>
+    <view class="btn worker-btn" bindtap="chooseImage" data-field="beforeImages">拍照上传服务前照片</view>
+    <view class="meta">{{beforeImages ? "已上传" : "未上传"}}</view>
+
+    <view class="field-label">服务后照片</view>
+    <view class="btn worker-btn" bindtap="chooseImage" data-field="afterImages">拍照上传服务后照片</view>
+    <view class="meta">{{afterImages ? "已上传" : "未上传"}}</view>
+
+    <view class="field-label">外包收费金额（可选）</view>
+    <input class="input" type="digit" value="{{chargeAmount}}" bindinput="onChargeAmountInput" placeholder="如：120.00" />
+    <view class="field-label">收费说明（可选）</view>
+    <input class="input" value="{{chargeRemark}}" bindinput="onChargeRemarkInput" placeholder="如：更换配件+上门费" />
+  </view>
+
   <view class="btn worker-btn" bindtap="start" loading="{{loading}}">开始服务</view>
   <view class="btn worker-btn" bindtap="finish" loading="{{loading}}">确认结束（维修端）</view>
 </view>

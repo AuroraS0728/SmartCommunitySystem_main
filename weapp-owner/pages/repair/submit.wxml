@@ -1,52 +1,61 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">报修/家政服务提交</view>
-    <view class="hero-desc">请选择服务类型后提交，流程将自动进入派单与现场验证。</view>
+    <view class="hero-title">报修 / 家政提交</view>
+    <view class="hero-desc">支持大类 + 细分类型，系统将按资质与空闲度自动派单。</view>
   </view>
 
   <view class="item">
     <view class="field-label">服务类型</view>
-
-    <view class="category-trigger" bindtap="toggleCategoryPanel">
-      <view class="category-value">
-        {{categoryMode === 'custom' ? (customCategory || '请输入自定义类型') : selectedCategory}}
-      </view>
-      <view class="category-arrow">{{showCategoryPanel ? '收起' : '选择'}}</view>
+    <view class="type-row">
+      <view class="type-chip {{serviceType === 1 ? 'active' : ''}}" data-type="1" bindtap="onServiceTypeChange">维修服务</view>
+      <view class="type-chip {{serviceType === 2 ? 'active' : ''}}" data-type="2" bindtap="onServiceTypeChange">家政服务</view>
     </view>
 
-    <view wx:if="{{showCategoryPanel}}" class="category-panel">
-      <view class="category-tip">常用类型</view>
-      <view class="category-grid">
-        <view
-          wx:for="{{categoryOptions}}"
-          wx:key="*this"
-          class="category-chip {{categoryMode === 'preset' && selectedCategory === item ? 'active' : ''}}"
-          data-item="{{item}}"
-          bindtap="selectPresetCategory"
-        >
-          {{item}}
-        </view>
+    <view class="field-label">服务大类</view>
+    <view class="category-grid">
+      <view
+        wx:for="{{majorList}}"
+        wx:key="*this"
+        class="category-chip {{selectedMajor === item ? 'active' : ''}}"
+        data-major="{{item}}"
+        bindtap="onMajorChange"
+      >
+        {{item}}
       </view>
-      <view class="category-custom-link" bindtap="switchCustomCategory">自定义类型</view>
     </view>
 
+    <view class="field-label">细分类型</view>
+    <view class="category-grid">
+      <view
+        wx:for="{{subTypeList}}"
+        wx:key="*this"
+        class="category-chip {{!useCustomSubType && selectedSubType === item ? 'active' : ''}}"
+        data-sub-type="{{item}}"
+        bindtap="onSubTypeChange"
+      >
+        {{item}}
+      </view>
+    </view>
+
+    <view class="category-custom-link" bindtap="onCustomSwitch">自定义细分类型</view>
     <input
-      wx:if="{{categoryMode === 'custom'}}"
+      wx:if="{{useCustomSubType}}"
       class="input"
-      value="{{customCategory}}"
-      placeholder="请输入自定义服务类型"
-      maxlength="20"
-      bindinput="onCustomCategory"
+      value="{{customSubType}}"
+      placeholder="请输入自定义细分类型"
+      maxlength="30"
+      bindinput="onCustomSubTypeInput"
     />
 
     <view class="field-label">问题描述</view>
     <textarea
       class="input textarea"
       value="{{description}}"
-      placeholder="请描述具体问题、地址位置、上门时间等"
+      placeholder="请描述问题现象、上门时间要求、位置等信息"
       bindinput="onDesc"
     ></textarea>
 
     <view class="btn" bindtap="submitRepair">{{submitting ? "提交中..." : "提交工单"}}</view>
   </view>
 </view>
+
