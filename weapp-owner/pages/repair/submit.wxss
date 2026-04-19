@@ -21,42 +21,6 @@
   color: #ffffff;
 }
 
-.category-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
-  padding: 24rpx 24rpx;
-  border: 1rpx solid #dbe3ef;
-  border-radius: 16rpx;
-  background: #f8fafc;
-}
-
-.category-value {
-  color: #0f172a;
-  font-size: 28rpx;
-}
-
-.category-arrow {
-  color: #2563eb;
-  font-size: 24rpx;
-  font-weight: 600;
-}
-
-.category-panel {
-  margin-bottom: 20rpx;
-  padding: 22rpx 20rpx;
-  border: 1rpx solid #dbeafe;
-  border-radius: 16rpx;
-  background: #eff6ff;
-}
-
-.category-tip {
-  margin-bottom: 14rpx;
-  color: #475569;
-  font-size: 24rpx;
-}
-
 .category-grid {
   display: flex;
   flex-wrap: wrap;
@@ -80,7 +44,71 @@
 
 .category-custom-link {
   margin-top: 16rpx;
+  margin-bottom: 18rpx;
   color: #2563eb;
   font-size: 24rpx;
   font-weight: 600;
+}
+
+.date-picker {
+  min-height: 98rpx;
+  margin-bottom: 26rpx;
+  padding: 26rpx 30rpx;
+  border: 1rpx solid #dbe3ef;
+  border-radius: 18rpx;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 28rpx;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14rpx;
+  margin-bottom: 30rpx;
+}
+
+.slot-chip {
+  padding: 18rpx 16rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #bfdbfe;
+  background: #eff6ff;
+}
+
+.slot-chip.active {
+  border-color: #2563eb;
+  background: #2563eb;
+}
+
+.slot-chip.disabled {
+  border-color: #e2e8f0;
+  background: #f1f5f9;
+}
+
+.slot-title {
+  color: #1e3a8a;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.slot-chip.active .slot-title {
+  color: #fff;
+}
+
+.slot-chip.disabled .slot-title {
+  color: #94a3b8;
+}
+
+.slot-meta {
+  margin-top: 8rpx;
+  color: #475569;
+  font-size: 22rpx;
+}
+
+.slot-chip.active .slot-meta {
+  color: #dbeafe;
+}
+
+.slot-chip.disabled .slot-meta {
+  color: #94a3b8;
 }

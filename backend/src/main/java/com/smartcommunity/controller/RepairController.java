@@ -23,11 +23,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -52,9 +55,17 @@ public class RepairController {
     private static final int STAFF_TYPE_ELECTRICIAN = 3;
     private static final int STAFF_TYPE_APPLIANCE = 4;
     private static final int STAFF_TYPE_OUTSOURCE = 5;
+    private static final int STAFF_STATUS_IDLE = 1;
 
     private static final long VERIFY_CODE_EXPIRE_SECONDS = 4 * 60 * 60;
     private static final long VERIFY_PASS_EXPIRE_SECONDS = 24 * 60 * 60;
+    private static final List<AppointmentSlotDef> APPOINTMENT_SLOT_DEFS = List.of(
+            new AppointmentSlotDef("09:00-11:00", "09:00-11:00"),
+            new AppointmentSlotDef("11:00-13:00", "11:00-13:00"),
+            new AppointmentSlotDef("13:00-15:00", "13:00-15:00"),
+            new AppointmentSlotDef("15:00-17:00", "15:00-17:00"),
+            new AppointmentSlotDef("17:00-19:00", "17:00-19:00")
+    );
     private static final Set<String> OUTSOURCE_MAJORS = Set.of("房屋结构", "家具维修", "智能设备", "其他", "专项服务", "养老护理");
 
     private final RepairOrderMapper repairOrderMapper;
@@ -80,13 +91,32 @@ public class RepairController {
         if (!StringUtils.hasText(serviceMajor)) {
             return Result.fail(StatusCode.BAD_REQUEST, "serviceMajor is empty");
         }
+        LocalDate appointmentDate = parseAppointmentDate(req.getAppointmentDate());
+        if (appointmentDate == null) {
+            return Result.fail(StatusCode.BAD_REQUEST, "appointmentDate is invalid, required yyyy-MM-dd");
+        }
+        String appointmentTimeSlot = StringUtils.hasText(req.getAppointmentTimeSlot()) ? req.getAppointmentTimeSlot().trim() : "";
+        if (!isValidAppointmentSlot(appointmentTimeSlot)) {
+            return Result.fail(StatusCode.BAD_REQUEST, "appointmentTimeSlot is invalid");
+        }
+        RepairOrder virtualOrder = new RepairOrder();
+        virtualOrder.setServiceType(normalizeServiceType(req.getServiceType(), serviceMajor));
+        virtualOrder.setServiceMajor(serviceMajor);
+        virtualOrder.setServiceSubType(serviceSubType);
+        virtualOrder.setCategory(serviceSubType);
+        Map<String, Integer> slotAvailability = availableWorkerCountBySlot(virtualOrder, appointmentDate);
+        if (slotAvailability.getOrDefault(appointmentTimeSlot, 0) <= 0) {
+            return Result.fail(StatusCode.BAD_REQUEST, "selected appointment time slot has no available worker");
+        }
         RepairOrder order = new RepairOrder();
         order.setUserId(AuthContext.getUserId());
         order.setPropertyId(req.getPropertyId());
-        Integer serviceType = normalizeServiceType(req.getServiceType(), serviceMajor);
+        Integer serviceType = virtualOrder.getServiceType();
         order.setServiceType(serviceType);
         order.setServiceMajor(serviceMajor);
         order.setServiceSubType(serviceSubType);
+        order.setAppointmentDate(appointmentDate);
+        order.setAppointmentTimeSlot(appointmentTimeSlot);
         order.setCategory(category);
         order.setDescription(req.getDescription().trim());
         order.setImages(StringUtils.hasText(req.getImages()) ? req.getImages() : "[]");
@@ -107,6 +137,50 @@ public class RepairController {
         order.setIsDeleted(0);
         repairOrderMapper.insert(order);
         return Result.success(order);
+    }
+
+    @GetMapping("/available-slots")
+    public Result<Map<String, Object>> availableSlots(@RequestParam(required = false) Integer serviceType,
+                                                      @RequestParam(required = false) String serviceMajor,
+                                                      @RequestParam(required = false) String serviceSubType,
+                                                      @RequestParam String appointmentDate) {
+        String normalizedMajor = StringUtils.hasText(serviceMajor) ? serviceMajor.trim() : "";
+        String normalizedSubType = StringUtils.hasText(serviceSubType) ? serviceSubType.trim() : "";
+        if (!StringUtils.hasText(normalizedMajor)) {
+            return Result.fail(StatusCode.BAD_REQUEST, "serviceMajor is empty");
+        }
+        LocalDate targetDate = parseAppointmentDate(appointmentDate);
+        if (targetDate == null) {
+            return Result.fail(StatusCode.BAD_REQUEST, "appointmentDate is invalid, required yyyy-MM-dd");
+        }
+
+        RepairOrder virtualOrder = new RepairOrder();
+        Integer normalizedType = normalizeServiceType(serviceType, normalizedMajor);
+        virtualOrder.setServiceType(normalizedType);
+        virtualOrder.setServiceMajor(normalizedMajor);
+        virtualOrder.setServiceSubType(normalizedSubType);
+        virtualOrder.setCategory(normalizedSubType);
+
+        List<ScoredWorker> scoredWorkers = collectScoredWorkers(virtualOrder);
+        Map<String, Integer> availabilityMap = availableWorkerCountBySlot(virtualOrder, targetDate);
+
+        List<Map<String, Object>> slots = new ArrayList<>();
+        int totalCandidateCount = scoredWorkers.size();
+        for (AppointmentSlotDef slotDef : APPOINTMENT_SLOT_DEFS) {
+            int availableCount = availabilityMap.getOrDefault(slotDef.code(), 0);
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("code", slotDef.code());
+            row.put("label", slotDef.label());
+            row.put("available", availableCount > 0);
+            row.put("availableCount", availableCount);
+            slots.add(row);
+        }
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("appointmentDate", targetDate.toString());
+        data.put("slots", slots);
+        data.put("candidateWorkerCount", totalCandidateCount);
+        return Result.success(data);
     }
 
     @GetMapping("/list")
@@ -546,21 +620,37 @@ public class RepairController {
     }
 
     private Long pickAssignee(RepairOrder order) {
+        return collectScoredWorkers(order).stream()
+                .sorted(Comparator.comparingInt(ScoredWorker::score).reversed()
+                        .thenComparingInt(ScoredWorker::load)
+                        .thenComparingLong(ScoredWorker::workerId))
+                .findFirst()
+                .map(ScoredWorker::workerId)
+                .orElse(null);
+    }
+
+    private List<ScoredWorker> collectScoredWorkers(RepairOrder order) {
         List<User> activeWorkers = userMapper.selectList(new LambdaQueryWrapper<User>()
                 .eq(User::getRole, 3)
                 .eq(User::getStatus, 1)
                 .eq(User::getIsDeleted, 0));
         if (activeWorkers.isEmpty()) {
-            return null;
+            return List.of();
         }
         Map<Long, User> workerMap = activeWorkers.stream()
                 .filter(u -> u.getId() != null)
                 .collect(Collectors.toMap(User::getId, u -> u, (a, b) -> a));
+        if (workerMap.isEmpty()) {
+            return List.of();
+        }
 
         List<WorkerStaffing> staffingList = workerStaffingMapper.selectList(new LambdaQueryWrapper<WorkerStaffing>()
                 .in(WorkerStaffing::getWorkerId, workerMap.keySet())
                 .eq(WorkerStaffing::getIsDeleted, 0)
-                .eq(WorkerStaffing::getCurrentStatus, 1));
+                .eq(WorkerStaffing::getCurrentStatus, STAFF_STATUS_IDLE));
+        if (staffingList.isEmpty()) {
+            return List.of();
+        }
 
         List<ScoredWorker> scored = new ArrayList<>();
         for (WorkerStaffing staffing : staffingList) {
@@ -575,20 +665,49 @@ public class RepairController {
             int score = computeMatchScore(order, staffing);
             scored.add(new ScoredWorker(staffing.getWorkerId(), score, load));
         }
-        if (!scored.isEmpty()) {
-            return scored.stream()
-                    .sorted(Comparator.comparingInt(ScoredWorker::score).reversed()
-                            .thenComparingInt(ScoredWorker::load)
-                            .thenComparingLong(ScoredWorker::workerId))
-                    .findFirst()
-                    .map(ScoredWorker::workerId)
-                    .orElse(null);
+        return scored;
+    }
+
+    private Map<String, Integer> availableWorkerCountBySlot(RepairOrder order, LocalDate appointmentDate) {
+        Map<String, Integer> availability = new HashMap<>();
+        for (AppointmentSlotDef slotDef : APPOINTMENT_SLOT_DEFS) {
+            availability.put(slotDef.code(), 0);
         }
-        return workerMap.keySet().stream()
-                .map(id -> new ScoredWorker(id, 0, currentOpenLoad(id)))
-                .min(Comparator.comparingInt(ScoredWorker::load).thenComparingLong(ScoredWorker::workerId))
+        if (appointmentDate == null) {
+            return availability;
+        }
+
+        List<ScoredWorker> scoredWorkers = collectScoredWorkers(order);
+        if (scoredWorkers.isEmpty()) {
+            return availability;
+        }
+        Set<Long> candidateWorkerIds = scoredWorkers.stream()
                 .map(ScoredWorker::workerId)
-                .orElse(null);
+                .collect(Collectors.toSet());
+        int totalCandidateCount = candidateWorkerIds.size();
+        if (totalCandidateCount == 0) {
+            return availability;
+        }
+
+        Map<String, Set<Long>> busyBySlot = new HashMap<>();
+        List<RepairOrder> busyOrders = repairOrderMapper.selectList(new LambdaQueryWrapper<RepairOrder>()
+                .eq(RepairOrder::getAppointmentDate, appointmentDate)
+                .in(RepairOrder::getStatus, STATUS_WAIT_DISPATCH, STATUS_IN_SERVICE, STATUS_WAIT_EVALUATE)
+                .in(RepairOrder::getAssignee, candidateWorkerIds)
+                .isNotNull(RepairOrder::getAppointmentTimeSlot)
+                .eq(RepairOrder::getIsDeleted, 0));
+        for (RepairOrder busyOrder : busyOrders) {
+            if (busyOrder.getAssignee() == null || !StringUtils.hasText(busyOrder.getAppointmentTimeSlot())) {
+                continue;
+            }
+            busyBySlot.computeIfAbsent(busyOrder.getAppointmentTimeSlot(), k -> new HashSet<>()).add(busyOrder.getAssignee());
+        }
+
+        for (AppointmentSlotDef slotDef : APPOINTMENT_SLOT_DEFS) {
+            int busyCount = busyBySlot.getOrDefault(slotDef.code(), Set.of()).size();
+            availability.put(slotDef.code(), Math.max(totalCandidateCount - busyCount, 0));
+        }
+        return availability;
     }
 
     private int currentOpenLoad(Long workerId) {
@@ -624,10 +743,81 @@ public class RepairController {
                 score += 40;
             }
         }
+        score += certificateMatchScore(order, staffing);
         if (isOutsourceMajor(order.getServiceMajor()) && Objects.equals(STAFF_TYPE_OUTSOURCE, staffType)) {
             score += 30;
         }
         return score;
+    }
+
+    private int certificateMatchScore(RepairOrder order, WorkerStaffing staffing) {
+        Set<String> required = requiredCertificateTokens(order);
+        if (required.isEmpty()) {
+            return 0;
+        }
+        String certificates = normalize(staffing.getCertificates());
+        int score = 0;
+        for (String token : required) {
+            if (containsToken(certificates, token)) {
+                score += 35;
+            } else {
+                score -= 20;
+            }
+        }
+        return score;
+    }
+
+    private Set<String> requiredCertificateTokens(RepairOrder order) {
+        Set<String> required = new HashSet<>();
+        String major = normalize(order.getServiceMajor());
+        String subType = normalize(order.getServiceSubType());
+        String category = normalize(order.getCategory());
+
+        if (order.getServiceType() != null && order.getServiceType() == SERVICE_TYPE_HOUSEKEEPING) {
+            if (containsAnyToken(major, "养老护理", "nurse", "care")
+                    || containsAnyToken(subType, "护理", "陪护", "助浴", "康复", "nurse", "caregiver")) {
+                required.add("护理证");
+                required.add("caregiver");
+            } else {
+                required.add("家政服务证");
+                required.add("housekeeping");
+                required.add("cleaning");
+            }
+            if (isOutsourceMajor(order.getServiceMajor())) {
+                required.add("外包资质");
+                required.add("outsource");
+            }
+            return required;
+        }
+
+        if (containsAnyToken(major, "水电维修", "plumbing", "electrical")
+                || containsAnyToken(category, "plumbing", "electrical", "water", "power")) {
+            boolean electricCase = containsAnyToken(subType, "电", "线路", "插座", "灯", "跳闸", "electric", "power");
+            boolean plumbingCase = containsAnyToken(subType, "水", "管", "马桶", "下水", "漏", "热水", "plumber", "water", "drain");
+            if (electricCase) {
+                required.add("电工证");
+                required.add("electrician");
+            }
+            if (plumbingCase) {
+                required.add("水工证");
+                required.add("plumber");
+            }
+            if (!electricCase && !plumbingCase) {
+                required.add("electrician");
+                required.add("plumber");
+            }
+        }
+
+        if (containsAnyToken(major, "家电维修", "appliance")) {
+            required.add("家电维修证");
+            required.add("appliance");
+        }
+
+        if (isOutsourceMajor(order.getServiceMajor())) {
+            required.add("外包资质");
+            required.add("outsource");
+        }
+        return required;
     }
 
     private boolean matchesStaffType(RepairOrder order, Integer staffType) {
@@ -661,6 +851,39 @@ public class RepairController {
             return false;
         }
         return source.contains(token.replace(" ", "").toLowerCase());
+    }
+
+    private boolean containsAnyToken(String source, String... tokens) {
+        if (!StringUtils.hasText(source) || tokens == null || tokens.length == 0) {
+            return false;
+        }
+        for (String token : tokens) {
+            if (containsToken(source, token)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private LocalDate parseAppointmentDate(String dateText) {
+        if (!StringUtils.hasText(dateText)) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(dateText.trim());
+        } catch (DateTimeParseException ignored) {
+            return null;
+        }
+    }
+
+    private boolean isValidAppointmentSlot(String slotCode) {
+        if (!StringUtils.hasText(slotCode)) {
+            return false;
+        }
+        return APPOINTMENT_SLOT_DEFS.stream().anyMatch(slot -> slot.code().equals(slotCode));
+    }
+
+    private record AppointmentSlotDef(String code, String label) {
     }
 
     private record ScoredWorker(Long workerId, int score, int load) {

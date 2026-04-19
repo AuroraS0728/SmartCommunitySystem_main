@@ -228,6 +228,8 @@ CREATE TABLE `repair_order` (
   `service_type` TINYINT NOT NULL DEFAULT 1,
   `service_major` VARCHAR(50) DEFAULT NULL,
   `service_sub_type` VARCHAR(100) DEFAULT NULL,
+  `appointment_date` DATE DEFAULT NULL,
+  `appointment_time_slot` VARCHAR(20) DEFAULT NULL,
   `category` VARCHAR(100) NOT NULL,
   `description` TEXT NOT NULL,
   `images` VARCHAR(2000) DEFAULT NULL,
@@ -252,6 +254,7 @@ CREATE TABLE `repair_order` (
   KEY `idx_user_id` (`user_id`),
   KEY `idx_property_id` (`property_id`),
   KEY `idx_service_type` (`service_type`),
+  KEY `idx_appointment_date_slot` (`appointment_date`,`appointment_time_slot`),
   KEY `idx_status` (`status`),
   KEY `idx_assignee` (`assignee`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

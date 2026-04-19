@@ -16,13 +16,49 @@ const HOUSEKEEPING_CATALOG = {
   专项服务: ["除螨服务", "甲醛检测治理", "宠物护理", "家庭收纳整理", "开荒保洁"]
 }
 
+const SLOT_LABELS = {
+  "09:00-11:00": "早上 09:00-11:00",
+  "11:00-13:00": "中午 11:00-13:00",
+  "13:00-15:00": "下午 13:00-15:00",
+  "15:00-17:00": "下午 15:00-17:00",
+  "17:00-19:00": "傍晚 17:00-19:00"
+}
+
+const DEFAULT_SLOTS = Object.keys(SLOT_LABELS).map((code) => ({
+  code,
+  label: SLOT_LABELS[code],
+  available: false,
+  availableCount: 0
+}))
+
 function catalogByType(serviceType) {
   return serviceType === 2 ? HOUSEKEEPING_CATALOG : REPAIR_CATALOG
 }
 
+function formatDate(date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, "0")
+  const d = String(date.getDate()).padStart(2, "0")
+  return `${y}-${m}-${d}`
+}
+
+function buildDateOptions(days = 7) {
+  const list = []
+  const today = new Date()
+  for (let i = 0; i < days; i += 1) {
+    const d = new Date(today)
+    d.setDate(today.getDate() + i)
+    list.push({
+      value: formatDate(d),
+      label: i === 0 ? "今天" : i === 1 ? "明天" : `${d.getMonth() + 1}月${d.getDate()}日`
+    })
+  }
+  return list
+}
+
 Page({
   data: {
-    serviceType: 1, // 1 维修 2 家政
+    serviceType: 1,
     majorList: [],
     selectedMajor: "",
     subTypeList: [],
@@ -30,73 +66,198 @@ Page({
     customSubType: "",
     useCustomSubType: false,
     description: "",
+    dateOptions: [],
+    appointmentDate: "",
+    slotList: DEFAULT_SLOTS,
+    selectedSlot: "",
+    loadingSlots: false,
     submitting: false
   },
+
   onLoad() {
-    this.initCatalog(1)
+    const dateOptions = buildDateOptions(7)
+    this.setData(
+      {
+        dateOptions,
+        appointmentDate: dateOptions[0]?.value || ""
+      },
+      () => {
+        this.initCatalog(1)
+      }
+    )
   },
+
   initCatalog(serviceType) {
     const catalog = catalogByType(serviceType)
     const majorList = Object.keys(catalog)
     const selectedMajor = majorList[0] || ""
     const subTypeList = catalog[selectedMajor] || []
     const selectedSubType = subTypeList[0] || ""
-    this.setData({
-      serviceType,
-      majorList,
-      selectedMajor,
-      subTypeList,
-      selectedSubType,
-      customSubType: "",
-      useCustomSubType: false
-    })
+    this.setData(
+      {
+        serviceType,
+        majorList,
+        selectedMajor,
+        subTypeList,
+        selectedSubType,
+        customSubType: "",
+        useCustomSubType: false,
+        selectedSlot: "",
+        slotList: DEFAULT_SLOTS
+      },
+      () => this.refreshSlotAvailability()
+    )
   },
+
   onServiceTypeChange(e) {
     const serviceType = Number(e.currentTarget.dataset.type || 1)
     if (serviceType === this.data.serviceType) return
     this.initCatalog(serviceType)
   },
+
   onMajorChange(e) {
     const selectedMajor = e.currentTarget.dataset.major
     const catalog = catalogByType(this.data.serviceType)
     const subTypeList = catalog[selectedMajor] || []
-    this.setData({
-      selectedMajor,
-      subTypeList,
-      selectedSubType: subTypeList[0] || "",
-      useCustomSubType: false,
-      customSubType: ""
-    })
+    this.setData(
+      {
+        selectedMajor,
+        subTypeList,
+        selectedSubType: subTypeList[0] || "",
+        useCustomSubType: false,
+        customSubType: "",
+        selectedSlot: "",
+        slotList: DEFAULT_SLOTS
+      },
+      () => this.refreshSlotAvailability()
+    )
   },
+
   onSubTypeChange(e) {
-    this.setData({
-      selectedSubType: e.currentTarget.dataset.subType,
-      useCustomSubType: false
-    })
+    this.setData(
+      {
+        selectedSubType: e.currentTarget.dataset.subType,
+        useCustomSubType: false,
+        selectedSlot: "",
+        slotList: DEFAULT_SLOTS
+      },
+      () => this.refreshSlotAvailability()
+    )
   },
+
   onCustomSwitch() {
-    this.setData({ useCustomSubType: true })
+    this.setData(
+      {
+        useCustomSubType: true,
+        selectedSlot: "",
+        slotList: DEFAULT_SLOTS
+      },
+      () => this.refreshSlotAvailability()
+    )
   },
+
   onCustomSubTypeInput(e) {
-    this.setData({ customSubType: e.detail.value })
+    this.setData(
+      {
+        customSubType: e.detail.value || "",
+        selectedSlot: "",
+        slotList: DEFAULT_SLOTS
+      },
+      () => this.refreshSlotAvailability()
+    )
   },
+
   onDesc(e) {
-    this.setData({ description: e.detail.value })
+    this.setData({ description: e.detail.value || "" })
   },
+
+  onDateChange(e) {
+    const appointmentDate = e.detail.value
+    this.setData(
+      {
+        appointmentDate,
+        selectedSlot: "",
+        slotList: DEFAULT_SLOTS
+      },
+      () => this.refreshSlotAvailability()
+    )
+  },
+
+  onSlotTap(e) {
+    const code = e.currentTarget.dataset.code
+    const available = !!e.currentTarget.dataset.available
+    if (!code || !available) return
+    this.setData({ selectedSlot: code })
+  },
+
   getSubType() {
     if (this.data.useCustomSubType) {
       return (this.data.customSubType || "").trim()
     }
     return (this.data.selectedSubType || "").trim()
   },
+
+  async refreshSlotAvailability() {
+    const serviceMajor = (this.data.selectedMajor || "").trim()
+    const appointmentDate = (this.data.appointmentDate || "").trim()
+    const serviceSubType = this.getSubType()
+    if (!serviceMajor || !appointmentDate) return
+
+    this.setData({ loadingSlots: true })
+    try {
+      const data = await request({
+        url: "/repair/available-slots",
+        data: {
+          serviceType: this.data.serviceType,
+          serviceMajor,
+          serviceSubType,
+          appointmentDate
+        }
+      })
+      const rawSlots = Array.isArray(data?.slots) ? data.slots : []
+      const map = new Map(rawSlots.map((item) => [item.code, item]))
+      const slotList = DEFAULT_SLOTS.map((slot) => {
+        const hit = map.get(slot.code)
+        return {
+          ...slot,
+          available: !!hit?.available,
+          availableCount: Number(hit?.availableCount || 0)
+        }
+      })
+      const selectedStillAvailable = slotList.some((slot) => slot.code === this.data.selectedSlot && slot.available)
+      this.setData({
+        slotList,
+        selectedSlot: selectedStillAvailable ? this.data.selectedSlot : ""
+      })
+    } catch (error) {
+      this.setData({
+        slotList: DEFAULT_SLOTS,
+        selectedSlot: ""
+      })
+      wx.showToast({ title: error?.message || "时段加载失败", icon: "none" })
+    } finally {
+      this.setData({ loadingSlots: false })
+    }
+  },
+
   async submitRepair() {
     if (this.data.submitting) return
 
     const serviceMajor = (this.data.selectedMajor || "").trim()
     const serviceSubType = this.getSubType()
     const description = (this.data.description || "").trim()
+    const appointmentDate = (this.data.appointmentDate || "").trim()
+    const appointmentTimeSlot = (this.data.selectedSlot || "").trim()
     if (!serviceMajor || !serviceSubType || !description) {
       wx.showToast({ title: "请完整填写服务信息", icon: "none" })
+      return
+    }
+    if (!appointmentDate) {
+      wx.showToast({ title: "请选择上门日期", icon: "none" })
+      return
+    }
+    if (!appointmentTimeSlot) {
+      wx.showToast({ title: "请选择可用上门时段", icon: "none" })
       return
     }
 
@@ -110,6 +271,8 @@ Page({
           serviceType: this.data.serviceType,
           serviceMajor,
           serviceSubType,
+          appointmentDate,
+          appointmentTimeSlot,
           category: serviceSubType,
           description,
           images: "[]"
@@ -119,8 +282,10 @@ Page({
       this.setData({
         description: "",
         customSubType: "",
-        useCustomSubType: false
+        useCustomSubType: false,
+        selectedSlot: ""
       })
+      this.refreshSlotAvailability()
     } catch (error) {
       wx.showToast({ title: error?.message || "提交失败", icon: "none" })
     } finally {
@@ -128,4 +293,3 @@ Page({
     }
   }
 })
-

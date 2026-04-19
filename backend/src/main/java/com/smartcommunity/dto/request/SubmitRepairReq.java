@@ -8,6 +8,8 @@ public class SubmitRepairReq {
     private Integer serviceType;
     private String serviceMajor;
     private String serviceSubType;
+    private String appointmentDate;
+    private String appointmentTimeSlot;
     private String category;
     private String description;
     private String images;

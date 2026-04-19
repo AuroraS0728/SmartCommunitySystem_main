@@ -1,7 +1,7 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">报修 / 家政提交</view>
-    <view class="hero-desc">支持大类 + 细分类型，系统将按资质与空闲度自动派单。</view>
+    <view class="hero-desc">选择服务内容与上门时间段，灰色时段表示暂无可用人员</view>
   </view>
 
   <view class="item">
@@ -47,15 +47,35 @@
       bindinput="onCustomSubTypeInput"
     />
 
+    <view class="field-label">上门日期</view>
+    <picker mode="date" value="{{appointmentDate}}" bindchange="onDateChange">
+      <view class="date-picker">{{appointmentDate || "请选择上门日期"}}</view>
+    </picker>
+
+    <view class="field-label">上门时间段</view>
+    <view wx:if="{{loadingSlots}}" class="meta">时段加载中...</view>
+    <view class="slot-grid">
+      <view
+        wx:for="{{slotList}}"
+        wx:key="code"
+        class="slot-chip {{selectedSlot === item.code ? 'active' : ''}} {{!item.available ? 'disabled' : ''}}"
+        data-code="{{item.code}}"
+        data-available="{{item.available}}"
+        bindtap="onSlotTap"
+      >
+        <view class="slot-title">{{item.label}}</view>
+        <view class="slot-meta">{{item.available ? ("可预约 " + item.availableCount + " 人") : "暂无人员"}}</view>
+      </view>
+    </view>
+
     <view class="field-label">问题描述</view>
     <textarea
       class="input textarea"
       value="{{description}}"
-      placeholder="请描述问题现象、上门时间要求、位置等信息"
+      placeholder="请描述问题现象、上门注意事项、位置等信息"
       bindinput="onDesc"
     ></textarea>
 
     <view class="btn" bindtap="submitRepair">{{submitting ? "提交中..." : "提交工单"}}</view>
   </view>
 </view>
-
