@@ -1,10 +1,39 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">停车费订单</view>
-    <view class="hero-desc">当前可用积分：{{ points }}</view>
+    <view class="hero-title">停车缴费</view>
+    <view class="hero-desc">月卡 500 元/30天；临停 2 元/小时（当日封顶 30 元）</view>
   </view>
 
-  <view wx:if="{{!orders.length}}" class="empty">暂无停车订单</view>
+  <view class="item">
+    <view class="field-label">车牌号查询</view>
+    <input class="input" placeholder="请输入车牌号，如 A12345" value="{{vehicleNo}}" bindinput="onInputVehicle" />
+    <view class="row-between">
+      <view class="btn" bindtap="onQueryByPlate">查询待缴订单</view>
+      <view class="btn" bindtap="onSettleExit">车辆出场结算</view>
+    </view>
+    <view class="btn" bindtap="onRenewMonthCard">购买/续费月卡</view>
+  </view>
+
+  <view wx:if="{{queryResult}}" class="item">
+    <view class="item-title">查询结果（{{queryResult.vehicleNo}}）</view>
+    <view wx:if="{{queryResult.activeMonthCard}}" class="item-desc">
+      月卡有效期至：{{queryResult.activeMonthCard.endTime}}
+    </view>
+    <view wx:if="{{queryResult.unpaidTempOrder}}" class="item-desc">
+      临停待缴金额：{{queryResult.unpaidTempOrder.amount}} 元
+    </view>
+    <view
+      wx:if="{{queryResult.unpaidTempOrder}}"
+      class="btn pay-btn"
+      bindtap="onPayTempOrder"
+      data-id="{{queryResult.unpaidTempOrder.id}}"
+    >
+      支付临停订单
+    </view>
+  </view>
+
+  <view class="group-title">缴费记录</view>
+  <view wx:if="{{!orders.length}}" class="empty">暂无停车缴费记录</view>
 
   <view wx:for="{{orders}}" wx:key="id" class="item">
     <view class="row-between">
@@ -13,19 +42,8 @@
     </view>
     <view class="item-desc">订单ID：{{ item.id }}</view>
     <view class="item-desc">车牌号：{{ item.vehicleNo || '--' }}</view>
-    <view class="item-desc">金额：{{ item.amount || 0 }} 元</view>
-    <view class="item-desc">需支付积分：{{ item.needPoints }}</view>
-
-    <view
-      wx:if="{{item.canPay}}"
-      class="btn pay-btn"
-      bindtap="onPayOrder"
-      data-id="{{item.id}}"
-      data-points="{{item.needPoints}}"
-      data-business-type="{{item.businessType}}"
-    >
-      立即支付
-    </view>
-    <view wx:else class="paid-text">该订单已支付</view>
+    <view class="item-desc">金额：{{ item.amountText }} 元</view>
+    <view class="item-desc">开始：{{ item.startTimeText }}</view>
+    <view class="item-desc">结束：{{ item.endTimeText }}</view>
   </view>
 </view>

@@ -18,6 +18,8 @@ DROP TABLE IF EXISTS second_hand;
 DROP TABLE IF EXISTS notice;
 DROP TABLE IF EXISTS repair_evaluation;
 DROP TABLE IF EXISTS repair_order;
+DROP TABLE IF EXISTS owner_parking_quota;
+DROP TABLE IF EXISTS user_vehicle;
 DROP TABLE IF EXISTS parking_order;
 DROP TABLE IF EXISTS fee_bill;
 DROP TABLE IF EXISTS points_consumption_record;
@@ -84,7 +86,10 @@ CREATE TABLE `fee_bill` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `property_id` BIGINT NOT NULL,
   `bill_period` VARCHAR(10) NOT NULL,
+  `area_snapshot` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `unit_price` DECIMAL(10,2) NOT NULL DEFAULT 5.00,
   `amount` DECIMAL(10,2) NOT NULL,
+  `discount_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `need_points` INT NOT NULL DEFAULT 0,
   `paid_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `status` TINYINT NOT NULL DEFAULT 0,
@@ -96,6 +101,7 @@ CREATE TABLE `fee_bill` (
   `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_transaction_id` (`transaction_id`),
+  UNIQUE KEY `uk_property_period` (`property_id`,`bill_period`),
   KEY `idx_property_id` (`property_id`),
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -139,18 +145,56 @@ CREATE TABLE `parking_order` (
   `property_id` BIGINT DEFAULT NULL,
   `vehicle_no` VARCHAR(10) NOT NULL,
   `order_type` TINYINT NOT NULL,
+  `source_type` TINYINT NOT NULL DEFAULT 1,
   `amount` DECIMAL(10,2) NOT NULL,
+  `park_hours` INT DEFAULT NULL,
+  `free_hours` INT NOT NULL DEFAULT 0,
+  `daily_cap` DECIMAL(10,2) NOT NULL DEFAULT 30.00,
   `start_time` DATETIME NOT NULL,
   `end_time` DATETIME NOT NULL,
   `status` TINYINT NOT NULL DEFAULT 0,
   `transaction_id` VARCHAR(64) DEFAULT NULL,
+  `payment_time` DATETIME DEFAULT NULL,
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_transaction_id` (`transaction_id`),
   KEY `idx_user_id` (`user_id`),
-  KEY `idx_vehicle_no` (`vehicle_no`)
+  KEY `idx_vehicle_no` (`vehicle_no`),
+  KEY `idx_order_type` (`order_type`,`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `user_vehicle` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `vehicle_no` VARCHAR(10) NOT NULL,
+  `is_visitor` TINYINT(1) NOT NULL DEFAULT 0,
+  `host_user_id` BIGINT DEFAULT NULL,
+  `parking_deadline` DATETIME DEFAULT NULL,
+  `remind_time` DATETIME DEFAULT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_vehicle` (`user_id`,`vehicle_no`,`is_visitor`),
+  KEY `idx_vehicle_no` (`vehicle_no`),
+  KEY `idx_host_user` (`host_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `owner_parking_quota` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `month_key` VARCHAR(7) NOT NULL,
+  `free_hours_total` INT NOT NULL DEFAULT 10,
+  `free_hours_used` INT NOT NULL DEFAULT 0,
+  `owner_extra_hours` INT NOT NULL DEFAULT 0,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_owner_month` (`user_id`,`month_key`),
+  KEY `idx_month_key` (`month_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `repair_order` (

@@ -5,84 +5,146 @@ function statusText(status) {
 }
 
 function orderTypeText(orderType) {
-  return Number(orderType) === 2 ? '月卡续费' : '临时停车'
+  return Number(orderType) === 2 ? '月卡订单' : '临停订单'
 }
 
-function toNeedPoints(item) {
-  return Math.trunc(Number(item?.amount || 0))
+function toMoney(value) {
+  return Number(value || 0).toFixed(2)
 }
 
-function toBusinessType(item) {
-  return Number(item?.orderType) === 2 ? 2 : 3
+function formatTime(value) {
+  if (!value) return '--'
+  return String(value).replace('T', ' ').slice(0, 19)
 }
 
 Page({
   data: {
-    points: 0,
+    vehicleNo: '',
+    queryResult: null,
     orders: [],
     loading: false
   },
 
   onShow() {
-    this.loadData()
+    this.loadRecords()
   },
 
-  async loadData() {
+  async loadRecords() {
     this.setData({ loading: true })
     try {
-      const [balance, orders] = await Promise.all([
-        request({ url: '/points/balance' }),
-        request({ url: '/fee/parking/orders' })
-      ])
+      const orders = await request({ url: '/fee/parking/orders' })
       const normalized = (Array.isArray(orders) ? orders : []).map((item) => ({
         ...item,
         statusText: statusText(item.status),
         orderTypeText: orderTypeText(item.orderType),
-        needPoints: toNeedPoints(item),
-        businessType: toBusinessType(item),
+        amountText: toMoney(item.amount),
+        startTimeText: formatTime(item.startTime),
+        endTimeText: formatTime(item.endTime),
         canPay: Number(item.status) !== 1
       }))
-      this.setData({
-        points: Number(balance?.points || 0),
-        orders: normalized
-      })
+      this.setData({ orders: normalized })
     } catch (error) {
-      wx.showToast({ title: error?.message || '停车订单加载失败', icon: 'none' })
+      wx.showToast({ title: error?.message || '停车记录加载失败', icon: 'none' })
     } finally {
       this.setData({ loading: false })
     }
   },
 
-  onPayOrder(e) {
-    const orderId = Number(e.currentTarget.dataset.id || 0)
-    const needPoints = Number(e.currentTarget.dataset.points || 0)
-    const businessType = Number(e.currentTarget.dataset.businessType || 3)
-    if (!orderId || needPoints <= 0) {
-      wx.showToast({ title: '订单数据异常', icon: 'none' })
+  onInputVehicle(e) {
+    this.setData({ vehicleNo: (e.detail.value || '').toUpperCase() })
+  },
+
+  async onQueryByPlate() {
+    const vehicleNo = (this.data.vehicleNo || '').trim().toUpperCase()
+    if (!vehicleNo) {
+      wx.showToast({ title: '请输入车牌号', icon: 'none' })
       return
     }
-    wx.showModal({
-      title: '积分支付确认',
-      content: `确认使用 ${needPoints} 积分支付该停车订单吗？`,
-      success: async ({ confirm }) => {
-        if (!confirm) return
-        try {
-          await request({
-            url: '/points/consume',
-            method: 'POST',
-            data: { businessType, businessId: orderId }
-          })
-          wx.showToast({ title: '支付成功', icon: 'success' })
-          this.loadData()
-        } catch (error) {
-          const msg = error?.message || '支付失败'
-          if (String(msg).includes('积分不足')) {
-            wx.showToast({ title: '积分不足，请联系物业充值', icon: 'none' })
-            return
-          }
-          wx.showToast({ title: msg, icon: 'none' })
-        }
-      }
-    })
+    try {
+      const data = await request({
+        url: '/parking/pay-entry',
+        method: 'GET',
+        data: { vehicleNo }
+      })
+      this.setData({ queryResult: data })
+    } catch (error) {
+      wx.showToast({ title: error?.message || '查询失败', icon: 'none' })
+    }
+  },
+
+  async onSettleExit() {
+    const vehicleNo = (this.data.vehicleNo || '').trim().toUpperCase()
+    if (!vehicleNo) {
+      wx.showToast({ title: '请输入车牌号', icon: 'none' })
+      return
+    }
+    try {
+      await request({
+        url: '/parking/exit',
+        method: 'POST',
+        data: { vehicleNo }
+      })
+      wx.showToast({ title: '出场结算完成', icon: 'success' })
+      this.onQueryByPlate()
+      this.loadRecords()
+    } catch (error) {
+      wx.showToast({ title: error?.message || '结算失败', icon: 'none' })
+    }
+  },
+
+  async onRenewMonthCard() {
+    const vehicleNo = (this.data.vehicleNo || '').trim().toUpperCase()
+    if (!vehicleNo) {
+      wx.showToast({ title: '请输入车牌号', icon: 'none' })
+      return
+    }
+    try {
+      const payResp = await request({
+        url: '/parking/month-card/renew',
+        method: 'POST',
+        data: { vehicleNo }
+      })
+      const outTradeNo = payResp?.payParams?.package
+        ? String(payResp.payParams.package).replace('prepay_id=mock_', '')
+        : ''
+      if (!outTradeNo) throw new Error('月卡下单失败')
+      await request({
+        url: '/parking/pay/callback',
+        method: 'POST',
+        data: { outTradeNo, success: true }
+      })
+      wx.showToast({ title: '月卡续费成功', icon: 'success' })
+      this.onQueryByPlate()
+      this.loadRecords()
+    } catch (error) {
+      wx.showToast({ title: error?.message || '续费失败', icon: 'none' })
+    }
+  },
+
+  async onPayTempOrder(e) {
+    const orderId = Number(e.currentTarget.dataset.id || 0)
+    if (!orderId) {
+      wx.showToast({ title: '订单异常', icon: 'none' })
+      return
+    }
+    try {
+      const payResp = await request({
+        url: '/parking/pay/wechat',
+        method: 'POST',
+        data: { orderId }
+      })
+      const outTradeNo = payResp?.outTradeNo || ''
+      if (!outTradeNo) throw new Error('临停下单失败')
+      await request({
+        url: '/parking/pay/callback',
+        method: 'POST',
+        data: { outTradeNo, success: true }
+      })
+      wx.showToast({ title: '支付成功', icon: 'success' })
+      this.onQueryByPlate()
+      this.loadRecords()
+    } catch (error) {
+      wx.showToast({ title: error?.message || '支付失败', icon: 'none' })
+    }
   }
 })

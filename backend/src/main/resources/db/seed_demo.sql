@@ -14,6 +14,8 @@ TRUNCATE TABLE second_hand;
 TRUNCATE TABLE notice;
 TRUNCATE TABLE repair_evaluation;
 TRUNCATE TABLE repair_order;
+TRUNCATE TABLE owner_parking_quota;
+TRUNCATE TABLE user_vehicle;
 TRUNCATE TABLE parking_order;
 TRUNCATE TABLE fee_bill;
 TRUNCATE TABLE points_consumption_record;
@@ -46,14 +48,23 @@ INSERT INTO `user_property` (`id`, `user_id`, `property_id`, `relation`, `is_pri
 (2002, 2, 1002, 'self', 1, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, 0),
 (2003, 3, 1003, 'family', 0, NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY, 0);
 
-INSERT INTO `fee_bill` (`id`, `property_id`, `bill_period`, `amount`, `need_points`, `paid_amount`, `status`, `due_date`, `payment_time`, `transaction_id`, `create_time`, `update_time`, `is_deleted`) VALUES
-(3001, 1001, DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m'), 360.00, 360, 360.00, 2, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 18 DAY, 'TXN_FEE_3001', NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 18 DAY, 0),
-(3002, 1002, DATE_FORMAT(NOW(), '%Y-%m'), 320.00, 320, 100.00, 1, NOW() + INTERVAL 8 DAY, NOW() - INTERVAL 1 DAY, 'TXN_FEE_3002', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 1 DAY, 0),
-(3003, 1003, DATE_FORMAT(NOW(), '%Y-%m'), 450.00, 450, 0.00, 0, NOW() - INTERVAL 2 DAY, NULL, NULL, NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY, 0);
+INSERT INTO `fee_bill` (`id`, `property_id`, `bill_period`, `area_snapshot`, `unit_price`, `amount`, `discount_amount`, `need_points`, `paid_amount`, `status`, `due_date`, `payment_time`, `transaction_id`, `create_time`, `update_time`, `is_deleted`) VALUES
+(3001, 1001, DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m'), 98.50, 5.00, 492.50, 0.00, 493, 492.50, 2, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 18 DAY, 'TXN_FEE_3001', NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 18 DAY, 0),
+(3002, 1002, DATE_FORMAT(NOW(), '%Y-%m'), 88.20, 5.00, 441.00, 0.00, 441, 100.00, 1, NOW() + INTERVAL 8 DAY, NOW() - INTERVAL 1 DAY, 'TXN_FEE_3002', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 1 DAY, 0),
+(3003, 1003, DATE_FORMAT(NOW(), '%Y-%m'), 108.30, 5.00, 541.50, 0.00, 542, 0.00, 0, NOW() - INTERVAL 2 DAY, NULL, NULL, NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY, 0);
 
-INSERT INTO `parking_order` (`id`, `user_id`, `property_id`, `vehicle_no`, `order_type`, `amount`, `start_time`, `end_time`, `status`, `transaction_id`, `create_time`, `update_time`, `is_deleted`) VALUES
-(4001, 1, 1001, 'A12345', 2, 300.00, NOW() - INTERVAL 20 DAY, NOW() + INTERVAL 10 DAY, 1, 'TXN_PARK_4001', NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, 0),
-(4002, 2, 1002, 'B67890', 1, 20.00, NOW() - INTERVAL 1 DAY, NOW() + INTERVAL 1 DAY, 0, NULL, NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, 0);
+INSERT INTO `parking_order` (`id`, `user_id`, `property_id`, `vehicle_no`, `order_type`, `source_type`, `amount`, `park_hours`, `free_hours`, `daily_cap`, `start_time`, `end_time`, `status`, `transaction_id`, `payment_time`, `create_time`, `update_time`, `is_deleted`) VALUES
+(4001, 1, 1001, 'A12345', 2, 1, 500.00, NULL, 0, 30.00, NOW() - INTERVAL 20 DAY, NOW() + INTERVAL 10 DAY, 1, 'TXN_PARK_4001', NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, 0),
+(4002, 2, 1002, 'B67890', 1, 1, 20.00, 10, 0, 30.00, NOW() - INTERVAL 1 DAY, NOW(), 0, NULL, NULL, NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, 0);
+
+INSERT INTO `user_vehicle` (`id`, `user_id`, `vehicle_no`, `is_visitor`, `host_user_id`, `parking_deadline`, `remind_time`, `status`, `create_time`, `update_time`, `is_deleted`) VALUES
+(15001, 1, 'A12345', 0, NULL, NULL, NULL, 1, NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 30 DAY, 0),
+(15002, 2, 'B67890', 0, NULL, NULL, NULL, 1, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY, 0),
+(15003, 1, 'V55555', 1, 1, NOW() + INTERVAL 5 HOUR, NOW() + INTERVAL 4 HOUR, 1, NOW() - INTERVAL 1 HOUR, NOW() - INTERVAL 1 HOUR, 0);
+
+INSERT INTO `owner_parking_quota` (`id`, `user_id`, `month_key`, `free_hours_total`, `free_hours_used`, `owner_extra_hours`, `create_time`, `update_time`) VALUES
+(16001, 1, DATE_FORMAT(NOW(), '%Y-%m'), 10, 2, 3, NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 1 DAY),
+(16002, 2, DATE_FORMAT(NOW(), '%Y-%m'), 10, 0, 0, NOW() - INTERVAL 8 DAY, NOW() - INTERVAL 8 DAY);
 
 INSERT INTO `repair_order` (`id`, `user_id`, `property_id`, `category`, `description`, `images`, `status`, `assignee`, `assigned_time`, `remark`, `completion_time`, `create_time`, `update_time`, `is_deleted`) VALUES
 (5001, 1, 1001, 'electrical', 'Living room light flickers', '[]', 1, NULL, NULL, NULL, NULL, NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, 0),

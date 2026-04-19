@@ -1,7 +1,7 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">物业费账单</view>
-    <view class="hero-desc">当前可用积分：{{ points }}</view>
+    <view class="hero-desc">费用公式：面积 × 5 元/月（历史账单锁定快照）</view>
   </view>
 
   <view wx:if="{{!bills.length}}" class="empty">暂无物业费账单</view>
@@ -11,12 +11,13 @@
       <view class="item-title">账期：{{ item.billPeriod || '--' }}</view>
       <view class="status-tag">{{ item.statusText }}</view>
     </view>
-    <view class="item-desc">账单ID：{{ item.id }}</view>
-    <view class="item-desc">应缴金额：{{ item.amount || 0 }} 元</view>
-    <view class="item-desc">需支付积分：{{ item.needPoints }}</view>
+    <view class="item-desc">面积：{{ item.areaText }} ㎡</view>
+    <view class="item-desc">单价：{{ item.unitPriceText }} 元/㎡·月</view>
+    <view class="item-desc">应缴金额：{{ item.amountText }} 元</view>
+    <view class="item-desc">截止日期：{{ item.dueDateText }}</view>
 
-    <view wx:if="{{item.canPay}}" class="btn pay-btn" bindtap="onPayBill" data-id="{{item.id}}" data-points="{{item.needPoints}}">
-      立即支付
+    <view wx:if="{{item.canPay}}" class="btn pay-btn" bindtap="onPayBill" data-id="{{item.id}}">
+      微信支付（模拟）
     </view>
     <view wx:else class="paid-text">该账单已支付</view>
   </view>
