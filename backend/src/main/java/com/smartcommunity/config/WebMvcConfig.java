@@ -20,6 +20,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/access/verify-invite",
                         "/api/access/invite/dynamic-token",
                         "/api/access/verify-token",
+                        "/api/fee/pay/callback",
+                        "/api/parking/pay/callback",
                         "/error"
                 );
     }
