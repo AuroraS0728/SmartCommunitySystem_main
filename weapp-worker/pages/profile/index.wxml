@@ -1,1 +1,0 @@
-﻿<view class="section"><view class="item">姓名：{{user.nickname}}</view><view class="item">手机号：{{user.phone}}</view><view class="item">完成单数：{{perf.completedCount}}</view><view class="item">评分：{{perf.rating}}</view><view class="item">收入：{{perf.income}}</view></view>

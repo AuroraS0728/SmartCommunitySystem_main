@@ -1,1 +1,0 @@
-﻿<view class="section"><input class="item" placeholder="工单ID" bindinput="onOrderId"/><input class="item" placeholder="验证码" bindinput="onCode"/><view class="btn" bindtap="verify">校验</view><view class="item" wx:if="{{result}}">结果：{{result}}</view></view>

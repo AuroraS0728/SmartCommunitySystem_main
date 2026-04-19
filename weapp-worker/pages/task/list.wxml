@@ -1,1 +1,0 @@
-﻿<view class="section"><view wx:for="{{list}}" wx:key="id" class="item"><view>#{{item.id}} {{item.category}}</view><view>状态: {{item.status}}</view><navigator url="/pages/task/detail?id={{item.id}}">查看</navigator></view></view>

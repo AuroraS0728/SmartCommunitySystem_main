@@ -1,2 +1,0 @@
-﻿Page({data:{},onLoad(){}})
-

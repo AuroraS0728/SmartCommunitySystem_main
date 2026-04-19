@@ -1,5 +1,0 @@
-/* Reuse global spacing styles from app.wxss */
-
-.btn + .btn {
-  margin-top: 24rpx !important;
-}

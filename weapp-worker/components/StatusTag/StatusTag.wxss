@@ -1,7 +1,0 @@
-view {
-  padding: 8rpx 14rpx;
-  background: #eef2ff;
-  color: #3730a3;
-  border-radius: 999rpx;
-  font-size: 24rpx;
-}

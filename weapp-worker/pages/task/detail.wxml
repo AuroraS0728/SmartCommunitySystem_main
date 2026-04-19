@@ -1,1 +1,0 @@
-﻿<view class="section"><view class="item">{{detail.order.description}}</view><navigator class="btn" url="/pages/work/process?id={{detail.order.id}}">去处理</navigator></view>
