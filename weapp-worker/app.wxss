@@ -2,7 +2,7 @@ page {
   background: #f3f6fb;
   color: #0f172a;
   font-size: 30rpx;
-  line-height: 1.65;
+  line-height: 1.72;
 }
 
 navigator {
@@ -10,16 +10,16 @@ navigator {
 }
 
 .section {
-  padding: 34rpx;
+  padding: 44rpx 40rpx 62rpx;
 }
 
 .hero {
-  margin-bottom: 30rpx;
-  padding: 36rpx 34rpx;
-  border-radius: 28rpx;
+  margin-bottom: 38rpx;
+  padding: 44rpx 40rpx;
+  border-radius: 30rpx;
   color: #fff;
   background: linear-gradient(135deg, #115e59, #0f766e);
-  box-shadow: 0 16rpx 36rpx -20rpx rgba(15, 118, 110, 0.72);
+  box-shadow: 0 18rpx 42rpx -24rpx rgba(15, 118, 110, 0.72);
 }
 
 .hero-title {
@@ -28,22 +28,22 @@ navigator {
 }
 
 .hero-desc {
-  margin-top: 14rpx;
+  margin-top: 18rpx;
   color: #ccfbf1;
   font-size: 26rpx;
 }
 
 .item {
-  margin-bottom: 22rpx;
-  padding: 30rpx 28rpx;
+  margin-bottom: 30rpx;
+  padding: 38rpx 34rpx;
   background: #fff;
   border: 1rpx solid #e2e8f0;
-  border-radius: 22rpx;
-  box-shadow: 0 12rpx 24rpx -22rpx rgba(15, 23, 42, 0.65);
+  border-radius: 24rpx;
+  box-shadow: 0 14rpx 30rpx -24rpx rgba(15, 23, 42, 0.65);
 }
 
 .field-label {
-  margin-bottom: 12rpx;
+  margin-bottom: 18rpx;
   color: #334155;
   font-size: 26rpx;
   font-weight: 600;
@@ -52,24 +52,35 @@ navigator {
 .input {
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 22rpx;
-  padding: 22rpx 24rpx;
+  min-height: 96rpx;
+  margin-bottom: 30rpx;
+  padding: 28rpx 28rpx;
   border: 1rpx solid #dbe3ef;
-  border-radius: 16rpx;
+  border-radius: 18rpx;
   background: #f8fafc;
+  line-height: 1.45;
+}
+
+.picker,
+.picker-trigger {
+  min-height: 96rpx;
+  padding-top: 24rpx;
+  padding-bottom: 24rpx;
+  border-radius: 18rpx;
 }
 
 .tip {
-  margin-top: 12rpx;
+  margin-top: 16rpx;
   color: #64748b;
   font-size: 24rpx;
   line-height: 1.6;
 }
 
 .btn {
-  margin-top: 14rpx;
-  padding: 24rpx 22rpx;
-  border-radius: 18rpx;
+  min-height: 96rpx;
+  margin-top: 24rpx;
+  padding: 30rpx 26rpx;
+  border-radius: 20rpx;
   text-align: center;
   color: #fff;
   font-size: 30rpx;

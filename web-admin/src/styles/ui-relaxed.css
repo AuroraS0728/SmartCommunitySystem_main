@@ -1,0 +1,78 @@
+/* Global spacing tune for form controls across web-admin pages. */
+
+:root {
+  --ui-control-height: 46px;
+  --ui-control-padding-x: 14px;
+  --ui-form-item-gap: 18px;
+}
+
+.el-form-item {
+  margin-bottom: var(--ui-form-item-gap);
+}
+
+.el-form--inline .el-form-item {
+  margin-right: 18px;
+  margin-bottom: var(--ui-form-item-gap);
+}
+
+.el-form-item__label {
+  line-height: 1.5;
+  padding-bottom: 4px;
+}
+
+.el-input__wrapper,
+.el-select__wrapper,
+.el-textarea__inner,
+.el-input-number .el-input__wrapper,
+.el-date-editor.el-input__wrapper,
+.el-date-editor .el-input__wrapper {
+  min-height: var(--ui-control-height);
+}
+
+.el-input__wrapper,
+.el-select__wrapper,
+.el-date-editor.el-input__wrapper {
+  padding-left: var(--ui-control-padding-x);
+  padding-right: var(--ui-control-padding-x);
+}
+
+.el-input__inner,
+.el-select__placeholder,
+.el-textarea__inner,
+.el-date-editor .el-range-input {
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.el-textarea__inner {
+  padding: 12px 14px;
+}
+
+.el-date-editor--daterange.el-input__wrapper,
+.el-date-editor--datetimerange.el-input__wrapper {
+  min-height: var(--ui-control-height);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.el-date-editor .el-range-separator {
+  padding: 0 8px;
+}
+
+.el-button {
+  min-height: var(--ui-control-height);
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.el-input-number {
+  min-height: var(--ui-control-height);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --ui-control-height: 44px;
+    --ui-control-padding-x: 12px;
+    --ui-form-item-gap: 16px;
+  }
+}
