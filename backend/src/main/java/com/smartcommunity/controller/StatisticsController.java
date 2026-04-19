@@ -5,6 +5,7 @@ import com.smartcommunity.common.Result;
 import com.smartcommunity.entity.AccessToken;
 import com.smartcommunity.entity.FeeBill;
 import com.smartcommunity.entity.Notice;
+import com.smartcommunity.entity.ParkingOrder;
 import com.smartcommunity.entity.Property;
 import com.smartcommunity.entity.RepairOrder;
 import com.smartcommunity.entity.User;
@@ -12,6 +13,7 @@ import com.smartcommunity.entity.VisitorInvite;
 import com.smartcommunity.mapper.AccessTokenMapper;
 import com.smartcommunity.mapper.FeeBillMapper;
 import com.smartcommunity.mapper.NoticeMapper;
+import com.smartcommunity.mapper.ParkingOrderMapper;
 import com.smartcommunity.mapper.PropertyMapper;
 import com.smartcommunity.mapper.RepairOrderMapper;
 import com.smartcommunity.mapper.UserMapper;
@@ -43,6 +45,7 @@ public class StatisticsController {
     private final PropertyMapper propertyMapper;
     private final FeeBillMapper feeBillMapper;
     private final RepairOrderMapper repairOrderMapper;
+    private final ParkingOrderMapper parkingOrderMapper;
     private final UserMapper userMapper;
     private final AccessTokenMapper accessTokenMapper;
     private final NoticeMapper noticeMapper;
@@ -56,6 +59,7 @@ public class StatisticsController {
         List<Property> properties = propertyMapper.selectList(new LambdaQueryWrapper<>());
         List<FeeBill> bills = feeBillMapper.selectList(new LambdaQueryWrapper<>());
         List<RepairOrder> orders = repairOrderMapper.selectList(new LambdaQueryWrapper<>());
+        List<ParkingOrder> parkingOrders = parkingOrderMapper.selectList(new LambdaQueryWrapper<>());
         List<AccessToken> accessTokens = accessTokenMapper.selectList(new LambdaQueryWrapper<>());
         List<Notice> latestNotices = noticeMapper.selectList(new LambdaQueryWrapper<Notice>()
                 .orderByDesc(Notice::getPublishTime)
@@ -80,6 +84,13 @@ public class StatisticsController {
                 .filter(b -> isSameMonth(b.getPaymentTime(), now))
                 .map(b -> safeMin(safe(b.getPaidAmount()), safe(b.getAmount())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal currentMonthParkingIncome = parkingOrders.stream()
+                .filter(p -> p.getPaymentTime() != null)
+                .filter(p -> Integer.valueOf(1).equals(p.getStatus()))
+                .filter(p -> isSameMonth(p.getPaymentTime(), now))
+                .map(ParkingOrder::getAmount)
+                .map(this::safe)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         long repairTotal = orders.size();
         long waiting = orders.stream().filter(r -> Integer.valueOf(1).equals(r.getStatus())).count();
@@ -95,6 +106,7 @@ public class StatisticsController {
         }
 
         Map<String, Object> trend = calcRepairTrend(orders, today);
+        Map<String, Object> parkingTrend = calcParkingIncomeTrend(parkingOrders, today);
         List<Map<String, Object>> feeSegments = calcFeeSegments(bills, now, totalAmount);
         List<Map<String, Object>> noticeCards = latestNotices.stream().map(n -> {
             Map<String, Object> item = new LinkedHashMap<>();
@@ -142,6 +154,7 @@ public class StatisticsController {
         data.put("ownerTotal", ownerTotal);
         data.put("ownerGrowthRate", round1(ownerGrowthRate));
         data.put("feeIncome", currentMonthPaid);
+        data.put("parkingIncome", currentMonthParkingIncome);
         data.put("feeCompletionRate", totalAmount.compareTo(BigDecimal.ZERO) == 0
                 ? BigDecimal.ZERO
                 : paidAmount.multiply(BigDecimal.valueOf(100)).divide(totalAmount, 2, RoundingMode.HALF_UP));
@@ -151,6 +164,8 @@ public class StatisticsController {
         data.put("trendLabels", trend.get("trendLabels"));
         data.put("newRepairs", trend.get("newRepairs"));
         data.put("finishedRepairs", trend.get("finishedRepairs"));
+        data.put("parkingTrendLabels", parkingTrend.get("parkingTrendLabels"));
+        data.put("parkingIncomeTrend", parkingTrend.get("parkingIncomeTrend"));
         data.put("feeSegments", feeSegments);
         data.put("notices", noticeCards);
         data.put("visitors", visitorCards);
@@ -183,6 +198,27 @@ public class StatisticsController {
         trend.put("newRepairs", newRepairs);
         trend.put("finishedRepairs", finishedRepairs);
         return trend;
+    }
+
+    private Map<String, Object> calcParkingIncomeTrend(List<ParkingOrder> orders, LocalDate today) {
+        LocalDate start = today.minusDays(6);
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> incomeTrend = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            LocalDate day = start.plusDays(i);
+            labels.add(day.format(DAY_LABEL_FMT));
+            BigDecimal income = orders.stream()
+                    .filter(o -> Integer.valueOf(1).equals(o.getStatus()))
+                    .filter(o -> o.getPaymentTime() != null && o.getPaymentTime().toLocalDate().equals(day))
+                    .map(ParkingOrder::getAmount)
+                    .map(this::safe)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            incomeTrend.add(income);
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("parkingTrendLabels", labels);
+        result.put("parkingIncomeTrend", incomeTrend);
+        return result;
     }
 
     private List<Map<String, Object>> calcFeeSegments(List<FeeBill> bills, LocalDateTime now, BigDecimal totalAmount) {
