@@ -22,6 +22,7 @@ public class User {
     private String nickname;
     private String avatarUrl;
     private String phone;
+    private Integer points;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
