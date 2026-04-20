@@ -22,6 +22,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/access/verify-token",
                         "/api/fee/pay/callback",
                         "/api/parking/pay/callback",
+                        "/api/realtime/stream",
                         "/error"
                 );
     }

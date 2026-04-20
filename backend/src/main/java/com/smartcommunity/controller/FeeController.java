@@ -21,10 +21,12 @@ import com.smartcommunity.mapper.PropertyMapper;
 import com.smartcommunity.mapper.RepairFeeBillMapper;
 import com.smartcommunity.mapper.UserPropertyMapper;
 import com.smartcommunity.service.FeeBillingService;
+import com.smartcommunity.service.LocalCacheService;
 import com.smartcommunity.service.PointsService;
 import com.smartcommunity.utils.WechatUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -49,6 +52,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @RestController
@@ -70,25 +75,35 @@ public class FeeController {
     private final RepairFeeBillMapper repairFeeBillMapper;
     private final PropertyMapper propertyMapper;
     private final UserPropertyMapper userPropertyMapper;
+    private final LocalCacheService localCacheService;
+    @Qualifier("queryExecutor")
+    private final Executor queryExecutor;
 
     @GetMapping("/bills")
     public Result<List<FeeBill>> bills(@RequestParam(required = false) Integer status) {
-        LambdaQueryWrapper<FeeBill> wrapper = new LambdaQueryWrapper<>();
-        if (status != null) {
-            wrapper.eq(FeeBill::getStatus, status);
-        }
         Integer role = AuthContext.getRole();
-        if (role != null && role == 1) {
-            List<Long> propertyIds = userPropertyMapper.selectList(new LambdaQueryWrapper<UserProperty>()
-                            .eq(UserProperty::getUserId, AuthContext.getUserId()))
-                    .stream().map(UserProperty::getPropertyId).collect(Collectors.toList());
-            if (propertyIds.isEmpty()) {
-                return Result.success(List.of());
+        Long userId = AuthContext.getUserId();
+        String cacheKey = "fee:bills:" + role + ":" + userId + ":" + status;
+        List<FeeBill> rows = localCacheService.getOrLoad(cacheKey, Duration.ofSeconds(15), () -> {
+            LambdaQueryWrapper<FeeBill> wrapper = new LambdaQueryWrapper<FeeBill>()
+                    .eq(FeeBill::getIsDeleted, 0);
+            if (status != null) {
+                wrapper.eq(FeeBill::getStatus, status);
             }
-            wrapper.in(FeeBill::getPropertyId, propertyIds);
-        }
-        wrapper.orderByDesc(FeeBill::getBillPeriod).orderByDesc(FeeBill::getId);
-        return Result.success(feeBillMapper.selectList(wrapper));
+            if (role != null && role == 1) {
+                List<Long> propertyIds = userPropertyMapper.selectList(new LambdaQueryWrapper<UserProperty>()
+                                .eq(UserProperty::getUserId, userId)
+                                .eq(UserProperty::getIsDeleted, 0))
+                        .stream().map(UserProperty::getPropertyId).collect(Collectors.toList());
+                if (propertyIds.isEmpty()) {
+                    return List.of();
+                }
+                wrapper.in(FeeBill::getPropertyId, propertyIds);
+            }
+            wrapper.orderByDesc(FeeBill::getBillPeriod).orderByDesc(FeeBill::getId);
+            return feeBillMapper.selectList(wrapper);
+        });
+        return Result.success(rows);
     }
 
     /**
@@ -109,21 +124,30 @@ public class FeeController {
             return Result.fail(StatusCode.BAD_REQUEST, "businessType must be 1~3");
         }
 
-        List<Long> ownerPropertyIds = queryOwnerPropertyIds(userId, role);
-        List<PaymentSubjectVO> subjects = new ArrayList<>();
-        if (businessType == null || businessType == BUSINESS_TYPE_FEE) {
-            subjects.addAll(queryPropertyFeeSubjects(role, ownerPropertyIds, status));
-        }
-        if (businessType == null || businessType == BUSINESS_TYPE_PARKING) {
-            subjects.addAll(queryParkingFeeSubjects(role, userId, status));
-        }
-        if (businessType == null || businessType == BUSINESS_TYPE_REPAIR) {
-            subjects.addAll(queryRepairFeeSubjects(role, userId, status));
-        }
-        subjects.sort(Comparator
-                .comparing(PaymentSubjectVO::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder()))
-                .thenComparing(PaymentSubjectVO::getBusinessType, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(PaymentSubjectVO::getBusinessId, Comparator.nullsLast(Comparator.reverseOrder())));
+        String cacheKey = "fee:subjects:" + role + ":" + userId + ":" + businessType + ":" + status;
+        List<PaymentSubjectVO> subjects = localCacheService.getOrLoad(cacheKey, Duration.ofSeconds(15), () -> {
+            List<Long> ownerPropertyIds = queryOwnerPropertyIds(userId, role);
+            List<PaymentSubjectVO> rows = new ArrayList<>();
+            List<CompletableFuture<List<PaymentSubjectVO>>> tasks = new ArrayList<>();
+            if (businessType == null || businessType == BUSINESS_TYPE_FEE) {
+                tasks.add(CompletableFuture.supplyAsync(() -> queryPropertyFeeSubjects(role, ownerPropertyIds, status), queryExecutor));
+            }
+            if (businessType == null || businessType == BUSINESS_TYPE_PARKING) {
+                tasks.add(CompletableFuture.supplyAsync(() -> queryParkingFeeSubjects(role, userId, status), queryExecutor));
+            }
+            if (businessType == null || businessType == BUSINESS_TYPE_REPAIR) {
+                tasks.add(CompletableFuture.supplyAsync(() -> queryRepairFeeSubjects(role, userId, status), queryExecutor));
+            }
+            CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
+            for (CompletableFuture<List<PaymentSubjectVO>> task : tasks) {
+                rows.addAll(task.join());
+            }
+            rows.sort(Comparator
+                    .comparing(PaymentSubjectVO::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(PaymentSubjectVO::getBusinessType, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(PaymentSubjectVO::getBusinessId, Comparator.nullsLast(Comparator.reverseOrder())));
+            return rows;
+        });
         return Result.success(subjects);
     }
 
@@ -319,13 +343,19 @@ public class FeeController {
 
     @GetMapping("/parking/orders")
     public Result<List<ParkingOrder>> parkingOrders() {
-        LambdaQueryWrapper<ParkingOrder> wrapper = new LambdaQueryWrapper<>();
         Integer role = AuthContext.getRole();
-        if (role != null && role != 2) {
-            wrapper.eq(ParkingOrder::getUserId, AuthContext.getUserId());
-        }
-        wrapper.orderByDesc(ParkingOrder::getId);
-        return Result.success(parkingOrderMapper.selectList(wrapper));
+        Long userId = AuthContext.getUserId();
+        String cacheKey = "parking:orders:" + role + ":" + userId;
+        List<ParkingOrder> rows = localCacheService.getOrLoad(cacheKey, Duration.ofSeconds(15), () -> {
+            LambdaQueryWrapper<ParkingOrder> wrapper = new LambdaQueryWrapper<ParkingOrder>()
+                    .eq(ParkingOrder::getIsDeleted, 0);
+            if (role != null && role != 2) {
+                wrapper.eq(ParkingOrder::getUserId, userId);
+            }
+            wrapper.orderByDesc(ParkingOrder::getId);
+            return parkingOrderMapper.selectList(wrapper);
+        });
+        return Result.success(rows);
     }
 
     /**

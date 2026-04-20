@@ -26,6 +26,7 @@ import java.util.List;
 public class OperationLogAspect {
 
     private static final Logger OP_LOGGER = LoggerFactory.getLogger("operationLogger");
+    private static final long SLOW_REQUEST_MS = 800L;
     private final ObjectMapper objectMapper;
 
     @Around("within(com.smartcommunity.controller..*) && (" +
@@ -51,8 +52,14 @@ public class OperationLogAspect {
                 code = res.getCode();
                 message = res.getMessage();
             }
-            OP_LOGGER.info("status=success method={} uri={} handler={} userId={} role={} code={} message={} costMs={} args={}",
-                    method, uri, joinPoint.getSignature().toShortString(), userId, role, code, message, cost, args);
+            String handler = joinPoint.getSignature().toShortString();
+            if (cost >= SLOW_REQUEST_MS) {
+                OP_LOGGER.warn("status=success slow=true method={} uri={} handler={} userId={} role={} code={} message={} costMs={} args={}",
+                        method, uri, handler, userId, role, code, message, cost, args);
+            } else {
+                OP_LOGGER.info("status=success method={} uri={} handler={} userId={} role={} code={} message={} costMs={} args={}",
+                        method, uri, handler, userId, role, code, message, cost, args);
+            }
             return result;
         } catch (Throwable ex) {
             long cost = System.currentTimeMillis() - start;

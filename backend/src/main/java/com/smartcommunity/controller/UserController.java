@@ -9,9 +9,11 @@ import com.smartcommunity.entity.UserProperty;
 import com.smartcommunity.mapper.PropertyMapper;
 import com.smartcommunity.mapper.UserMapper;
 import com.smartcommunity.mapper.UserPropertyMapper;
+import com.smartcommunity.service.LocalCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -26,48 +28,76 @@ public class UserController {
     private final UserMapper userMapper;
     private final PropertyMapper propertyMapper;
     private final UserPropertyMapper userPropertyMapper;
+    private final LocalCacheService localCacheService;
 
     @GetMapping("/me")
     public Result<User> me() {
         Long uid = AuthContext.getUserId();
-        return Result.success(userMapper.selectById(uid));
+        if (uid == null) {
+            return Result.fail("unauthorized");
+        }
+        String cacheKey = "user:me:" + uid;
+        User data = localCacheService.getOrLoad(cacheKey, Duration.ofSeconds(20), () -> userMapper.selectById(uid));
+        return Result.success(data);
     }
 
     @GetMapping("/properties")
     public Result<List<Property>> myProperties() {
         Integer role = AuthContext.getRole();
-        if (role != null && role == 2) {
-            return Result.success(propertyMapper.selectList(new LambdaQueryWrapper<Property>().orderByAsc(Property::getId)));
-        }
-        List<Long> propertyIds = userPropertyMapper.selectList(new LambdaQueryWrapper<UserProperty>()
-                        .eq(UserProperty::getUserId, AuthContext.getUserId()))
-                .stream().map(UserProperty::getPropertyId).collect(Collectors.toList());
-        if (propertyIds.isEmpty()) {
-            return Result.success(List.of());
-        }
-        return Result.success(propertyMapper.selectList(new LambdaQueryWrapper<Property>()
-                .in(Property::getId, propertyIds)
-                .orderByAsc(Property::getId)));
+        Long userId = AuthContext.getUserId();
+        String cacheKey = "user:properties:" + userId + ":" + role;
+        List<Property> rows = localCacheService.getOrLoad(cacheKey, Duration.ofSeconds(20), () -> {
+            if (role != null && role == 2) {
+                return propertyMapper.selectList(new LambdaQueryWrapper<Property>()
+                        .eq(Property::getIsDeleted, 0)
+                        .orderByAsc(Property::getId));
+            }
+            List<Long> propertyIds = userPropertyMapper.selectList(new LambdaQueryWrapper<UserProperty>()
+                            .eq(UserProperty::getUserId, userId)
+                            .eq(UserProperty::getIsDeleted, 0))
+                    .stream().map(UserProperty::getPropertyId).collect(Collectors.toList());
+            if (propertyIds.isEmpty()) {
+                return List.of();
+            }
+            return propertyMapper.selectList(new LambdaQueryWrapper<Property>()
+                    .eq(Property::getIsDeleted, 0)
+                    .in(Property::getId, propertyIds)
+                    .orderByAsc(Property::getId));
+        });
+        return Result.success(rows);
     }
 
     @GetMapping("/page")
     public Result<Map<String, Object>> page(@RequestParam(defaultValue = "1") int pageNum,
                                             @RequestParam(defaultValue = "10") int pageSize,
                                             @RequestParam(required = false) Integer role) {
+        int safePageNum = Math.max(pageNum, 1);
+        int safePageSize = Math.min(Math.max(pageSize, 1), 100);
+        int offset = (safePageNum - 1) * safePageSize;
+
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<User>()
+                .eq(User::getIsDeleted, 0)
                 .orderByAsc(User::getId);
         if (role != null) {
             wrapper.eq(User::getRole, role);
         }
-        List<User> all = userMapper.selectList(wrapper);
-        int from = Math.max((pageNum - 1) * pageSize, 0);
-        int to = Math.min(from + pageSize, all.size());
-        List<User> records = from >= all.size() ? List.of() : all.subList(from, to);
+        Long total = userMapper.selectCount(wrapper);
+        List<User> records = List.of();
+        if (total != null && total > 0) {
+            LambdaQueryWrapper<User> pageWrapper = new LambdaQueryWrapper<User>()
+                    .eq(User::getIsDeleted, 0)
+                    .orderByAsc(User::getId)
+                    .last("LIMIT " + offset + "," + safePageSize);
+            if (role != null) {
+                pageWrapper.eq(User::getRole, role);
+            }
+            records = userMapper.selectList(pageWrapper);
+        }
         Map<String, Object> payload = new HashMap<>();
         payload.put("records", records);
-        payload.put("total", all.size());
-        payload.put("pageNum", pageNum);
-        payload.put("pageSize", pageSize);
+        payload.put("total", total == null ? 0 : total);
+        payload.put("pageNum", safePageNum);
+        payload.put("pageSize", safePageSize);
         return Result.success(payload);
     }
 

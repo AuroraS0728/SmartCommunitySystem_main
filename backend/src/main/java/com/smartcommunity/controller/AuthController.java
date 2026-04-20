@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +34,18 @@ import java.util.Objects;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    private static final Charset GBK = Charset.forName("GBK");
+    private static final int[] CN_SEC_POS = {
+            1601, 1637, 1833, 2078, 2274, 2302, 2433, 2594, 2787,
+            3106, 3212, 3472, 3635, 3722, 3730, 3858, 4027, 4086,
+            4390, 4558, 4684, 4925, 5249, 5600
+    };
+    private static final char[] CN_INITIALS = {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J',
+            'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+            'T', 'W', 'X', 'Y', 'Z'
+    };
 
     private final JwtUtil jwtUtil;
     private final WechatUtil wechatUtil;
@@ -103,7 +116,7 @@ public class AuthController {
         }
 
         String ownerAccount = propertyCode;
-        String initPassword = reverseSixDigits(ownerAccount);
+        String initPassword = buildOwnerInitialPassword(property.getOwnerName());
         LocalDateTime now = LocalDateTime.now();
 
         User user = new User();
@@ -248,10 +261,64 @@ public class AuthController {
         return resp;
     }
 
-    private String reverseSixDigits(String source) {
-        String digits = source == null ? "" : source.replaceAll("\\D", "");
-        String padded = "000000" + digits;
-        String rightSix = padded.substring(padded.length() - 6);
-        return new StringBuilder(rightSix).reverse().toString();
+    private String buildOwnerInitialPassword(String ownerName) {
+        String initials = extractInitials(ownerName);
+        if (!StringUtils.hasText(initials)) {
+            initials = "YZ";
+        }
+        return initials + "123456";
+    }
+
+    private String extractInitials(String ownerName) {
+        if (!StringUtils.hasText(ownerName)) {
+            return "";
+        }
+        String text = ownerName.trim();
+        StringBuilder sb = new StringBuilder();
+        boolean latinWordOpen = false;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (isAsciiLetter(c)) {
+                if (!latinWordOpen) {
+                    sb.append(Character.toUpperCase(c));
+                    latinWordOpen = true;
+                }
+                continue;
+            }
+            latinWordOpen = false;
+            if (isChinese(c)) {
+                sb.append(toChineseInitial(c));
+            }
+        }
+        return sb.toString();
+    }
+
+    private boolean isAsciiLetter(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+
+    private boolean isChinese(char c) {
+        Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
+        return block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                || block == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                || block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A;
+    }
+
+    private char toChineseInitial(char c) {
+        byte[] bytes = String.valueOf(c).getBytes(GBK);
+        if (bytes.length < 2) {
+            return 'X';
+        }
+        int secPos = (bytes[0] & 0xFF) - 160;
+        int pos = (bytes[1] & 0xFF) - 160;
+        int code = secPos * 100 + pos;
+        for (int i = 0; i < CN_SEC_POS.length; i++) {
+            int start = CN_SEC_POS[i];
+            int end = (i == CN_SEC_POS.length - 1) ? Integer.MAX_VALUE : CN_SEC_POS[i + 1];
+            if (code >= start && code < end) {
+                return CN_INITIALS[i];
+            }
+        }
+        return 'X';
     }
 }

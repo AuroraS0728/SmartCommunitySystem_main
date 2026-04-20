@@ -5,9 +5,11 @@ import com.smartcommunity.common.Result;
 import com.smartcommunity.dto.request.PublishNoticeReq;
 import com.smartcommunity.entity.Notice;
 import com.smartcommunity.mapper.NoticeMapper;
+import com.smartcommunity.service.LocalCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,12 +19,16 @@ import java.util.List;
 public class NoticeController {
 
     private final NoticeMapper noticeMapper;
+    private final LocalCacheService localCacheService;
 
     @GetMapping("/list")
     public Result<List<Notice>> list() {
-        return Result.success(noticeMapper.selectList(new LambdaQueryWrapper<Notice>()
-                .orderByDesc(Notice::getTop)
-                .orderByDesc(Notice::getPublishTime)));
+        List<Notice> rows = localCacheService.getOrLoad("notice:list", Duration.ofSeconds(30), () ->
+                noticeMapper.selectList(new LambdaQueryWrapper<Notice>()
+                        .eq(Notice::getIsDeleted, 0)
+                        .orderByDesc(Notice::getTop)
+                        .orderByDesc(Notice::getPublishTime)));
+        return Result.success(rows);
     }
 
     @GetMapping("/{id}")

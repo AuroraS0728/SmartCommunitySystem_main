@@ -18,13 +18,16 @@ import com.smartcommunity.mapper.PropertyMapper;
 import com.smartcommunity.mapper.RepairOrderMapper;
 import com.smartcommunity.mapper.UserMapper;
 import com.smartcommunity.mapper.VisitorInviteMapper;
+import com.smartcommunity.service.LocalCacheService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,6 +35,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @RestController
 @RequestMapping("/api/statistics")
@@ -50,28 +55,80 @@ public class StatisticsController {
     private final AccessTokenMapper accessTokenMapper;
     private final NoticeMapper noticeMapper;
     private final VisitorInviteMapper visitorInviteMapper;
+    private final LocalCacheService localCacheService;
+    @Qualifier("queryExecutor")
+    private final Executor queryExecutor;
 
     @GetMapping("/overview")
     public Result<Map<String, Object>> overview() {
+        Map<String, Object> data = localCacheService.getOrLoad("statistics:overview", Duration.ofSeconds(20), this::buildOverview);
+        return Result.success(data);
+    }
+
+    private Map<String, Object> buildOverview() {
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = now.toLocalDate();
+        LocalDateTime monthStart = now.withDayOfMonth(1).toLocalDate().atStartOfDay();
+        LocalDateTime weekStart = today.minusDays(6).atStartOfDay();
+        LocalDateTime parkingRangeStart = monthStart.isBefore(weekStart) ? monthStart : weekStart;
 
-        List<Property> properties = propertyMapper.selectList(new LambdaQueryWrapper<>());
-        List<FeeBill> bills = feeBillMapper.selectList(new LambdaQueryWrapper<>());
-        List<RepairOrder> orders = repairOrderMapper.selectList(new LambdaQueryWrapper<>());
-        List<ParkingOrder> parkingOrders = parkingOrderMapper.selectList(new LambdaQueryWrapper<>());
-        List<AccessToken> accessTokens = accessTokenMapper.selectList(new LambdaQueryWrapper<>());
-        List<Notice> latestNotices = noticeMapper.selectList(new LambdaQueryWrapper<Notice>()
+        CompletableFuture<Long> totalPropertyFuture = CompletableFuture.supplyAsync(() -> propertyMapper.selectCount(new LambdaQueryWrapper<Property>()
+                .eq(Property::getIsDeleted, 0)), queryExecutor);
+        CompletableFuture<Long> occupiedFuture = CompletableFuture.supplyAsync(() -> propertyMapper.selectCount(new LambdaQueryWrapper<Property>()
+                .eq(Property::getIsDeleted, 0)
+                .in(Property::getStatus, 4, 5)), queryExecutor);
+        CompletableFuture<List<FeeBill>> billsFuture = CompletableFuture.supplyAsync(() -> feeBillMapper.selectList(new LambdaQueryWrapper<FeeBill>()
+                .eq(FeeBill::getIsDeleted, 0)
+                .select(FeeBill::getAmount, FeeBill::getPaidAmount, FeeBill::getPaymentTime, FeeBill::getDueDate)), queryExecutor);
+        CompletableFuture<List<RepairOrder>> ordersFuture = CompletableFuture.supplyAsync(() -> repairOrderMapper.selectList(new LambdaQueryWrapper<RepairOrder>()
+                .eq(RepairOrder::getIsDeleted, 0)
+                .select(RepairOrder::getStatus, RepairOrder::getCreateTime, RepairOrder::getCompletionTime, RepairOrder::getCategory)), queryExecutor);
+        CompletableFuture<List<ParkingOrder>> parkingOrdersFuture = CompletableFuture.supplyAsync(() -> parkingOrderMapper.selectList(new LambdaQueryWrapper<ParkingOrder>()
+                .eq(ParkingOrder::getIsDeleted, 0)
+                .eq(ParkingOrder::getStatus, 1)
+                .ge(ParkingOrder::getPaymentTime, parkingRangeStart)
+                .select(ParkingOrder::getStatus, ParkingOrder::getPaymentTime, ParkingOrder::getAmount)), queryExecutor);
+        CompletableFuture<Long> accessTokenTotalFuture = CompletableFuture.supplyAsync(() -> accessTokenMapper.selectCount(new LambdaQueryWrapper<AccessToken>()
+                .eq(AccessToken::getIsDeleted, 0)), queryExecutor);
+        CompletableFuture<Long> accessTokenOnlineFuture = CompletableFuture.supplyAsync(() -> accessTokenMapper.selectCount(new LambdaQueryWrapper<AccessToken>()
+                .eq(AccessToken::getIsDeleted, 0)
+                .eq(AccessToken::getStatus, 1)
+                .gt(AccessToken::getExpireTime, now)), queryExecutor);
+        CompletableFuture<List<Notice>> latestNoticesFuture = CompletableFuture.supplyAsync(() -> noticeMapper.selectList(new LambdaQueryWrapper<Notice>()
+                .eq(Notice::getIsDeleted, 0)
                 .orderByDesc(Notice::getPublishTime)
-                .last("LIMIT 3"));
-        List<VisitorInvite> latestVisitors = visitorInviteMapper.selectList(new LambdaQueryWrapper<VisitorInvite>()
+                .last("LIMIT 3")), queryExecutor);
+        CompletableFuture<List<VisitorInvite>> latestVisitorsFuture = CompletableFuture.supplyAsync(() -> visitorInviteMapper.selectList(new LambdaQueryWrapper<VisitorInvite>()
+                .eq(VisitorInvite::getIsDeleted, 0)
                 .orderByDesc(VisitorInvite::getCreateTime)
-                .last("LIMIT 5"));
+                .last("LIMIT 5")), queryExecutor);
+        CompletableFuture<Long> activeVisitorsFuture = CompletableFuture.supplyAsync(() -> visitorInviteMapper.selectCount(new LambdaQueryWrapper<VisitorInvite>()
+                .eq(VisitorInvite::getIsDeleted, 0)
+                .gt(VisitorInvite::getExpireTime, now)), queryExecutor);
+        CompletableFuture<Long> ownerTotalFuture = CompletableFuture.supplyAsync(() -> userMapper.selectCount(new LambdaQueryWrapper<User>()
+                .eq(User::getIsDeleted, 0)
+                .eq(User::getRole, 1)), queryExecutor);
+        CompletableFuture<Double> ownerGrowthFuture = CompletableFuture.supplyAsync(() -> calcOwnerGrowth(now), queryExecutor);
 
-        long totalProperty = properties.size();
-        long occupied = properties.stream()
-                .filter(v -> Integer.valueOf(4).equals(v.getStatus()) || Integer.valueOf(5).equals(v.getStatus()))
-                .count();
+        CompletableFuture.allOf(
+                totalPropertyFuture, occupiedFuture, billsFuture, ordersFuture, parkingOrdersFuture,
+                accessTokenTotalFuture, accessTokenOnlineFuture, latestNoticesFuture, latestVisitorsFuture,
+                activeVisitorsFuture, ownerTotalFuture, ownerGrowthFuture
+        ).join();
+
+        long totalProperty = totalPropertyFuture.join();
+        long occupied = occupiedFuture.join();
+        List<FeeBill> bills = billsFuture.join();
+        List<RepairOrder> orders = ordersFuture.join();
+        List<ParkingOrder> parkingOrders = parkingOrdersFuture.join();
+        List<Notice> latestNotices = latestNoticesFuture.join();
+        List<VisitorInvite> latestVisitors = latestVisitorsFuture.join();
+        long activeVisitors = activeVisitorsFuture.join();
+        long ownerTotal = ownerTotalFuture.join();
+        double ownerGrowthRate = ownerGrowthFuture.join();
+        long accessTokenTotal = accessTokenTotalFuture.join();
+        long onlineDeviceCount = accessTokenOnlineFuture.join();
+
         double occupancyRate = totalProperty == 0 ? 0 : (double) occupied / totalProperty;
 
         BigDecimal totalAmount = bills.stream()
@@ -127,19 +184,9 @@ public class StatisticsController {
             return item;
         }).toList();
 
-        long activeVisitors = visitorInviteMapper.selectCount(new LambdaQueryWrapper<VisitorInvite>()
-                .gt(VisitorInvite::getExpireTime, now));
-
-        long ownerTotal = userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getRole, 1));
-        double ownerGrowthRate = calcOwnerGrowth(now);
-
-        long onlineDeviceCount = accessTokens.stream()
-                .filter(t -> Integer.valueOf(1).equals(t.getStatus()))
-                .filter(t -> t.getExpireTime() != null && t.getExpireTime().isAfter(now))
-                .count();
-        double deviceOnlineRate = accessTokens.isEmpty()
+        double deviceOnlineRate = accessTokenTotal == 0
                 ? 0
-                : (double) onlineDeviceCount / accessTokens.size() * 100;
+                : (double) onlineDeviceCount / accessTokenTotal * 100;
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("propertyTotal", totalProperty);
@@ -171,7 +218,7 @@ public class StatisticsController {
         data.put("feeSegments", feeSegments);
         data.put("notices", noticeCards);
         data.put("visitors", visitorCards);
-        return Result.success(data);
+        return data;
     }
 
     private Map<String, Object> calcRepairTrend(List<RepairOrder> orders, LocalDate today) {
@@ -260,10 +307,12 @@ public class StatisticsController {
         LocalDateTime firstDayOfMonth = now.withDayOfMonth(1).toLocalDate().atStartOfDay();
         LocalDateTime firstDayOfPrevMonth = firstDayOfMonth.minusMonths(1);
         long current = userMapper.selectCount(new LambdaQueryWrapper<User>()
+                .eq(User::getIsDeleted, 0)
                 .eq(User::getRole, 1)
                 .ge(User::getCreateTime, firstDayOfMonth)
                 .lt(User::getCreateTime, firstDayOfMonth.plusMonths(1)));
         long prev = userMapper.selectCount(new LambdaQueryWrapper<User>()
+                .eq(User::getIsDeleted, 0)
                 .eq(User::getRole, 1)
                 .ge(User::getCreateTime, firstDayOfPrevMonth)
                 .lt(User::getCreateTime, firstDayOfMonth));

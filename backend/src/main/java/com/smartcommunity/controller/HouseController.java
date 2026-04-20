@@ -9,12 +9,14 @@ import com.smartcommunity.entity.UserProperty;
 import com.smartcommunity.mapper.PropertyMapper;
 import com.smartcommunity.mapper.UserMapper;
 import com.smartcommunity.mapper.UserPropertyMapper;
+import com.smartcommunity.service.LocalCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -27,30 +29,45 @@ public class HouseController {
     private final PropertyMapper propertyMapper;
     private final UserPropertyMapper userPropertyMapper;
     private final UserMapper userMapper;
+    private final LocalCacheService localCacheService;
 
     @GetMapping("/list")
     public Result<List<Property>> list(@RequestParam(value = "building", required = false) String building,
                                        @RequestParam(value = "keyword", required = false) String keyword,
-                                       @RequestParam(value = "status", required = false) Integer status) {
-        LambdaQueryWrapper<Property> wrapper = new LambdaQueryWrapper<Property>()
-                .eq(Property::getIsDeleted, 0)
-                .orderByAsc(Property::getId);
-        if (building != null && !building.isBlank()) {
-            wrapper.eq(Property::getBuilding, building);
-        }
-        if (keyword != null && !keyword.isBlank()) {
-            String text = keyword.trim();
-            wrapper.and(w -> w.like(Property::getPropertyCode, text)
-                    .or().like(Property::getBuilding, text)
-                    .or().like(Property::getUnit, text)
-                    .or().like(Property::getRoom, text)
-                    .or().like(Property::getOwnerName, text)
-                    .or().like(Property::getTenantName, text));
-        }
-        if (status != null) {
-            wrapper.eq(Property::getStatus, status);
-        }
-        return Result.success(propertyMapper.selectList(wrapper));
+                                       @RequestParam(value = "status", required = false) Integer status,
+                                       @RequestParam(value = "pageNum", required = false) Integer pageNum,
+                                       @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+        Integer safePageNum = pageNum == null ? null : Math.max(pageNum, 1);
+        Integer safePageSize = pageSize == null ? null : Math.min(Math.max(pageSize, 1), 200);
+        Integer offset = (safePageNum == null || safePageSize == null) ? null : (safePageNum - 1) * safePageSize;
+        String pagePart = (safePageNum == null || safePageSize == null) ? "all" : (safePageNum + ":" + safePageSize);
+        String cacheKey = "house:list:" + normalize(building) + ":" + normalize(keyword) + ":" + status + ":" + pagePart;
+
+        List<Property> rows = localCacheService.getOrLoad(cacheKey, Duration.ofSeconds(20), () -> {
+            LambdaQueryWrapper<Property> wrapper = new LambdaQueryWrapper<Property>()
+                    .eq(Property::getIsDeleted, 0)
+                    .orderByAsc(Property::getId);
+            if (offset != null && safePageSize != null) {
+                wrapper.last("LIMIT " + offset + "," + safePageSize);
+            }
+            if (building != null && !building.isBlank()) {
+                wrapper.eq(Property::getBuilding, building);
+            }
+            if (keyword != null && !keyword.isBlank()) {
+                String text = keyword.trim();
+                wrapper.and(w -> w.like(Property::getPropertyCode, text)
+                        .or().like(Property::getBuilding, text)
+                        .or().like(Property::getUnit, text)
+                        .or().like(Property::getRoom, text)
+                        .or().like(Property::getOwnerName, text)
+                        .or().like(Property::getTenantName, text));
+            }
+            if (status != null) {
+                wrapper.eq(Property::getStatus, status);
+            }
+            return propertyMapper.selectList(wrapper);
+        });
+        return Result.success(rows);
     }
 
     @GetMapping("/{id}")
@@ -249,5 +266,9 @@ public class HouseController {
                 .in(User::getId, ownerUserIds)
                 .eq(User::getRole, 1)
                 .eq(User::getIsDeleted, 0));
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim();
     }
 }
