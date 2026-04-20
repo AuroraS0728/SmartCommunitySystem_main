@@ -60,7 +60,9 @@ App({
           wx.setStorageSync('mustChangePassword', this.globalData.mustChangePassword)
           resolve(body.data)
         },
-        fail: reject
+        fail: (err) => {
+          reject(new Error(err?.errMsg || 'network request failed'))
+        }
       })
     })
   },

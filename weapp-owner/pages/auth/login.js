@@ -9,7 +9,7 @@ function roleMeta(role) {
     return {
       accountLabel: '安防账号',
       accountPlaceholder: 'WTGL + 6位数字',
-      passwordPlaceholder: '6位数字密码',
+      passwordPlaceholder: '请输入密码',
       tip: '物业安防端账号规则：WTGL + 6位数字。'
     }
   }
@@ -17,15 +17,15 @@ function roleMeta(role) {
     return {
       accountLabel: '维修账号',
       accountPlaceholder: 'JZWX + 6位数字',
-      passwordPlaceholder: '6位数字密码',
+      passwordPlaceholder: '请输入密码',
       tip: '维修端账号规则：JZWX + 6位数字。'
     }
   }
   return {
     accountLabel: '房产号',
-    accountPlaceholder: 'YZ + 楼号2位 + 单元2位 + 房间2位 + 注册年后2位',
-    passwordPlaceholder: '初始密码为房产号后6位倒序',
-    tip: '业主首次登录后必须修改密码，否则不能使用功能。'
+    accountPlaceholder: 'YZ + 楼号2位 + 单元2位 + 房间3位 + 年份后2位',
+    passwordPlaceholder: '初始密码：姓名首字母+123456',
+    tip: '业主首次登录需修改密码，初始密码规则：姓名首字母+123456。'
   }
 }
 
