@@ -4,6 +4,13 @@ FROM maven:3.9.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 
 COPY pom.xml ./
+COPY libs/seetaface6JNI-1.0.0.jar ./libs/seetaface6JNI-1.0.0.jar
+RUN mvn -q install:install-file \
+    -Dfile=./libs/seetaface6JNI-1.0.0.jar \
+    -DgroupId=com.cnsugar.ai \
+    -DartifactId=seetaface6JNI \
+    -Dversion=1.0.0 \
+    -Dpackaging=jar
 RUN mvn -q -DskipTests dependency:go-offline
 
 COPY src ./src
