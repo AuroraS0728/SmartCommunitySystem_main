@@ -3,6 +3,7 @@ const CHANGE_PASSWORD_PAGE = '/pages/auth/change-password'
 const OWNER_HOME_PAGE = '/pages/index/index'
 const SECURITY_HOME_PAGE = '/pages/security/home/home'
 const WORKER_HOME_PAGE = '/pages/worker/home/home'
+const API_BASE_URL = 'https://springboot-cgsm-248671-6-1423965568.sh.run.tcloudbase.com/api'
 
 function toRole(value) {
   const role = Number(value)
@@ -14,7 +15,7 @@ function toRole(value) {
 
 App({
   globalData: {
-    baseUrl: 'http://localhost:8080/api',
+    baseUrl: API_BASE_URL,
     token: wx.getStorageSync('token') || '',
     userInfo: wx.getStorageSync('userInfo') || null,
     role: toRole(wx.getStorageSync('role') || wx.getStorageSync('userInfo')?.role),

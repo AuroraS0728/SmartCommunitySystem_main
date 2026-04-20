@@ -173,8 +173,8 @@ public class AuthController {
             return Result.fail("old password incorrect");
         }
         String newPassword = req.getNewPassword().trim();
-        if (!newPassword.matches("^\\d{6}$")) {
-            return Result.fail("new password must be 6 digits");
+        if (!newPassword.matches("^[A-Za-z0-9]{6,20}$")) {
+            return Result.fail("new password must be 6-20 letters or digits");
         }
         if (Objects.equals(req.getOldPassword().trim(), newPassword)) {
             return Result.fail("new password can not be same as old password");

@@ -1,6 +1,8 @@
 const app = getApp()
 const { request } = require('../../api/request')
 
+const PASSWORD_PATTERN = /^[A-Za-z0-9]{6,20}$/
+
 Page({
   data: {
     oldPassword: '',
@@ -32,8 +34,13 @@ Page({
     const oldPassword = this.data.oldPassword
     const newPassword = this.data.newPassword
     const confirmPassword = this.data.confirmPassword
-    if (!/^\d{6}$/.test(oldPassword) || !/^\d{6}$/.test(newPassword)) {
-      wx.showToast({ title: '密码必须为6位数字', icon: 'none' })
+
+    if (!oldPassword) {
+      wx.showToast({ title: '请输入旧密码', icon: 'none' })
+      return
+    }
+    if (!PASSWORD_PATTERN.test(newPassword)) {
+      wx.showToast({ title: '新密码需6-20位字母或数字', icon: 'none' })
       return
     }
     if (newPassword !== confirmPassword) {
@@ -41,7 +48,7 @@ Page({
       return
     }
     if (oldPassword === newPassword) {
-      wx.showToast({ title: '新密码不能与旧密码相同', icon: 'none' })
+      wx.showToast({ title: '新密码不能和旧密码相同', icon: 'none' })
       return
     }
 
