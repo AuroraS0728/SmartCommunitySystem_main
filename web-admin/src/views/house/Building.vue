@@ -88,9 +88,11 @@ const occupancyRate = computed(() => {
 
 function isOccupied(item) {
   if (typeof item.occupied === 'boolean') return item.occupied
-  if (item.ownerName) return true
+  const statusNum = Number(item.status)
+  if (statusNum === 4 || statusNum === 5) return true
+  if (item.ownerName && !Number.isNaN(statusNum) && statusNum !== 3 && statusNum !== 1 && statusNum !== 2) return true
   const status = String(item.status || '').toLowerCase()
-  return status.includes('入住') || status.includes('occupied')
+  return status.includes('入住') || status.includes('occupied') || status.includes('出租') || status.includes('rented')
 }
 
 async function loadData() {

@@ -3,32 +3,67 @@
     <section class="panel">
       <div class="panel-header">
         <h3>房屋档案</h3>
-        <div class="actions">
-          <el-input v-model="keyword" placeholder="搜索楼栋/房号/业主" clearable style="width: 260px" />
-          <el-button type="primary" @click="openCreate">新增房屋</el-button>
-        </div>
+        <el-button type="primary" @click="openCreate">新增房屋</el-button>
       </div>
 
-      <el-table :data="displayList" stripe>
-        <el-table-column prop="id" label="ID" width="90" />
-        <el-table-column prop="community" label="小区" min-width="140" />
-        <el-table-column prop="building" label="楼栋" min-width="90" />
-        <el-table-column prop="unit" label="单元" min-width="90" />
-        <el-table-column prop="room" label="房号" min-width="90" />
-        <el-table-column prop="ownerName" label="业主" min-width="120" />
-        <el-table-column prop="area" label="面积(m²)" min-width="110" />
-        <el-table-column label="状态" min-width="100">
-          <template #default="{ row }">
-            <el-tag :type="resolveStatusTag(row.status)">{{ resolveStatusText(row.status) }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
-          <template #default="{ row }">
-            <el-button size="small" text type="primary" @click="openEdit(row)">编辑</el-button>
-            <el-button size="small" text type="danger" @click="handleDelete(row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div class="search-row">
+        <el-input v-model="keyword" placeholder="搜索楼栋/房号/业主/租户" clearable style="width: 320px" />
+      </div>
+
+      <div class="status-entry-row">
+        <button
+          v-for="section in statusSections"
+          :key="section.status"
+          class="status-entry"
+          :class="{ active: selectedStatus === section.status }"
+          type="button"
+          @click="selectStatus(section.status)"
+        >
+          <el-tag :type="section.tagType">{{ section.label }}</el-tag>
+          <span class="status-entry-count">{{ countText(section.status) }}</span>
+        </button>
+      </div>
+
+      <div v-if="selectedStatus === null" class="empty-wrap">
+        <el-empty description="请点击上方状态查看房屋列表" />
+      </div>
+
+      <template v-else>
+        <div class="main-table-title">
+          当前展开：{{ resolveStatusText(selectedStatus) }}（仅显示该状态）
+        </div>
+
+        <el-table :data="displayList(selectedStatus)" stripe v-loading="isLoading(selectedStatus)">
+          <el-table-column prop="id" label="ID" width="90" />
+          <el-table-column prop="community" label="小区" min-width="140" />
+          <el-table-column prop="building" label="楼栋" min-width="90" />
+          <el-table-column prop="unit" label="单元" min-width="90" />
+          <el-table-column prop="room" label="房号" min-width="90" />
+          <el-table-column prop="ownerName" label="业主" min-width="120" />
+          <el-table-column prop="tenantName" label="租户" min-width="120">
+            <template #default="{ row }">
+              {{ row.tenantName || '--' }}
+            </template>
+          </el-table-column>
+          <el-table-column label="出租截止" min-width="170">
+            <template #default="{ row }">
+              {{ row.rentEndTime || '--' }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="area" label="面积(m²)" min-width="110" />
+          <el-table-column label="状态" min-width="110">
+            <template #default="{ row }">
+              <el-tag :type="resolveStatusTag(row.status)">{{ resolveStatusText(row.status) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="180" fixed="right">
+            <template #default="{ row }">
+              <el-button size="small" text type="primary" @click="openEdit(row)">编辑</el-button>
+              <el-button size="small" text type="danger" @click="handleDelete(row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </template>
     </section>
 
     <el-dialog v-model="dialogVisible" :title="form.id ? '编辑房屋' : '新增房屋'" width="700px">
@@ -59,6 +94,23 @@
               <el-input v-model="form.ownerName" />
             </el-form-item>
           </el-col>
+          <el-col :span="12" v-if="Number(form.status) === 5">
+            <el-form-item label="租户">
+              <el-input v-model="form.tenantName" placeholder="请输入租户姓名" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="Number(form.status) === 5">
+            <el-form-item label="出租截止">
+              <el-date-picker
+                v-model="form.rentEndTime"
+                type="datetime"
+                value-format="YYYY-MM-DD HH:mm:ss"
+                format="YYYY-MM-DD HH:mm:ss"
+                placeholder="请选择截止日期时间"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="面积">
               <el-input-number v-model="form.area" :min="0" :precision="2" style="width: 100%" />
@@ -71,6 +123,7 @@
                 <el-option label="已售" :value="2" />
                 <el-option label="空置" :value="3" />
                 <el-option label="已入住" :value="4" />
+                <el-option label="已出租" :value="5" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -85,14 +138,26 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { addHouse, deleteHouse, getHouseList, updateHouse } from '@/api/house'
 
+const statusSections = [
+  { status: 4, label: '已入住', tagType: 'success' },
+  { status: 5, label: '已出租', tagType: 'primary' },
+  { status: 3, label: '空置', tagType: 'info' },
+  { status: 2, label: '已售', tagType: 'warning' },
+  { status: 1, label: '未售', tagType: 'danger' }
+]
+
 const keyword = ref('')
-const list = ref([])
+const selectedStatus = ref(null)
+const listMap = ref({ 1: [], 2: [], 3: [], 4: [], 5: [] })
+const loadedMap = ref({ 1: false, 2: false, 3: false, 4: false, 5: false })
+const loadingMap = ref({ 1: false, 2: false, 3: false, 4: false, 5: false })
 const dialogVisible = ref(false)
 const saving = ref(false)
+
 const form = ref({
   id: null,
   community: '',
@@ -100,20 +165,42 @@ const form = ref({
   unit: '',
   room: '',
   ownerName: '',
+  tenantName: '',
+  rentEndTime: '',
   area: 0,
-  status: 3
+  status: 3,
+  oldStatus: null
 })
 
-const displayList = computed(() => {
-  if (!keyword.value.trim()) return list.value
-  const text = keyword.value.trim()
-  return list.value.filter(
-    (item) =>
-      String(item.building || '').includes(text) ||
-      String(item.room || '').includes(text) ||
-      String(item.ownerName || '').includes(text)
-  )
-})
+function normalizeStatus(raw) {
+  if (raw === null || raw === undefined) return null
+  const num = Number(raw)
+  if (Number.isInteger(num) && num >= 1 && num <= 5) return num
+  const text = String(raw).trim().toLowerCase()
+  if (!text) return null
+  if (text.includes('已出租') || text.includes('出租') || text.includes('rented')) return 5
+  if (text.includes('已入住') || text.includes('入住') || text.includes('occupied')) return 4
+  if (text.includes('空置') || text.includes('vacant')) return 3
+  if (text.includes('已售') || text.includes('sold')) return 2
+  if (text.includes('未售') || text.includes('待售') || text.includes('unsold')) return 1
+  return null
+}
+
+function resolveStatusText(status) {
+  const value = normalizeStatus(status)
+  const map = { 1: '未售', 2: '已售', 3: '空置', 4: '已入住', 5: '已出租' }
+  return value ? map[value] : String(status || '--')
+}
+
+function resolveStatusTag(status) {
+  const value = normalizeStatus(status)
+  if (value === 4) return 'success'
+  if (value === 5) return 'primary'
+  if (value === 3) return 'info'
+  if (value === 2) return 'warning'
+  if (value === 1) return 'danger'
+  return 'info'
+}
 
 function resetForm() {
   form.value = {
@@ -123,8 +210,11 @@ function resetForm() {
     unit: '',
     room: '',
     ownerName: '',
+    tenantName: '',
+    rentEndTime: '',
     area: 0,
-    status: 3
+    status: 3,
+    oldStatus: null
   }
 }
 
@@ -134,6 +224,7 @@ function openCreate() {
 }
 
 function openEdit(row) {
+  const currentStatus = normalizeStatus(row.status) || 3
   form.value = {
     id: row.id,
     community: row.community,
@@ -141,28 +232,69 @@ function openEdit(row) {
     unit: row.unit,
     room: row.room,
     ownerName: row.ownerName,
+    tenantName: row.tenantName || '',
+    rentEndTime: row.rentEndTime || '',
     area: Number(row.area || 0),
-    status: Number(row.status || 3)
+    status: currentStatus,
+    oldStatus: currentStatus
   }
   dialogVisible.value = true
 }
 
-function resolveStatusText(status) {
-  const map = { 1: '未售', 2: '已售', 3: '空置', 4: '已入住' }
-  return map[Number(status)] || '--'
+function displayList(status) {
+  const rows = listMap.value[status] || []
+  const text = keyword.value.trim()
+  if (!text) return rows
+  return rows.filter(
+    (item) =>
+      String(item.building || '').includes(text) ||
+      String(item.room || '').includes(text) ||
+      String(item.ownerName || '').includes(text) ||
+      String(item.tenantName || '').includes(text)
+  )
 }
 
-function resolveStatusTag(status) {
-  const value = Number(status)
-  if (value === 4) return 'success'
-  if (value === 3) return 'info'
-  if (value === 2) return 'warning'
-  return 'danger'
+function isLoading(status) {
+  return !!loadingMap.value[status]
 }
 
-async function loadList() {
-  const res = await getHouseList()
-  list.value = Array.isArray(res.data) ? res.data : []
+function countText(status) {
+  if (!loadedMap.value[status]) return '点击展开'
+  return `${(listMap.value[status] || []).length} 条`
+}
+
+async function loadListByStatus(status, force = false) {
+  const targetStatus = Number(status)
+  if (!force && loadedMap.value[targetStatus]) return
+  loadingMap.value = { ...loadingMap.value, [targetStatus]: true }
+  try {
+    const res = await getHouseList({ status: targetStatus })
+    const rows = Array.isArray(res.data) ? res.data : []
+    const filtered = rows.filter((item) => normalizeStatus(item.status) === targetStatus)
+    listMap.value = { ...listMap.value, [targetStatus]: filtered }
+    loadedMap.value = { ...loadedMap.value, [targetStatus]: true }
+  } finally {
+    loadingMap.value = { ...loadingMap.value, [targetStatus]: false }
+  }
+}
+
+async function selectStatus(status) {
+  const targetStatus = Number(status)
+  selectedStatus.value = targetStatus
+  await loadListByStatus(targetStatus)
+}
+
+async function refreshAfterMutation(extraStatuses = []) {
+  const statusSet = new Set()
+  if (selectedStatus.value !== null) {
+    statusSet.add(selectedStatus.value)
+  }
+  extraStatuses.forEach((status) => {
+    const value = normalizeStatus(status)
+    if (value) statusSet.add(value)
+  })
+  if (!statusSet.size) return
+  await Promise.all([...statusSet].map((status) => loadListByStatus(status, true)))
 }
 
 async function submit() {
@@ -170,16 +302,23 @@ async function submit() {
     ElMessage.warning('请填写必填信息')
     return
   }
+  if (Number(form.value.status) === 5 && (!form.value.tenantName || !form.value.rentEndTime)) {
+    ElMessage.warning('已出租状态必须填写租户和出租截止时间')
+    return
+  }
   saving.value = true
   try {
+    const statusValue = Number(form.value.status)
     const payload = {
       community: form.value.community,
       building: form.value.building,
       unit: form.value.unit,
       room: form.value.room,
       ownerName: form.value.ownerName,
+      tenantName: statusValue === 5 ? form.value.tenantName : '',
+      rentEndTime: statusValue === 5 ? form.value.rentEndTime : null,
       area: form.value.area,
-      status: form.value.status
+      status: statusValue
     }
     if (form.value.id) {
       await updateHouse(form.value.id, payload)
@@ -189,7 +328,10 @@ async function submit() {
       ElMessage.success('新增成功')
     }
     dialogVisible.value = false
-    await loadList()
+    if (selectedStatus.value === null) {
+      selectedStatus.value = form.value.status
+    }
+    await refreshAfterMutation([form.value.status, form.value.oldStatus])
   } finally {
     saving.value = false
   }
@@ -199,12 +341,8 @@ async function handleDelete(row) {
   await ElMessageBox.confirm(`确认删除房屋 #${row.id} 吗？`, '提示', { type: 'warning' })
   await deleteHouse(row.id)
   ElMessage.success('删除成功')
-  await loadList()
+  await refreshAfterMutation([row.status])
 }
-
-onMounted(async () => {
-  await loadList()
-})
 </script>
 
 <style scoped>
@@ -232,10 +370,69 @@ onMounted(async () => {
   font-size: 16px;
 }
 
-.actions {
+.search-row {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.status-entry-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.status-entry {
+  border: 1px solid #dbeafe;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.status-entry:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.status-entry.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.status-entry-count {
+  color: #475569;
+  font-size: 13px;
+}
+
+.main-table-title {
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.empty-wrap {
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 18px 8px;
+}
+
+@media (max-width: 1200px) {
+  .status-entry-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .status-entry-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -244,8 +441,12 @@ onMounted(async () => {
     align-items: stretch;
   }
 
-  .actions {
-    flex-direction: column;
+  .search-row {
+    justify-content: flex-start;
+  }
+
+  .status-entry-row {
+    grid-template-columns: 1fr;
   }
 }
 </style>

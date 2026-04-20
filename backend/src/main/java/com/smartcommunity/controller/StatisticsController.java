@@ -69,7 +69,9 @@ public class StatisticsController {
                 .last("LIMIT 5"));
 
         long totalProperty = properties.size();
-        long occupied = properties.stream().filter(v -> Integer.valueOf(4).equals(v.getStatus())).count();
+        long occupied = properties.stream()
+                .filter(v -> Integer.valueOf(4).equals(v.getStatus()) || Integer.valueOf(5).equals(v.getStatus()))
+                .count();
         double occupancyRate = totalProperty == 0 ? 0 : (double) occupied / totalProperty;
 
         BigDecimal totalAmount = bills.stream()

@@ -491,8 +491,15 @@ public class RepairController {
                 if (StringUtils.hasText(req.getAfterImages())) {
                     order.setAfterImages(req.getAfterImages().trim());
                 }
-                if (req.getChargeAmount() != null) {
-                    order.setChargeAmount(req.getChargeAmount());
+                if (req.getChargeAmount() == null) {
+                    return Result.fail(StatusCode.BAD_REQUEST, "chargeAmount is required when worker completes order");
+                }
+                if (req.getChargeAmount().compareTo(BigDecimal.ZERO) < 0) {
+                    return Result.fail(StatusCode.BAD_REQUEST, "chargeAmount can not be negative");
+                }
+                order.setChargeAmount(req.getChargeAmount());
+                if (req.getChargeAmount().compareTo(BigDecimal.ZERO) > 0 && !StringUtils.hasText(req.getChargeRemark())) {
+                    return Result.fail(StatusCode.BAD_REQUEST, "chargeRemark is required when chargeAmount > 0");
                 }
                 if (StringUtils.hasText(req.getChargeRemark())) {
                     order.setChargeRemark(req.getChargeRemark().trim());

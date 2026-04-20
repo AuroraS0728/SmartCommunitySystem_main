@@ -9,13 +9,16 @@ import com.smartcommunity.dto.request.FeeWechatPayReq;
 import com.smartcommunity.dto.request.GenerateFeeBillsReq;
 import com.smartcommunity.dto.request.PayFeeReq;
 import com.smartcommunity.dto.request.WechatPayCallbackReq;
+import com.smartcommunity.dto.response.PaymentSubjectVO;
 import com.smartcommunity.entity.FeeBill;
 import com.smartcommunity.entity.ParkingOrder;
 import com.smartcommunity.entity.Property;
+import com.smartcommunity.entity.RepairFeeBill;
 import com.smartcommunity.entity.UserProperty;
 import com.smartcommunity.mapper.FeeBillMapper;
 import com.smartcommunity.mapper.ParkingOrderMapper;
 import com.smartcommunity.mapper.PropertyMapper;
+import com.smartcommunity.mapper.RepairFeeBillMapper;
 import com.smartcommunity.mapper.UserPropertyMapper;
 import com.smartcommunity.service.FeeBillingService;
 import com.smartcommunity.service.PointsService;
@@ -39,8 +42,13 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -50,12 +58,16 @@ public class FeeController {
 
     private static final BigDecimal DEFAULT_UNIT_PRICE = new BigDecimal("5.00");
     private static final DateTimeFormatter PERIOD_FMT = DateTimeFormatter.ofPattern("yyyy-MM");
+    private static final int BUSINESS_TYPE_FEE = 1;
+    private static final int BUSINESS_TYPE_PARKING = 2;
+    private static final int BUSINESS_TYPE_REPAIR = 3;
 
     private final WechatUtil wechatUtil;
     private final FeeBillingService feeBillingService;
     private final PointsService pointsService;
     private final FeeBillMapper feeBillMapper;
     private final ParkingOrderMapper parkingOrderMapper;
+    private final RepairFeeBillMapper repairFeeBillMapper;
     private final PropertyMapper propertyMapper;
     private final UserPropertyMapper userPropertyMapper;
 
@@ -77,6 +89,42 @@ public class FeeController {
         }
         wrapper.orderByDesc(FeeBill::getBillPeriod).orderByDesc(FeeBill::getId);
         return Result.success(feeBillMapper.selectList(wrapper));
+    }
+
+    /**
+     * 统一缴费主体查询：1-物业费，2-停车费，3-维修费。
+     */
+    @GetMapping("/subjects")
+    public Result<List<PaymentSubjectVO>> paymentSubjects(@RequestParam(required = false) Integer businessType,
+                                                          @RequestParam(required = false) Integer status) {
+        Integer role = AuthContext.getRole();
+        Long userId = AuthContext.getUserId();
+        if (role == null || userId == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
+        }
+        if (role != 1 && role != 2) {
+            return Result.fail(StatusCode.FORBIDDEN, "only owner or admin can query payment subjects");
+        }
+        if (businessType != null && (businessType < 1 || businessType > 3)) {
+            return Result.fail(StatusCode.BAD_REQUEST, "businessType must be 1~3");
+        }
+
+        List<Long> ownerPropertyIds = queryOwnerPropertyIds(userId, role);
+        List<PaymentSubjectVO> subjects = new ArrayList<>();
+        if (businessType == null || businessType == BUSINESS_TYPE_FEE) {
+            subjects.addAll(queryPropertyFeeSubjects(role, ownerPropertyIds, status));
+        }
+        if (businessType == null || businessType == BUSINESS_TYPE_PARKING) {
+            subjects.addAll(queryParkingFeeSubjects(role, userId, status));
+        }
+        if (businessType == null || businessType == BUSINESS_TYPE_REPAIR) {
+            subjects.addAll(queryRepairFeeSubjects(role, userId, status));
+        }
+        subjects.sort(Comparator
+                .comparing(PaymentSubjectVO::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(PaymentSubjectVO::getBusinessType, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(PaymentSubjectVO::getBusinessId, Comparator.nullsLast(Comparator.reverseOrder())));
+        return Result.success(subjects);
     }
 
     /**
@@ -331,5 +379,183 @@ public class FeeController {
         } catch (DateTimeParseException ex) {
             return LocalDateTime.now().plusDays(10);
         }
+    }
+
+    private List<Long> queryOwnerPropertyIds(Long userId, Integer role) {
+        if (role == null || role != 1) {
+            return List.of();
+        }
+        return userPropertyMapper.selectList(new LambdaQueryWrapper<UserProperty>()
+                        .eq(UserProperty::getUserId, userId)
+                        .eq(UserProperty::getIsDeleted, 0))
+                .stream()
+                .map(UserProperty::getPropertyId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private List<PaymentSubjectVO> queryPropertyFeeSubjects(Integer role, List<Long> ownerPropertyIds, Integer status) {
+        LambdaQueryWrapper<FeeBill> wrapper = new LambdaQueryWrapper<FeeBill>()
+                .eq(FeeBill::getIsDeleted, 0);
+        if (status != null) {
+            wrapper.eq(FeeBill::getStatus, status);
+        }
+        if (role != null && role == 1) {
+            if (ownerPropertyIds.isEmpty()) {
+                return List.of();
+            }
+            wrapper.in(FeeBill::getPropertyId, ownerPropertyIds);
+        }
+        wrapper.orderByDesc(FeeBill::getId);
+        List<FeeBill> bills = feeBillMapper.selectList(wrapper);
+        if (bills.isEmpty()) {
+            return List.of();
+        }
+        Set<Long> propertyIds = bills.stream()
+                .map(FeeBill::getPropertyId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, String> propertyCodeMap = propertyCodeMap(propertyIds);
+
+        List<PaymentSubjectVO> subjects = new ArrayList<>(bills.size());
+        for (FeeBill bill : bills) {
+            PaymentSubjectVO row = new PaymentSubjectVO();
+            row.setBusinessType(BUSINESS_TYPE_FEE);
+            row.setBusinessTypeText("物业费");
+            row.setBusinessId(bill.getId());
+            row.setBusinessRef(bill.getBillPeriod());
+            row.setSubjectName(propertyCodeMap.getOrDefault(bill.getPropertyId(), "房屋#" + bill.getPropertyId()));
+            row.setAmount(bill.getAmount());
+            row.setPaidAmount(bill.getPaidAmount() == null ? BigDecimal.ZERO : bill.getPaidAmount());
+            row.setNeedPoints(bill.getNeedPoints() == null ? toNeedPoints(bill.getAmount()) : bill.getNeedPoints());
+            row.setStatus(bill.getStatus());
+            row.setStatusText(feeStatusText(bill.getStatus()));
+            row.setDueDate(bill.getDueDate());
+            row.setPaymentTime(bill.getPaymentTime());
+            row.setCreateTime(bill.getCreateTime());
+            subjects.add(row);
+        }
+        return subjects;
+    }
+
+    private List<PaymentSubjectVO> queryParkingFeeSubjects(Integer role, Long userId, Integer status) {
+        LambdaQueryWrapper<ParkingOrder> wrapper = new LambdaQueryWrapper<ParkingOrder>()
+                .eq(ParkingOrder::getIsDeleted, 0);
+        if (status != null) {
+            wrapper.eq(ParkingOrder::getStatus, status);
+        }
+        if (role != null && role == 1) {
+            wrapper.eq(ParkingOrder::getUserId, userId);
+        }
+        wrapper.orderByDesc(ParkingOrder::getId);
+        List<ParkingOrder> orders = parkingOrderMapper.selectList(wrapper);
+        if (orders.isEmpty()) {
+            return List.of();
+        }
+        List<PaymentSubjectVO> subjects = new ArrayList<>(orders.size());
+        for (ParkingOrder order : orders) {
+            PaymentSubjectVO row = new PaymentSubjectVO();
+            row.setBusinessType(BUSINESS_TYPE_PARKING);
+            row.setBusinessTypeText("停车费");
+            row.setBusinessId(order.getId());
+            row.setBusinessRef(orderTypeText(order.getOrderType()));
+            row.setSubjectName(order.getVehicleNo());
+            row.setAmount(order.getAmount());
+            row.setPaidAmount(isPaid(order.getStatus()) ? order.getAmount() : BigDecimal.ZERO);
+            row.setNeedPoints(toNeedPoints(order.getAmount()));
+            row.setStatus(order.getStatus());
+            row.setStatusText(parkingStatusText(order.getStatus()));
+            row.setDueDate(order.getEndTime());
+            row.setPaymentTime(order.getPaymentTime());
+            row.setCreateTime(order.getCreateTime());
+            subjects.add(row);
+        }
+        return subjects;
+    }
+
+    private List<PaymentSubjectVO> queryRepairFeeSubjects(Integer role, Long userId, Integer status) {
+        LambdaQueryWrapper<RepairFeeBill> wrapper = new LambdaQueryWrapper<RepairFeeBill>()
+                .eq(RepairFeeBill::getIsDeleted, 0);
+        if (status != null) {
+            wrapper.eq(RepairFeeBill::getStatus, status);
+        }
+        if (role != null && role == 1) {
+            wrapper.eq(RepairFeeBill::getUserId, userId);
+        }
+        wrapper.orderByDesc(RepairFeeBill::getId);
+        List<RepairFeeBill> repairBills = repairFeeBillMapper.selectList(wrapper);
+        if (repairBills.isEmpty()) {
+            return List.of();
+        }
+        List<PaymentSubjectVO> subjects = new ArrayList<>(repairBills.size());
+        for (RepairFeeBill bill : repairBills) {
+            PaymentSubjectVO row = new PaymentSubjectVO();
+            row.setBusinessType(BUSINESS_TYPE_REPAIR);
+            row.setBusinessTypeText("维修费");
+            row.setBusinessId(bill.getId());
+            row.setBusinessRef("工单#" + bill.getOrderId());
+            row.setSubjectName("维修工单#" + bill.getOrderId());
+            row.setAmount(bill.getAmount());
+            row.setPaidAmount(isPaid(bill.getStatus()) ? bill.getAmount() : BigDecimal.ZERO);
+            row.setNeedPoints(bill.getNeedPoints() == null ? toNeedPoints(bill.getAmount()) : bill.getNeedPoints());
+            row.setStatus(bill.getStatus());
+            row.setStatusText(repairStatusText(bill.getStatus()));
+            row.setDueDate(bill.getDueDate());
+            row.setPaymentTime(bill.getPaymentTime());
+            row.setCreateTime(bill.getCreateTime());
+            subjects.add(row);
+        }
+        return subjects;
+    }
+
+    private Map<Long, String> propertyCodeMap(Set<Long> propertyIds) {
+        if (propertyIds == null || propertyIds.isEmpty()) {
+            return Map.of();
+        }
+        List<Property> properties = propertyMapper.selectList(new LambdaQueryWrapper<Property>()
+                .in(Property::getId, propertyIds)
+                .eq(Property::getIsDeleted, 0));
+        Map<Long, String> result = new HashMap<>();
+        for (Property property : properties) {
+            String code = property.getPropertyCode();
+            if (code == null || code.isBlank()) {
+                code = "房屋#" + property.getId();
+            }
+            result.put(property.getId(), code);
+        }
+        return result;
+    }
+
+    private String feeStatusText(Integer status) {
+        if (status == null || status == 0) {
+            return "待缴";
+        }
+        if (status == 1) {
+            return "部分缴纳";
+        }
+        if (status == 2) {
+            return "已缴纳";
+        }
+        return "未知";
+    }
+
+    private String parkingStatusText(Integer status) {
+        return isPaid(status) ? "已缴纳" : "待缴";
+    }
+
+    private String repairStatusText(Integer status) {
+        return isPaid(status) ? "已缴纳" : "待缴";
+    }
+
+    private String orderTypeText(Integer orderType) {
+        if (orderType != null && orderType == 2) {
+            return "月卡";
+        }
+        return "临停";
+    }
+
+    private boolean isPaid(Integer status) {
+        return status != null && status == 1;
     }
 }

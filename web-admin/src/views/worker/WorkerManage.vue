@@ -38,7 +38,7 @@
               :show-file-list="false"
               :auto-upload="false"
               accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-              :before-upload="(file) => handleFaceBeforeUpload(file, row.id)"
+              :on-change="(uploadFile) => handleFaceFileChange(uploadFile, row.id)"
             >
               <el-button
                 size="small"
@@ -279,9 +279,9 @@ function validateFaceFile(file) {
     ElMessage.error('仅支持 JPG/PNG 图片')
     return false
   }
-  const isLt2m = Number(file?.size || 0) / 1024 / 1024 < 2
-  if (!isLt2m) {
-    ElMessage.error('图片大小不能超过 2MB')
+  const isLt20m = Number(file?.size || 0) / 1024 / 1024 < 20
+  if (!isLt20m) {
+    ElMessage.error('图片大小不能超过 20MB')
     return false
   }
   return true
@@ -413,6 +413,15 @@ async function handleFaceBeforeUpload(file, workerId) {
   return false
 }
 
+async function handleFaceFileChange(uploadFile, workerId) {
+  const rawFile = uploadFile?.raw
+  if (!rawFile) {
+    ElMessage.error('图片读取失败，请重新选择')
+    return
+  }
+  await handleFaceBeforeUpload(rawFile, workerId)
+}
+
 onMounted(async () => {
   await loadWorkers()
 })
@@ -504,4 +513,3 @@ onMounted(async () => {
   }
 }
 </style>
-
