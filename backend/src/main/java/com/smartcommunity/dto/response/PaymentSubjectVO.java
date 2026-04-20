@@ -13,6 +13,9 @@ public class PaymentSubjectVO {
     private Integer businessType;
     private String businessTypeText;
     private Long businessId;
+    private Long propertyId;
+    private String propertyCode;
+    private String ownerName;
 
     /**
      * 缴费主体展示文本（如房产号、车牌、工单号）

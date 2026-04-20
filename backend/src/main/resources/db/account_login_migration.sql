@@ -39,7 +39,7 @@ SET `property_code` = CONCAT(
     'YZ',
     LPAD(CAST(COALESCE(NULLIF(REGEXP_SUBSTR(`building`, '[0-9]+'), ''), '0') AS UNSIGNED) % 100, 2, '0'),
     LPAD(CAST(COALESCE(NULLIF(REGEXP_SUBSTR(`unit`, '[0-9]+'), ''), '0') AS UNSIGNED) % 100, 2, '0'),
-    LPAD(CAST(COALESCE(NULLIF(REGEXP_SUBSTR(`room`, '[0-9]+'), ''), '0') AS UNSIGNED) % 100, 2, '0'),
+    LPAD(CAST(COALESCE(NULLIF(REGEXP_SUBSTR(`room`, '[0-9]+'), ''), '0') AS UNSIGNED) % 1000, 3, '0'),
     DATE_FORMAT(COALESCE(`create_time`, NOW()), '%y')
 )
 WHERE `property_code` IS NULL OR `property_code` = '';

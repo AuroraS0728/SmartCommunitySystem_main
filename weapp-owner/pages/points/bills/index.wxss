@@ -1,3 +1,17 @@
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.status-tag {
+  font-size: 24rpx;
+  color: #2563eb;
+  background: #dbeafe;
+  border-radius: 999rpx;
+  padding: 4rpx 14rpx;
+}
+
 .pay-btn {
   margin-top: 24rpx;
 }

@@ -46,7 +46,7 @@ BEGIN
           'YZ',
           LPAD(v_building, 2, '0'),
           LPAD(v_unit, 2, '0'),
-          LPAD(v_room, 2, '0'),
+          LPAD(CAST(v_room_no AS UNSIGNED), 3, '0'),
           DATE_FORMAT(v_reg, '%y')
         );
 

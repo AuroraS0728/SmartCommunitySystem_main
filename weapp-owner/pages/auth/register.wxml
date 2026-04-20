@@ -12,13 +12,13 @@
     <input
       class="input"
       type="text"
-      maxlength="10"
+      maxlength="11"
       value="{{propertyCode}}"
       bindinput="onPropertyCodeInput"
-      placeholder="例如：YZ01020126"
+      placeholder="例如：YZ010110126"
     />
 
-    <view class="tip">房产号规则：YZ + 楼号2位 + 单元2位 + 房间2位 + 房屋注册年份后2位。</view>
+    <view class="tip">房产号规则：YZ + 楼号2位 + 单元2位 + 房间3位 + 房屋注册年份后2位。</view>
     <button class="btn" loading="{{loading}}" bindtap="submit">提交注册</button>
   </view>
 </view>

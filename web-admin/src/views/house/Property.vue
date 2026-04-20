@@ -3,11 +3,23 @@
     <section class="panel">
       <div class="panel-header">
         <h3>房屋档案</h3>
-        <el-button type="primary" @click="openCreate">新增房屋</el-button>
       </div>
 
-      <div class="search-row">
-        <el-input v-model="keyword" placeholder="搜索楼栋/房号/业主/租户" clearable style="width: 320px" />
+      <div class="tool-grid">
+        <div class="tool-card">
+          <div class="tool-title">搜索房屋</div>
+          <el-input
+            v-model="keyword"
+            placeholder="按房产号/楼栋/单元/房号/业主/租户搜索"
+            clearable
+            style="max-width: 420px"
+          />
+        </div>
+        <div class="tool-card create-card">
+          <div class="tool-title">新增房屋</div>
+          <p>房产号自动规则：YZ + 楼号2位 + 单元2位 + 房间3位 + 年份后2位</p>
+          <el-button type="primary" @click="openCreate">新增房屋</el-button>
+        </div>
       </div>
 
       <div class="status-entry-row">
@@ -25,16 +37,15 @@
       </div>
 
       <div v-if="selectedStatus === null" class="empty-wrap">
-        <el-empty description="请点击上方状态查看房屋列表" />
+        <el-empty description="请先选择状态后查看房屋列表" />
       </div>
 
       <template v-else>
-        <div class="main-table-title">
-          当前展开：{{ resolveStatusText(selectedStatus) }}（仅显示该状态）
-        </div>
+        <div class="main-table-title">当前状态：{{ resolveStatusText(selectedStatus) }}</div>
 
         <el-table :data="displayList(selectedStatus)" stripe v-loading="isLoading(selectedStatus)">
           <el-table-column prop="id" label="ID" width="90" />
+          <el-table-column prop="propertyCode" label="房产号" min-width="150" />
           <el-table-column prop="community" label="小区" min-width="140" />
           <el-table-column prop="building" label="楼栋" min-width="90" />
           <el-table-column prop="unit" label="单元" min-width="90" />
@@ -66,8 +77,9 @@
       </template>
     </section>
 
-    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑房屋' : '新增房屋'" width="700px">
-      <el-form label-width="88px">
+    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑房屋' : '新增房屋'" width="760px">
+      <el-form label-width="96px">
+        <el-alert title="保存后将自动生成房产号" type="info" :closable="false" style="margin-bottom: 14px" />
         <el-row :gutter="12">
           <el-col :span="12">
             <el-form-item label="小区">
@@ -106,7 +118,7 @@
                 type="datetime"
                 value-format="YYYY-MM-DD HH:mm:ss"
                 format="YYYY-MM-DD HH:mm:ss"
-                placeholder="请选择截止日期时间"
+                placeholder="请选择出租截止时间"
                 style="width: 100%"
               />
             </el-form-item>
@@ -176,13 +188,6 @@ function normalizeStatus(raw) {
   if (raw === null || raw === undefined) return null
   const num = Number(raw)
   if (Number.isInteger(num) && num >= 1 && num <= 5) return num
-  const text = String(raw).trim().toLowerCase()
-  if (!text) return null
-  if (text.includes('已出租') || text.includes('出租') || text.includes('rented')) return 5
-  if (text.includes('已入住') || text.includes('入住') || text.includes('occupied')) return 4
-  if (text.includes('空置') || text.includes('vacant')) return 3
-  if (text.includes('已售') || text.includes('sold')) return 2
-  if (text.includes('未售') || text.includes('待售') || text.includes('unsold')) return 1
   return null
 }
 
@@ -247,7 +252,9 @@ function displayList(status) {
   if (!text) return rows
   return rows.filter(
     (item) =>
+      String(item.propertyCode || '').includes(text) ||
       String(item.building || '').includes(text) ||
+      String(item.unit || '').includes(text) ||
       String(item.room || '').includes(text) ||
       String(item.ownerName || '').includes(text) ||
       String(item.tenantName || '').includes(text)
@@ -286,9 +293,7 @@ async function selectStatus(status) {
 
 async function refreshAfterMutation(extraStatuses = []) {
   const statusSet = new Set()
-  if (selectedStatus.value !== null) {
-    statusSet.add(selectedStatus.value)
-  }
+  if (selectedStatus.value !== null) statusSet.add(selectedStatus.value)
   extraStatuses.forEach((status) => {
     const value = normalizeStatus(status)
     if (value) statusSet.add(value)
@@ -298,8 +303,8 @@ async function refreshAfterMutation(extraStatuses = []) {
 }
 
 async function submit() {
-  if (!form.value.community || !form.value.building || !form.value.room) {
-    ElMessage.warning('请填写必填信息')
+  if (!form.value.community || !form.value.building || !form.value.unit || !form.value.room) {
+    ElMessage.warning('请填写小区、楼栋、单元、房号')
     return
   }
   if (Number(form.value.status) === 5 && (!form.value.tenantName || !form.value.rentEndTime)) {
@@ -370,11 +375,34 @@ async function handleDelete(row) {
   font-size: 16px;
 }
 
-.search-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.tool-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
   margin-bottom: 14px;
+}
+
+.tool-card {
+  border: 1px solid #dbeafe;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tool-title {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.create-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .status-entry-row {
@@ -424,6 +452,10 @@ async function handleDelete(row) {
 }
 
 @media (max-width: 1200px) {
+  .tool-grid {
+    grid-template-columns: 1fr;
+  }
+
   .status-entry-row {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -436,15 +468,6 @@ async function handleDelete(row) {
 }
 
 @media (max-width: 760px) {
-  .panel-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-row {
-    justify-content: flex-start;
-  }
-
   .status-entry-row {
     grid-template-columns: 1fr;
   }

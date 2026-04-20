@@ -21,22 +21,36 @@
 
     <section class="panel">
       <div class="panel-header">
-        <h3>费用账单</h3>
-        <el-input v-model="keyword" placeholder="搜索账期或住户" clearable style="max-width: 260px" />
+        <h3>缴费管理</h3>
+        <el-input
+          v-model="keyword"
+          placeholder="搜索房产号/房主/缴费类型/业务标识"
+          clearable
+          style="max-width: 280px"
+        />
       </div>
+      <el-alert
+        title="缴费主体统一为房产号。维修费用由维修人员完单时录入，系统自动生成维修账单给业主，业主可使用积分缴纳。"
+        type="info"
+        :closable="false"
+        style="margin-bottom: 14px"
+      />
       <el-table :data="displayList" stripe>
-        <el-table-column prop="id" label="ID" width="90" />
-        <el-table-column prop="billPeriod" label="账期" min-width="140" />
-        <el-table-column prop="payer" label="缴费主体" min-width="180" />
+        <el-table-column prop="businessTypeText" label="缴费类型" min-width="130" />
+        <el-table-column prop="propertyCode" label="房产号" min-width="150" />
+        <el-table-column prop="ownerName" label="房主" min-width="120" />
+        <el-table-column prop="businessRef" label="业务标识" min-width="180" />
+        <el-table-column prop="subjectName" label="缴费主体" min-width="220" />
         <el-table-column label="应收金额" min-width="120">
           <template #default="{ row }">¥ {{ formatMoney(row.amount) }}</template>
         </el-table-column>
         <el-table-column label="已收金额" min-width="120">
           <template #default="{ row }">¥ {{ formatMoney(row.paidAmount) }}</template>
         </el-table-column>
+        <el-table-column prop="needPoints" label="应付积分" min-width="100" />
         <el-table-column label="状态" min-width="120">
           <template #default="{ row }">
-            <el-tag :type="resolveStatusType(row.status)">{{ row.status || resolveStatus(row) }}</el-tag>
+            <el-tag :type="resolveStatusType(row)">{{ row.statusText || resolveStatus(row) }}</el-tag>
           </template>
         </el-table-column>
       </el-table>
@@ -46,22 +60,21 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { getBills } from '@/api/fee'
+import { getPaymentSubjects } from '@/api/fee'
 
 const keyword = ref('')
 const list = ref([])
-
-const fallbackData = [
-  { id: 2001, billPeriod: '2026-04', payer: '1号楼1单元101', amount: 520, paidAmount: 520, status: '已缴清' },
-  { id: 2002, billPeriod: '2026-04', payer: '8号楼2单元201', amount: 680, paidAmount: 400, status: '部分缴费' },
-  { id: 2003, billPeriod: '2026-04', payer: '12号楼1单元502', amount: 560, paidAmount: 0, status: '待缴费' }
-]
 
 const displayList = computed(() => {
   if (!keyword.value.trim()) return list.value
   const text = keyword.value.trim()
   return list.value.filter(
-    (item) => String(item.billPeriod || '').includes(text) || String(item.payer || '').includes(text)
+    (item) =>
+      String(item.propertyCode || '').includes(text) ||
+      String(item.ownerName || '').includes(text) ||
+      String(item.businessTypeText || '').includes(text) ||
+      String(item.businessRef || '').includes(text) ||
+      String(item.subjectName || '').includes(text)
   )
 })
 
@@ -73,28 +86,42 @@ const paidRate = computed(() => {
 })
 
 function formatMoney(value) {
-  return Number(value || 0).toLocaleString('zh-CN')
+  return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function isPaid(row) {
+  const type = Number(row.businessType || 0)
+  const status = Number(row.status || 0)
+  if (type === 1) return status === 2
+  return status === 1
 }
 
 function resolveStatus(row) {
-  if (Number(row.paidAmount || 0) <= 0) return '待缴费'
-  if (Number(row.paidAmount || 0) < Number(row.amount || 0)) return '部分缴费'
-  return '已缴清'
+  if (isPaid(row)) return '已缴费'
+  if (Number(row.businessType || 0) === 1 && Number(row.status || 0) === 1) return '部分缴费'
+  return '待缴费'
 }
 
-function resolveStatusType(text) {
-  if (String(text).includes('已')) return 'success'
-  if (String(text).includes('部分')) return 'warning'
+function resolveStatusType(row) {
+  const statusText = row.statusText || resolveStatus(row)
+  if (String(statusText).includes('已缴')) return 'success'
+  if (String(statusText).includes('部分')) return 'warning'
   return 'danger'
 }
 
+function normalizeRows(rows) {
+  return (Array.isArray(rows) ? rows : []).map((item) => ({
+    ...item,
+    propertyCode: item.propertyCode || '--',
+    ownerName: item.ownerName || '--',
+    subjectName: item.subjectName || `${item.propertyCode || '--'} / ${item.ownerName || '--'}`,
+    needPoints: Number(item.needPoints || 0)
+  }))
+}
+
 async function loadData() {
-  try {
-    const res = await getBills()
-    list.value = Array.isArray(res.data) && res.data.length ? res.data : fallbackData
-  } catch (error) {
-    list.value = fallbackData
-  }
+  const res = await getPaymentSubjects()
+  list.value = normalizeRows(res.data)
 }
 
 onMounted(async () => {

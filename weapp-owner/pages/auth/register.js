@@ -23,8 +23,8 @@ Page({
       wx.showToast({ title: '请输入11位手机号', icon: 'none' })
       return
     }
-    if (!/^YZ\d{8}$/.test(propertyCode)) {
-      wx.showToast({ title: '房产号格式应为 YZ + 8位数字', icon: 'none' })
+    if (!/^YZ\d{9}$/.test(propertyCode)) {
+      wx.showToast({ title: '房产号格式应为 YZ + 9位数字', icon: 'none' })
       return
     }
 

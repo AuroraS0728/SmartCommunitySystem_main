@@ -416,16 +416,20 @@ public class FeeController {
                 .map(FeeBill::getPropertyId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        Map<Long, String> propertyCodeMap = propertyCodeMap(propertyIds);
+        Map<Long, Property> propertyMap = propertyMap(propertyIds);
 
         List<PaymentSubjectVO> subjects = new ArrayList<>(bills.size());
         for (FeeBill bill : bills) {
+            Property property = propertyMap.get(bill.getPropertyId());
             PaymentSubjectVO row = new PaymentSubjectVO();
             row.setBusinessType(BUSINESS_TYPE_FEE);
             row.setBusinessTypeText("物业费");
             row.setBusinessId(bill.getId());
             row.setBusinessRef(bill.getBillPeriod());
-            row.setSubjectName(propertyCodeMap.getOrDefault(bill.getPropertyId(), "房屋#" + bill.getPropertyId()));
+            row.setPropertyId(bill.getPropertyId());
+            row.setPropertyCode(resolvePropertyCode(property, bill.getPropertyId()));
+            row.setOwnerName(resolveOwnerName(property));
+            row.setSubjectName(formatSubjectName(property, bill.getPropertyId()));
             row.setAmount(bill.getAmount());
             row.setPaidAmount(bill.getPaidAmount() == null ? BigDecimal.ZERO : bill.getPaidAmount());
             row.setNeedPoints(bill.getNeedPoints() == null ? toNeedPoints(bill.getAmount()) : bill.getNeedPoints());
@@ -453,14 +457,23 @@ public class FeeController {
         if (orders.isEmpty()) {
             return List.of();
         }
+        Set<Long> propertyIds = orders.stream()
+                .map(ParkingOrder::getPropertyId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, Property> propertyMap = propertyMap(propertyIds);
         List<PaymentSubjectVO> subjects = new ArrayList<>(orders.size());
         for (ParkingOrder order : orders) {
+            Property property = propertyMap.get(order.getPropertyId());
             PaymentSubjectVO row = new PaymentSubjectVO();
             row.setBusinessType(BUSINESS_TYPE_PARKING);
             row.setBusinessTypeText("停车费");
             row.setBusinessId(order.getId());
-            row.setBusinessRef(orderTypeText(order.getOrderType()));
-            row.setSubjectName(order.getVehicleNo());
+            row.setBusinessRef(orderTypeText(order.getOrderType()) + " / 车牌:" + defaultText(order.getVehicleNo(), "--"));
+            row.setPropertyId(order.getPropertyId());
+            row.setPropertyCode(resolvePropertyCode(property, order.getPropertyId()));
+            row.setOwnerName(resolveOwnerName(property));
+            row.setSubjectName(formatSubjectName(property, order.getPropertyId()));
             row.setAmount(order.getAmount());
             row.setPaidAmount(isPaid(order.getStatus()) ? order.getAmount() : BigDecimal.ZERO);
             row.setNeedPoints(toNeedPoints(order.getAmount()));
@@ -488,14 +501,23 @@ public class FeeController {
         if (repairBills.isEmpty()) {
             return List.of();
         }
+        Set<Long> propertyIds = repairBills.stream()
+                .map(RepairFeeBill::getPropertyId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, Property> propertyMap = propertyMap(propertyIds);
         List<PaymentSubjectVO> subjects = new ArrayList<>(repairBills.size());
         for (RepairFeeBill bill : repairBills) {
+            Property property = propertyMap.get(bill.getPropertyId());
             PaymentSubjectVO row = new PaymentSubjectVO();
             row.setBusinessType(BUSINESS_TYPE_REPAIR);
             row.setBusinessTypeText("维修费");
             row.setBusinessId(bill.getId());
             row.setBusinessRef("工单#" + bill.getOrderId());
-            row.setSubjectName("维修工单#" + bill.getOrderId());
+            row.setPropertyId(bill.getPropertyId());
+            row.setPropertyCode(resolvePropertyCode(property, bill.getPropertyId()));
+            row.setOwnerName(resolveOwnerName(property));
+            row.setSubjectName(formatSubjectName(property, bill.getPropertyId()));
             row.setAmount(bill.getAmount());
             row.setPaidAmount(isPaid(bill.getStatus()) ? bill.getAmount() : BigDecimal.ZERO);
             row.setNeedPoints(bill.getNeedPoints() == null ? toNeedPoints(bill.getAmount()) : bill.getNeedPoints());
@@ -509,22 +531,40 @@ public class FeeController {
         return subjects;
     }
 
-    private Map<Long, String> propertyCodeMap(Set<Long> propertyIds) {
+    private Map<Long, Property> propertyMap(Set<Long> propertyIds) {
         if (propertyIds == null || propertyIds.isEmpty()) {
             return Map.of();
         }
         List<Property> properties = propertyMapper.selectList(new LambdaQueryWrapper<Property>()
                 .in(Property::getId, propertyIds)
                 .eq(Property::getIsDeleted, 0));
-        Map<Long, String> result = new HashMap<>();
+        Map<Long, Property> result = new HashMap<>();
         for (Property property : properties) {
-            String code = property.getPropertyCode();
-            if (code == null || code.isBlank()) {
-                code = "房屋#" + property.getId();
-            }
-            result.put(property.getId(), code);
+            result.put(property.getId(), property);
         }
         return result;
+    }
+
+    private String resolvePropertyCode(Property property, Long propertyId) {
+        if (property != null && property.getPropertyCode() != null && !property.getPropertyCode().isBlank()) {
+            return property.getPropertyCode();
+        }
+        return propertyId == null ? "-" : ("房屋#" + propertyId);
+    }
+
+    private String resolveOwnerName(Property property) {
+        if (property != null && property.getOwnerName() != null && !property.getOwnerName().isBlank()) {
+            return property.getOwnerName().trim();
+        }
+        return "未登记业主";
+    }
+
+    private String formatSubjectName(Property property, Long propertyId) {
+        return resolvePropertyCode(property, propertyId) + " / " + resolveOwnerName(property);
+    }
+
+    private String defaultText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
     }
 
     private String feeStatusText(Integer status) {

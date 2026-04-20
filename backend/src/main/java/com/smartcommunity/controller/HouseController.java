@@ -132,23 +132,24 @@ public class HouseController {
     }
 
     private String buildPropertyCode(String building, String unit, String room, LocalDateTime registerTime) {
-        int buildingNo = normalize2Digits(building);
-        int unitNo = normalize2Digits(unit);
-        int roomNo = normalize2Digits(room);
+        int buildingNo = normalizeDigits(building, 2);
+        int unitNo = normalizeDigits(unit, 2);
+        int roomNo = normalizeDigits(room, 3);
         int year = registerTime == null ? LocalDateTime.now().getYear() : registerTime.getYear();
-        return String.format("YZ%02d%02d%02d%02d", buildingNo, unitNo, roomNo, year % 100);
+        return String.format("YZ%02d%02d%03d%02d", buildingNo, unitNo, roomNo, year % 100);
     }
 
-    private int normalize2Digits(String value) {
+    private int normalizeDigits(String value, int width) {
         if (!StringUtils.hasText(value)) {
             return 0;
         }
-        String digits = value.replaceAll("[^0-9]", "");
-        if (digits.isEmpty()) {
+        String normalizedDigits = value.replaceAll("[^0-9]", "");
+        if (normalizedDigits.isEmpty()) {
             return 0;
         }
         try {
-            return Integer.parseInt(digits) % 100;
+            int modulo = (int) Math.pow(10, Math.max(width, 1));
+            return Integer.parseInt(normalizedDigits) % modulo;
         } catch (NumberFormatException ex) {
             return 0;
         }

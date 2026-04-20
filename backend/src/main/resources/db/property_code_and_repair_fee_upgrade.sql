@@ -1,16 +1,16 @@
 SET NAMES utf8mb4;
 USE smart_community;
 
--- 1) 房产号规则：YZ + 楼号(2位) + 单元(2位) + 房号(2位) + 房屋建档年份后2位
+-- 1) 房产号规则：YZ + 楼号(2位) + 单元(2位) + 房号(3位) + 房屋建档年份后2位
 ALTER TABLE `property`
-  ADD COLUMN IF NOT EXISTS `property_code` VARCHAR(32) DEFAULT NULL COMMENT '房产号(YZ+楼号2位+单元2位+房号2位+年份后2位)';
+  ADD COLUMN IF NOT EXISTS `property_code` VARCHAR(32) DEFAULT NULL COMMENT '房产号(YZ+楼号2位+单元2位+房号3位+年份后2位)';
 
 UPDATE `property`
 SET `property_code` = CONCAT(
     'YZ',
     LPAD(CAST(COALESCE(NULLIF(REGEXP_SUBSTR(`building`, '[0-9]+'), ''), '0') AS UNSIGNED) % 100, 2, '0'),
     LPAD(CAST(COALESCE(NULLIF(REGEXP_SUBSTR(`unit`, '[0-9]+'), ''), '0') AS UNSIGNED) % 100, 2, '0'),
-    LPAD(CAST(COALESCE(NULLIF(REGEXP_SUBSTR(`room`, '[0-9]+'), ''), '0') AS UNSIGNED) % 100, 2, '0'),
+    LPAD(CAST(COALESCE(NULLIF(REGEXP_SUBSTR(`room`, '[0-9]+'), ''), '0') AS UNSIGNED) % 1000, 3, '0'),
     DATE_FORMAT(COALESCE(`create_time`, NOW()), '%y')
 )
 WHERE `property_code` IS NULL OR `property_code` = '';
@@ -40,7 +40,7 @@ SET @ck_property_code_exists := (
 );
 SET @ck_property_code_sql := IF(
   @ck_property_code_exists = 0,
-  'ALTER TABLE `property` ADD CONSTRAINT `ck_property_code_format` CHECK (`property_code` REGEXP ''^YZ[0-9]{8}$'')',
+  'ALTER TABLE `property` ADD CONSTRAINT `ck_property_code_format` CHECK (`property_code` REGEXP ''^YZ[0-9]{9}$'')',
   'SELECT 1'
 );
 PREPARE ck_property_code_stmt FROM @ck_property_code_sql;
