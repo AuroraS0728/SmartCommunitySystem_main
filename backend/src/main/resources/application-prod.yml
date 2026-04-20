@@ -3,12 +3,12 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://mysql:3306/smart_community?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: smart_user
-    password: smart_password
+    url: ${DB_URL:jdbc:mysql://${MYSQL_ADDRESS:127.0.0.1:3306}/${MYSQL_DATABASE:smart_community}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:${MYSQL_USERNAME:root}}
+    password: ${DB_PASSWORD:${MYSQL_PASSWORD:123456}}
   data:
     redis:
-      host: redis
-      port: 6379
-      database: 0
-      timeout: 3s
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DB:0}
+      timeout: ${REDIS_TIMEOUT:3s}
