@@ -64,13 +64,14 @@ BEGIN
           SET v_phone = CONCAT('13', LPAD(MOD(v_user_id * 37, 1000000000), 9, '0'));
 
           INSERT INTO `user` (
-            id, openid, unionid, account, password, role, nickname, avatar_url, phone, points, status, create_time, update_time, is_deleted
+            id, openid, unionid, account, password, must_change_password, role, nickname, avatar_url, phone, points, status, create_time, update_time, is_deleted
           ) VALUES (
             v_user_id,
             CONCAT('seed-owner-', v_user_id),
             CONCAT('seed-union-', v_user_id),
             v_property_code,
             REVERSE(RIGHT(CONCAT('000000', REGEXP_REPLACE(v_property_code, '[^0-9]', '')), 6)),
+            1,
             1,
             v_owner_name,
             NULL,

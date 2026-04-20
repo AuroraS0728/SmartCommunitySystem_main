@@ -40,12 +40,21 @@ JOIN `user_property` up ON up.`user_id` = u.`id`
 JOIN `property` p ON p.`id` = up.`property_id`
   AND p.`is_deleted` = 0
 SET u.`account` = p.`property_code`,
-    u.`password` = REVERSE(RIGHT(CONCAT(REGEXP_REPLACE(p.`property_code`, '[^0-9]', ''), '000000'), 6)),
+    u.`password` = CASE
+      WHEN u.`account` IS NULL OR u.`account` = '' OR u.`account` LIKE 'XQYZ%' OR u.`password` IS NULL OR u.`password` = ''
+      THEN REVERSE(RIGHT(CONCAT(REGEXP_REPLACE(p.`property_code`, '[^0-9]', ''), '000000'), 6))
+      ELSE u.`password`
+    END,
+    u.`must_change_password` = CASE
+      WHEN u.`account` IS NULL OR u.`account` = '' OR u.`account` LIKE 'XQYZ%' OR u.`password` IS NULL OR u.`password` = ''
+      THEN 1
+      ELSE u.`must_change_password`
+    END,
     u.`update_time` = NOW()
 WHERE u.`role` = 1
   AND p.`property_code` IS NOT NULL
   AND p.`property_code` <> ''
-  AND (u.`account` IS NULL OR u.`account` = '' OR u.`account` LIKE 'XQYZ%');
+  AND (u.`account` IS NULL OR u.`account` = '' OR u.`account` LIKE 'XQYZ%' OR u.`account` <> p.`property_code`);
 
 CREATE TABLE IF NOT EXISTS `repair_fee_bill` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,

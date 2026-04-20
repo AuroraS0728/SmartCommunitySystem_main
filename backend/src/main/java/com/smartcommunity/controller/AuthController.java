@@ -102,11 +102,12 @@ public class AuthController {
             return Result.fail("this propertyCode account already exists");
         }
 
-        String initPassword = reverseSixDigits(propertyCode);
+        String ownerAccount = propertyCode;
+        String initPassword = reverseSixDigits(ownerAccount);
         LocalDateTime now = LocalDateTime.now();
 
         User user = new User();
-        user.setAccount(propertyCode);
+        user.setAccount(ownerAccount);
         user.setPassword(initPassword);
         user.setMustChangePassword(1);
         user.setRole(1);

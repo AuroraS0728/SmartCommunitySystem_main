@@ -84,6 +84,7 @@ public class HouseController {
         p.setIsDeleted(0);
         propertyMapper.insert(p);
         syncOwnerNicknameByProperty(p);
+        syncOwnerAccountByProperty(p);
         return Result.success(p);
     }
 
@@ -112,6 +113,7 @@ public class HouseController {
         propertyMapper.updateById(p);
         clearOwnerBindingWhenUnsold(p);
         syncOwnerNicknameByProperty(p);
+        syncOwnerAccountByProperty(p);
         return Result.success(p);
     }
 
@@ -217,6 +219,32 @@ public class HouseController {
         }
         userMapper.update(null, new LambdaUpdateWrapper<User>()
                 .set(User::getNickname, property.getOwnerName().trim())
+                .set(User::getUpdateTime, LocalDateTime.now())
+                .in(User::getId, ownerUserIds)
+                .eq(User::getRole, 1)
+                .eq(User::getIsDeleted, 0));
+    }
+
+    private void syncOwnerAccountByProperty(Property property) {
+        if (property == null || property.getId() == null || !StringUtils.hasText(property.getPropertyCode())) {
+            return;
+        }
+        if (Integer.valueOf(1).equals(property.getStatus())) {
+            return;
+        }
+        List<Long> ownerUserIds = userPropertyMapper.selectList(new LambdaQueryWrapper<UserProperty>()
+                        .eq(UserProperty::getPropertyId, property.getId())
+                        .eq(UserProperty::getIsDeleted, 0)
+                        .eq(UserProperty::getIsPrimary, 1))
+                .stream()
+                .map(UserProperty::getUserId)
+                .filter(Objects::nonNull)
+                .toList();
+        if (ownerUserIds.isEmpty()) {
+            return;
+        }
+        userMapper.update(null, new LambdaUpdateWrapper<User>()
+                .set(User::getAccount, property.getPropertyCode().trim())
                 .set(User::getUpdateTime, LocalDateTime.now())
                 .in(User::getId, ownerUserIds)
                 .eq(User::getRole, 1)
