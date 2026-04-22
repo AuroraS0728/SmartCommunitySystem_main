@@ -14,8 +14,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Slf4j
@@ -74,6 +77,7 @@ public class SeetaFaceConfig {
         if (libs == null || libs.isEmpty()) {
             throw new IllegalArgumentException("seetaface nativeLibraries is empty");
         }
+        OsType osType = detectOsType();
         Path extractDir = Paths.get(properties.getNativeExtractDir());
         Files.createDirectories(extractDir);
         String resourceRoot = trimSlashes(properties.getNativeResourceDir());
@@ -83,24 +87,84 @@ public class SeetaFaceConfig {
             if (libName.isEmpty() || loaded.contains(libName)) {
                 continue;
             }
-            Path dllPath = extractNativeDll(resourceRoot, libName, extractDir);
-            System.load(dllPath.toAbsolutePath().toString());
+            Path nativePath = extractNativeLibrary(resourceRoot, libName, extractDir, osType);
+            System.load(nativePath.toAbsolutePath().toString());
             loaded.add(libName);
-            log.info("Loaded native dll: {}", dllPath);
+            log.info("Loaded native library: {}, osType={}", nativePath, osType);
         }
     }
 
-    private Path extractNativeDll(String resourceRoot, String libName, Path extractDir) throws IOException {
-        String resourcePath = resourceRoot + "/" + libName + ".dll";
-        ClassPathResource resource = new ClassPathResource(resourcePath);
-        if (!resource.exists()) {
-            throw new IllegalArgumentException("native resource not found: " + resourcePath);
+    private Path extractNativeLibrary(String resourceRoot, String libName, Path extractDir, OsType osType)
+            throws IOException {
+        List<String> fileNames = resolveNativeFileNames(libName, osType);
+        List<String> resourcePaths = new ArrayList<>();
+        for (String fileName : fileNames) {
+            if (osType.getResourceDir() != null) {
+                resourcePaths.add(resourceRoot + "/" + osType.getResourceDir() + "/" + fileName);
+            }
+            resourcePaths.add(resourceRoot + "/" + fileName);
         }
-        Path target = extractDir.resolve(libName + ".dll");
-        try (InputStream in = resource.getInputStream()) {
-            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+        for (String resourcePath : resourcePaths) {
+            ClassPathResource resource = new ClassPathResource(resourcePath);
+            if (!resource.exists()) {
+                continue;
+            }
+            String fileName = resourcePath.substring(resourcePath.lastIndexOf('/') + 1);
+            Path target = extractDir.resolve(fileName);
+            try (InputStream in = resource.getInputStream()) {
+                Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return target;
         }
-        return target;
+        throw new IllegalArgumentException(
+                "native resource not found for lib=" + libName + ", tried=" + resourcePaths
+        );
+    }
+
+    private List<String> resolveNativeFileNames(String libName, OsType osType) {
+        LinkedHashSet<String> names = new LinkedHashSet<>();
+        boolean withExt = hasExtension(libName);
+        if (withExt) {
+            names.add(libName);
+        } else {
+            names.add(System.mapLibraryName(libName));
+            switch (osType) {
+                case WINDOWS -> names.add(libName + ".dll");
+                case LINUX -> {
+                    names.add(libName + ".so");
+                    if (!libName.startsWith("lib")) {
+                        names.add("lib" + libName + ".so");
+                    }
+                }
+                case MACOS -> {
+                    names.add(libName + ".dylib");
+                    if (!libName.startsWith("lib")) {
+                        names.add("lib" + libName + ".dylib");
+                        names.add("lib" + libName + ".jnilib");
+                    }
+                }
+                default -> names.add(libName);
+            }
+        }
+        return new ArrayList<>(names);
+    }
+
+    private boolean hasExtension(String fileName) {
+        return fileName != null && fileName.lastIndexOf('.') > 0;
+    }
+
+    private OsType detectOsType() {
+        String osName = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
+        if (osName.contains("win")) {
+            return OsType.WINDOWS;
+        }
+        if (osName.contains("linux")) {
+            return OsType.LINUX;
+        }
+        if (osName.contains("mac")) {
+            return OsType.MACOS;
+        }
+        return OsType.OTHER;
     }
 
     private String trimSlashes(String value) {
@@ -112,5 +176,22 @@ public class SeetaFaceConfig {
             text = text.substring(0, text.length() - 1);
         }
         return text;
+    }
+
+    private enum OsType {
+        WINDOWS("windows"),
+        LINUX("linux"),
+        MACOS("macos"),
+        OTHER(null);
+
+        private final String resourceDir;
+
+        OsType(String resourceDir) {
+            this.resourceDir = resourceDir;
+        }
+
+        public String getResourceDir() {
+            return resourceDir;
+        }
     }
 }

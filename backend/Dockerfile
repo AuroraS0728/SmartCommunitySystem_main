@@ -22,8 +22,7 @@ WORKDIR /app
 ENV TZ=Asia/Shanghai \
     LANG=C.UTF-8 \
     SPRING_PROFILES_ACTIVE=prod \
-    JAVA_OPTS="-Xms256m -Xmx512m" \
-    SEETAFACE_ENABLED=false
+    JAVA_OPTS="-Xms256m -Xmx512m"
 
 COPY --from=builder /app/target/*.jar /app/app.jar
 
