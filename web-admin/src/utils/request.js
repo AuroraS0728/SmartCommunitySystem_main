@@ -1,6 +1,9 @@
 ﻿import axios from 'axios'
 
-const baseURL = (import.meta.env.VITE_API_BASE_URL || '/api').trim()
+const baseURL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  'https://springboot-cgsm-248671-6-1423965568.sh.run.tcloudbase.com/api'
+).trim()
 
 const request = axios.create({
   baseURL,
