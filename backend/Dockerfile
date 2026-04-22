@@ -25,6 +25,7 @@ ENV TZ=Asia/Shanghai \
     JAVA_OPTS="-Xms256m -Xmx512m"
 
 COPY --from=builder /app/target/*.jar /app/app.jar
+COPY models /app/models
 
 EXPOSE 8080
 
