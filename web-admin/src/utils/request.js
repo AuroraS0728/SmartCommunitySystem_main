@@ -1,7 +1,9 @@
-import axios from 'axios'
+﻿import axios from 'axios'
+
+const baseURL = (import.meta.env.VITE_API_BASE_URL || '/api').trim()
 
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  baseURL,
   timeout: 15000
 })
 
@@ -17,7 +19,7 @@ request.interceptors.response.use(
   (res) => {
     const data = res.data
     if (data.code !== 200) {
-      return Promise.reject(new Error(data.message || '请求失败'))
+      return Promise.reject(new Error(data.message || '璇锋眰澶辫触'))
     }
     return data
   },
