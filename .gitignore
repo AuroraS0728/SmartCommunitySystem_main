@@ -101,3 +101,10 @@ pnpm-debug.log*
 *.tgz
 *.7z
 *.rar
+
+# ----------------------------
+# Local migration/temp artifacts
+# ----------------------------
+backend/online_smart_community_backup_*.sql
+backend/seetaface-jni-full/
+backend/seetaface-native/
