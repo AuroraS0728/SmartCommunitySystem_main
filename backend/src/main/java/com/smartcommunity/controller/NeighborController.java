@@ -164,4 +164,3 @@ public class NeighborController {
         return role != null && role == 2;
     }
 }
-

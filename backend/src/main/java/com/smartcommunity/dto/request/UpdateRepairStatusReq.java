@@ -3,6 +3,7 @@ package com.smartcommunity.dto.request;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class UpdateRepairStatusReq {
@@ -14,4 +15,5 @@ public class UpdateRepairStatusReq {
     private String afterImages;
     private BigDecimal chargeAmount;
     private String chargeRemark;
+    private List<RepairWorkerFeeItemReq> workerFees;
 }

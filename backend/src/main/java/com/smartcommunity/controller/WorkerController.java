@@ -10,10 +10,12 @@ import com.smartcommunity.dto.request.WorkerStaffingReq;
 import com.smartcommunity.dto.request.WorkerScheduleReq;
 import com.smartcommunity.entity.RepairEvaluation;
 import com.smartcommunity.entity.RepairOrder;
+import com.smartcommunity.entity.RepairOrderWorker;
 import com.smartcommunity.entity.User;
 import com.smartcommunity.entity.WorkerStaffing;
 import com.smartcommunity.mapper.RepairEvaluationMapper;
 import com.smartcommunity.mapper.RepairOrderMapper;
+import com.smartcommunity.mapper.RepairOrderWorkerMapper;
 import com.smartcommunity.mapper.UserMapper;
 import com.smartcommunity.mapper.WorkerStaffingMapper;
 import com.smartcommunity.utils.RedisUtil;
@@ -26,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,7 @@ public class WorkerController {
 
     private final UserMapper userMapper;
     private final RepairOrderMapper repairOrderMapper;
+    private final RepairOrderWorkerMapper repairOrderWorkerMapper;
     private final RepairEvaluationMapper repairEvaluationMapper;
     private final WorkerStaffingMapper workerStaffingMapper;
     private final RedisUtil redisUtil;
@@ -194,9 +198,16 @@ public class WorkerController {
         if (role != null && role == 3 && uid != null && !uid.equals(workerId)) {
             return Result.fail(StatusCode.FORBIDDEN, "forbidden");
         }
-        return Result.success(repairOrderMapper.selectList(new LambdaQueryWrapper<RepairOrder>()
-                .eq(RepairOrder::getAssignee, workerId)
-                .orderByDesc(RepairOrder::getId)));
+        List<Long> participantOrderIds = participantOrderIds(workerId);
+        LambdaQueryWrapper<RepairOrder> wrapper = new LambdaQueryWrapper<RepairOrder>()
+                .eq(RepairOrder::getIsDeleted, 0);
+        if (participantOrderIds.isEmpty()) {
+            wrapper.eq(RepairOrder::getAssignee, workerId);
+        } else {
+            wrapper.and(w -> w.eq(RepairOrder::getAssignee, workerId).or().in(RepairOrder::getId, participantOrderIds));
+        }
+        wrapper.orderByDesc(RepairOrder::getId);
+        return Result.success(repairOrderMapper.selectList(wrapper));
     }
 
     @PostMapping("/verify-code")
@@ -215,7 +226,8 @@ public class WorkerController {
         if (order == null) {
             return Result.fail(StatusCode.NOT_FOUND, "order not found");
         }
-        if (order.getAssignee() == null || !order.getAssignee().equals(uid)) {
+        RepairOrderWorker participant = findOrCreateParticipant(order, uid);
+        if (participant == null) {
             return Result.fail(StatusCode.FORBIDDEN, "not your order");
         }
 
@@ -231,36 +243,56 @@ public class WorkerController {
         }
 
         boolean pass = Objects.equals(expected, code);
+        boolean allVerified = false;
+        List<Long> pendingWorkerIds = List.of();
         if (pass) {
+            LocalDateTime now = LocalDateTime.now();
+            participant.setVerifyPassed(1);
+            if (participant.getVerifyPassTime() == null) {
+                participant.setVerifyPassTime(now);
+            }
+            participant.setUpdateTime(now);
+            repairOrderWorkerMapper.updateById(participant);
+
+            List<RepairOrderWorker> participants = activeParticipants(order.getId());
+            allVerified = participants.stream().allMatch(item -> item.getVerifyPassed() != null && item.getVerifyPassed() == 1);
+            pendingWorkerIds = participants.stream()
+                    .filter(item -> item.getVerifyPassed() == null || item.getVerifyPassed() != 1)
+                    .map(RepairOrderWorker::getWorkerId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
             try {
-                redisUtil.set(verifyPassKey(req.getOrderId()), "1", VERIFY_PASS_EXPIRE_SECONDS);
+                redisUtil.set(verifyPassKey(req.getOrderId(), uid), "1", VERIFY_PASS_EXPIRE_SECONDS);
+                if (allVerified) {
+                    redisUtil.set(verifyPassKey(req.getOrderId()), "1", VERIFY_PASS_EXPIRE_SECONDS);
+                } else {
+                    redisUtil.delete(verifyPassKey(req.getOrderId()));
+                }
             } catch (Exception ignored) {
                 // Allow local running without redis.
-            }
-            if (!Integer.valueOf(STATUS_IN_SERVICE).equals(order.getStatus())) {
-                order.setStatus(STATUS_IN_SERVICE);
-                order.setRemark("on-site verification passed, service in progress");
-                order.setOwnerFinishConfirmed(0);
-                order.setOwnerFinishTime(null);
-                order.setWorkerFinishConfirmed(0);
-                order.setWorkerFinishTime(null);
-                order.setCompletionTime(null);
-                order.setUpdateTime(LocalDateTime.now());
-                repairOrderMapper.updateById(order);
             }
         }
         return Result.success(Map.of(
                 "orderId", req.getOrderId(),
                 "pass", pass,
                 "message", pass ? "verified" : "invalid code",
-                "status", pass ? STATUS_IN_SERVICE : order.getStatus()
+                "status", order.getStatus(),
+                "allVerified", pass && allVerified,
+                "pendingWorkerIds", pass ? pendingWorkerIds : List.of(uid)
         ));
     }
 
     @GetMapping("/performance")
     public Result<Map<String, Object>> performance(@RequestParam Long workerId) {
-        List<RepairOrder> orders = repairOrderMapper.selectList(new LambdaQueryWrapper<RepairOrder>()
-                .eq(RepairOrder::getAssignee, workerId));
+        List<Long> participantOrderIds = participantOrderIds(workerId);
+        LambdaQueryWrapper<RepairOrder> wrapper = new LambdaQueryWrapper<RepairOrder>()
+                .eq(RepairOrder::getIsDeleted, 0);
+        if (participantOrderIds.isEmpty()) {
+            wrapper.eq(RepairOrder::getAssignee, workerId);
+        } else {
+            wrapper.and(w -> w.eq(RepairOrder::getAssignee, workerId).or().in(RepairOrder::getId, participantOrderIds));
+        }
+        List<RepairOrder> orders = repairOrderMapper.selectList(wrapper);
         long completed = orders.stream()
                 .filter(o -> Integer.valueOf(STATUS_WAIT_EVALUATE).equals(o.getStatus())
                         || Integer.valueOf(STATUS_COMPLETED).equals(o.getStatus()))
@@ -285,6 +317,62 @@ public class WorkerController {
         ));
     }
 
+    private List<Long> participantOrderIds(Long workerId) {
+        if (workerId == null) {
+            return List.of();
+        }
+        return repairOrderWorkerMapper.selectList(new LambdaQueryWrapper<RepairOrderWorker>()
+                        .eq(RepairOrderWorker::getWorkerId, workerId)
+                        .eq(RepairOrderWorker::getIsDeleted, 0))
+                .stream()
+                .map(RepairOrderWorker::getOrderId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private List<RepairOrderWorker> activeParticipants(Long orderId) {
+        if (orderId == null) {
+            return List.of();
+        }
+        return repairOrderWorkerMapper.selectList(new LambdaQueryWrapper<RepairOrderWorker>()
+                .eq(RepairOrderWorker::getOrderId, orderId)
+                .eq(RepairOrderWorker::getIsDeleted, 0)
+                .orderByAsc(RepairOrderWorker::getRoleType)
+                .orderByAsc(RepairOrderWorker::getWorkerId));
+    }
+
+    private RepairOrderWorker findOrCreateParticipant(RepairOrder order, Long workerId) {
+        if (order == null || order.getId() == null || workerId == null) {
+            return null;
+        }
+        RepairOrderWorker participant = repairOrderWorkerMapper.selectOne(new LambdaQueryWrapper<RepairOrderWorker>()
+                .eq(RepairOrderWorker::getOrderId, order.getId())
+                .eq(RepairOrderWorker::getWorkerId, workerId)
+                .eq(RepairOrderWorker::getIsDeleted, 0)
+                .last("limit 1"));
+        if (participant != null) {
+            return participant;
+        }
+        if (!workerId.equals(order.getAssignee())) {
+            return null;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        RepairOrderWorker fallback = new RepairOrderWorker();
+        fallback.setOrderId(order.getId());
+        fallback.setWorkerId(workerId);
+        fallback.setRoleType(1);
+        fallback.setVerifyPassed(0);
+        fallback.setVerifyPassTime(null);
+        fallback.setFinishConfirmed(0);
+        fallback.setFinishTime(null);
+        fallback.setCreateTime(now);
+        fallback.setUpdateTime(now);
+        fallback.setIsDeleted(0);
+        repairOrderWorkerMapper.insert(fallback);
+        return fallback;
+    }
+
     private String randomAvailableSuffix(String prefix) {
         int attempts = 0;
         while (attempts++ < 100) {
@@ -304,6 +392,10 @@ public class WorkerController {
 
     private String verifyPassKey(Long orderId) {
         return "repair:verify:pass:" + orderId;
+    }
+
+    private String verifyPassKey(Long orderId, Long workerId) {
+        return "repair:verify:pass:" + orderId + ":" + workerId;
     }
 
     private void upsertStaffing(Long workerId, AddWorkerReq req) {

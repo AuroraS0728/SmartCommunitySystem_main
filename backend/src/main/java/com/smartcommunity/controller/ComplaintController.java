@@ -3,10 +3,13 @@ package com.smartcommunity.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.smartcommunity.common.AuthContext;
 import com.smartcommunity.common.Result;
+import com.smartcommunity.common.StatusCode;
+import com.smartcommunity.dto.request.ComplaintReplyReq;
 import com.smartcommunity.dto.request.SubmitComplaintReq;
 import com.smartcommunity.entity.Complaint;
 import com.smartcommunity.mapper.ComplaintMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,8 +24,16 @@ public class ComplaintController {
 
     @PostMapping("/submit")
     public Result<Complaint> submit(@RequestBody SubmitComplaintReq req) {
+        Integer role = AuthContext.getRole();
+        Long uid = AuthContext.getUserId();
+        if (role == null || uid == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
+        }
+        if (role != 1) {
+            return Result.fail(StatusCode.FORBIDDEN, "only owner can submit complaint");
+        }
         Complaint c = new Complaint();
-        c.setUserId(AuthContext.getUserId());
+        c.setUserId(uid);
         c.setType(req.getType());
         c.setTitle(req.getTitle());
         c.setContent(req.getContent());
@@ -39,8 +50,15 @@ public class ComplaintController {
     public Result<List<Complaint>> list(@RequestParam(required = false) Integer status) {
         Integer role = AuthContext.getRole();
         Long uid = AuthContext.getUserId();
-        LambdaQueryWrapper<Complaint> wrapper = new LambdaQueryWrapper<>();
-        if (role != null && role == 1) {
+        if (role == null || uid == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
+        }
+        if (role != 1 && role != 2) {
+            return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+        }
+        LambdaQueryWrapper<Complaint> wrapper = new LambdaQueryWrapper<Complaint>()
+                .eq(Complaint::getIsDeleted, 0);
+        if (role == 1) {
             wrapper.eq(Complaint::getUserId, uid);
         }
         if (status != null) {
@@ -52,14 +70,40 @@ public class ComplaintController {
 
     @GetMapping("/{id}")
     public Result<Complaint> detail(@PathVariable Long id) {
-        return Result.success(complaintMapper.selectById(id));
+        Complaint complaint = complaintMapper.selectById(id);
+        if (complaint == null || Integer.valueOf(1).equals(complaint.getIsDeleted())) {
+            return Result.fail(StatusCode.NOT_FOUND, "complaint not found");
+        }
+        Integer role = AuthContext.getRole();
+        Long uid = AuthContext.getUserId();
+        if (role == null || uid == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
+        }
+        if (role != 1 && role != 2) {
+            return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+        }
+        if (role == 1 && !uid.equals(complaint.getUserId())) {
+            return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+        }
+        return Result.success(complaint);
     }
 
     @PutMapping("/{id}")
     public Result<Complaint> update(@PathVariable Long id, @RequestBody SubmitComplaintReq req) {
+        Integer role = AuthContext.getRole();
+        Long uid = AuthContext.getUserId();
+        if (role == null || uid == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
+        }
+        if (role != 1) {
+            return Result.fail(StatusCode.FORBIDDEN, "only owner can update complaint");
+        }
         Complaint c = complaintMapper.selectById(id);
-        if (c == null) {
+        if (c == null || Integer.valueOf(1).equals(c.getIsDeleted())) {
             return Result.fail("complaint not found");
+        }
+        if (!uid.equals(c.getUserId())) {
+            return Result.fail(StatusCode.FORBIDDEN, "forbidden");
         }
         c.setType(req.getType());
         c.setTitle(req.getTitle());
@@ -71,12 +115,29 @@ public class ComplaintController {
     }
 
     @PostMapping("/{id}/reply")
-    public Result<Complaint> reply(@PathVariable Long id, @RequestParam String reply) {
+    public Result<Complaint> reply(@PathVariable Long id,
+                                   @RequestParam(required = false) String reply,
+                                   @RequestBody(required = false) ComplaintReplyReq req) {
+        Integer role = AuthContext.getRole();
+        Long uid = AuthContext.getUserId();
+        if (role == null || uid == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
+        }
+        if (role != 2) {
+            return Result.fail(StatusCode.FORBIDDEN, "only property admin can reply");
+        }
         Complaint c = complaintMapper.selectById(id);
-        if (c == null) {
+        if (c == null || Integer.valueOf(1).equals(c.getIsDeleted())) {
             return Result.fail("complaint not found");
         }
-        c.setReply(reply);
+        String finalReply = StringUtils.hasText(reply) ? reply.trim() : null;
+        if (!StringUtils.hasText(finalReply) && req != null && StringUtils.hasText(req.getReply())) {
+            finalReply = req.getReply().trim();
+        }
+        if (!StringUtils.hasText(finalReply)) {
+            return Result.fail(StatusCode.BAD_REQUEST, "reply is empty");
+        }
+        c.setReply(finalReply);
         c.setReplyTime(LocalDateTime.now());
         c.setStatus(3);
         c.setUpdateTime(LocalDateTime.now());
@@ -86,9 +147,20 @@ public class ComplaintController {
 
     @PostMapping("/{id}/satisfaction")
     public Result<Complaint> satisfaction(@PathVariable Long id, @RequestParam Integer satisfaction) {
+        Integer role = AuthContext.getRole();
+        Long uid = AuthContext.getUserId();
+        if (role == null || uid == null) {
+            return Result.fail(StatusCode.UNAUTHORIZED, "unauthorized");
+        }
+        if (role != 1) {
+            return Result.fail(StatusCode.FORBIDDEN, "only owner can rate satisfaction");
+        }
         Complaint c = complaintMapper.selectById(id);
-        if (c == null) {
+        if (c == null || Integer.valueOf(1).equals(c.getIsDeleted())) {
             return Result.fail("complaint not found");
+        }
+        if (!uid.equals(c.getUserId())) {
+            return Result.fail(StatusCode.FORBIDDEN, "forbidden");
         }
         c.setSatisfaction(satisfaction);
         c.setUpdateTime(LocalDateTime.now());
@@ -98,6 +170,10 @@ public class ComplaintController {
 
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
+        Integer role = AuthContext.getRole();
+        if (role == null || role != 2) {
+            return Result.fail(StatusCode.FORBIDDEN, "only property admin can delete");
+        }
         complaintMapper.deleteById(id);
         return Result.success("deleted", null);
     }

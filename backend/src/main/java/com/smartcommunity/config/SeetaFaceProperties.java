@@ -13,6 +13,12 @@ public class SeetaFaceProperties {
     private String recognizerModelPath;
     private String landmarkerModelPath;
     private double similarityThreshold = 0.7d;
+    private boolean enableMaskCheck = true;
+    private boolean requireNoMask = true;
+    private boolean enableEyeStateCheck = true;
+    private boolean requireEyesOpen = true;
+    private boolean enableQualityCheck = true;
+    private boolean requireQualityPass = true;
     private String nativeResourceDir = "native";
     private String nativeExtractDir = System.getProperty("java.io.tmpdir") + "/smartcommunity-seetaface";
     private List<String> nativeLibraries = List.of(
@@ -21,6 +27,10 @@ public class SeetaFaceProperties {
             "tennis_pentium",
             "tennis_sandy_bridge",
             "SeetaAuthorize",
+            "SeetaMaskDetector200",
+            "SeetaEyeStateDetector200",
+            "SeetaQualityAssessor300",
+            "SeetaPoseEstimation600",
             "SeetaFaceAntiSpoofingX600",
             "SeetaFaceDetector600",
             "SeetaFaceLandmarker600",

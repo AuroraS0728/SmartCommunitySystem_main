@@ -37,6 +37,9 @@ public class RepairOrder {
     private LocalDateTime ownerFinishTime;
     private Integer workerFinishConfirmed;
     private LocalDateTime workerFinishTime;
+    private LocalDateTime serviceStartTime;
+    private LocalDateTime serviceEndTime;
+    private Integer serviceDurationMinutes;
     private LocalDateTime completionTime;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

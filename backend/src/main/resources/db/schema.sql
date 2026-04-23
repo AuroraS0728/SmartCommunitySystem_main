@@ -20,6 +20,9 @@ DROP TABLE IF EXISTS second_hand_report;
 DROP TABLE IF EXISTS second_hand_favorite;
 DROP TABLE IF EXISTS second_hand;
 DROP TABLE IF EXISTS notice;
+DROP TABLE IF EXISTS repair_fee_objection;
+DROP TABLE IF EXISTS repair_fee_detail;
+DROP TABLE IF EXISTS repair_order_worker;
 DROP TABLE IF EXISTS repair_evaluation;
 DROP TABLE IF EXISTS repair_fee_bill;
 DROP TABLE IF EXISTS repair_order;
@@ -250,6 +253,9 @@ CREATE TABLE `repair_order` (
   `owner_finish_time` DATETIME DEFAULT NULL,
   `worker_finish_confirmed` TINYINT(1) NOT NULL DEFAULT 0,
   `worker_finish_time` DATETIME DEFAULT NULL,
+  `service_start_time` DATETIME DEFAULT NULL,
+  `service_end_time` DATETIME DEFAULT NULL,
+  `service_duration_minutes` INT NOT NULL DEFAULT 0,
   `completion_time` DATETIME DEFAULT NULL,
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -261,6 +267,25 @@ CREATE TABLE `repair_order` (
   KEY `idx_appointment_date_slot` (`appointment_date`,`appointment_time_slot`),
   KEY `idx_status` (`status`),
   KEY `idx_assignee` (`assignee`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `repair_order_worker` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `order_id` BIGINT NOT NULL,
+  `worker_id` BIGINT NOT NULL,
+  `role_type` TINYINT NOT NULL DEFAULT 1,
+  `verify_passed` TINYINT(1) NOT NULL DEFAULT 0,
+  `verify_pass_time` DATETIME DEFAULT NULL,
+  `finish_confirmed` TINYINT(1) NOT NULL DEFAULT 0,
+  `finish_time` DATETIME DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_order_worker` (`order_id`,`worker_id`),
+  KEY `idx_worker_id` (`worker_id`),
+  KEY `idx_order_verify` (`order_id`,`verify_passed`),
+  KEY `idx_order_finish` (`order_id`,`finish_confirmed`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `repair_fee_bill` (
@@ -284,6 +309,46 @@ CREATE TABLE `repair_fee_bill` (
   UNIQUE KEY `uk_transaction_id` (`transaction_id`),
   KEY `idx_user_status` (`user_id`,`status`),
   KEY `idx_property_status` (`property_id`,`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `repair_fee_detail` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `order_id` BIGINT NOT NULL,
+  `worker_id` BIGINT NOT NULL,
+  `tech_fee` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `material_fee` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `high_altitude_fee` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `other_fee` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `total_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `remark` VARCHAR(255) DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_order_worker` (`order_id`,`worker_id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_worker_id` (`worker_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `repair_fee_objection` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `order_id` BIGINT NOT NULL,
+  `bill_id` BIGINT NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `deposit_points` INT NOT NULL DEFAULT 0,
+  `reason` VARCHAR(500) DEFAULT NULL,
+  `status` TINYINT NOT NULL DEFAULT 0,
+  `resolution_remark` VARCHAR(500) DEFAULT NULL,
+  `resolver_id` BIGINT DEFAULT NULL,
+  `refund_points` INT NOT NULL DEFAULT 0,
+  `resolve_time` DATETIME DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_order_status` (`order_id`,`status`),
+  KEY `idx_user_status` (`user_id`,`status`),
+  KEY `idx_bill_id` (`bill_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `repair_evaluation` (
