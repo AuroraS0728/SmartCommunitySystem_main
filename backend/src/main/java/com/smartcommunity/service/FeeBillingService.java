@@ -150,8 +150,8 @@ public class FeeBillingService {
         );
     }
 
-    @Scheduled(cron = "0 5 0 1 * ?")
-    public void autoGenerateCurrentMonthBills() {
+    @Scheduled(cron = "${smartcommunity.fee.auto-generate-cron:0 0 9 23 * ?}", zone = "Asia/Shanghai")
+    public void autoGenerateMonthlyBills() {
         String period = YearMonth.now().format(PERIOD_FMT);
         try {
             List<FeeBill> created = generateBillsForPeriod(period, null);
