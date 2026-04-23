@@ -3,13 +3,23 @@
 
   <view wx:elif="{{detail && detail.order}}" class="item">
     <view class="item-title">工单 #{{detail.order.id}}</view>
-    <view class="meta">类型：{{detail.order.category || '未知'}}</view>
+    <view class="meta">类型：{{detail.order.category || "未知"}}</view>
     <view class="meta">状态：{{detail.statusText}}</view>
-    <view class="item-desc">{{detail.order.description || '无描述'}}</view>
+    <view class="item-desc">{{detail.order.description || "无描述"}}</view>
 
-    <view wx:if="{{detail.order.status === 1}}" class="btn worker-btn" bindtap="goFaceVerify">上门人脸验证</view>
+    <view class="item-title">参与工人</view>
+    <view wx:for="{{detail.participants}}" wx:key="workerId" class="meta">
+      {{item.workerName || ("工人" + item.workerId)}}：
+      {{item.verifyPassed ? "已核验" : "未核验"}} /
+      {{item.finishConfirmed ? "已完工确认" : "未完工确认"}}
+    </view>
+    <view wx:if="{{detail.pendingWorkerIds.length}}" class="meta">
+      待核验工人：{{detail.pendingWorkerIds.join(",")}}
+    </view>
+
+    <view wx:if="{{detail.order.status === 1}}" class="btn worker-btn" bindtap="goFaceVerify">上门人脸核验</view>
     <view wx:if="{{detail.order.status === 1}}" class="btn worker-btn" bindtap="goVerifyCode" style="margin-top: 12rpx">
-      现场验码
+      现场验证码
     </view>
     <view wx:if="{{detail.order.status === 2}}" class="btn worker-btn" bindtap="goProcess">进入服务流程</view>
     <view wx:if="{{detail.order.status >= 3}}" class="meta">该工单已进入收尾流程</view>

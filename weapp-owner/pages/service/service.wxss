@@ -1,16 +1,79 @@
 .points-card {
-  border-color: #bfdbfe;
-  background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
+  border-color: #e0e7ff;
+  background: #ffffff;
 }
 
 .points-value {
-  color: #1d4ed8;
+  color: #2a6dff;
   font-size: 42rpx;
   font-weight: 700;
 }
 
-.logout-btn {
-  margin-top: 34rpx;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  box-shadow: 0 12rpx 24rpx -16rpx rgba(220, 38, 38, 0.75);
+.service-grid-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18rpx;
+}
+
+.service-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 144rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #e0e7ff;
+  background: #ffffff;
+}
+
+.service-icon {
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 12rpx;
+  background: #eaf2f5;
+  color: #2a6dff;
+  font-size: 28rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-icon-image {
+  width: 34rpx;
+  height: 34rpx;
+}
+
+.service-name {
+  margin-top: 12rpx;
+  color: #4a4a4a;
+  font-size: 24rpx;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.service-cell:nth-child(1) .service-icon {
+  background: rgba(143, 168, 143, 0.2);
+  color: #8fa88f;
+}
+
+.service-cell:nth-child(2) .service-icon {
+  background: rgba(42, 109, 255, 0.15);
+  color: #2a6dff;
+}
+
+.service-cell:nth-child(3) .service-icon {
+  background: rgba(191, 165, 165, 0.22);
+  color: #bfa5a5;
+}
+
+.service-cell:nth-child(4) .service-icon {
+  background: rgba(42, 109, 255, 0.15);
+  color: #2a6dff;
+}
+
+.service-cell:nth-child(5) .service-icon,
+.service-cell:nth-child(6) .service-icon {
+  background: rgba(255, 152, 0, 0.16);
+  color: #ff9800;
 }

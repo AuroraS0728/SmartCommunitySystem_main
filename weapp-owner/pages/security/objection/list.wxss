@@ -1,0 +1,28 @@
+.security-hero {
+  background: linear-gradient(135deg, #92400e, #b45309);
+}
+
+.action-row {
+  margin-top: 16rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.mini-btn {
+  flex: 1;
+  padding: 18rpx 20rpx;
+  border-radius: 14rpx;
+  text-align: center;
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.reject-btn {
+  background: linear-gradient(135deg, #64748b, #475569);
+}
+
+.accept-btn {
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+}
+

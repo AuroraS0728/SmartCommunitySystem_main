@@ -1,0 +1,9 @@
+.security-hero {
+  background: linear-gradient(135deg, #92400e, #b45309);
+}
+
+.feedback-btn {
+  margin-top: 8rpx;
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+}
+

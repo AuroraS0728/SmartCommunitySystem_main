@@ -1,33 +1,84 @@
-<view class="section">
-  <view class="hero">
-    <view class="hero-title">个人中心</view>
-    <view class="hero-desc">查看个人服务记录和积分资产</view>
-  </view>
-
-  <view class="item">
+﻿<view class="section member-page">
+  <view class="hero member-hero">
     <view class="row-between">
-      <view class="item-title">当前积分</view>
-      <view class="status-tag">{{ points }}</view>
+      <view>
+        <view class="hero-title">会员中心</view>
+        <view class="hero-desc">查看账单、月卡与收藏记录</view>
+      </view>
+      <view class="avatar-wrap" bindtap="goInfo">
+        <image wx:if="{{user && user.avatarUrl}}" class="avatar" src="{{user.avatarUrl}}" mode="aspectFill" />
+        <view wx:else class="avatar avatar-fallback">{{ (user && user.nickname) ? user.nickname.slice(0, 1) : "我" }}</view>
+      </view>
     </view>
-    <view class="item-desc">1 积分 = 1 元人民币</view>
-    <navigator class="link" url="/pages/points/detail/index">查看积分明细 ></navigator>
+    <view class="meta">当前积分：{{ points }}</view>
   </view>
 
-  <navigator class="item nav-item" url="/pages/repair/list">
-    <view class="nav-body">
-      <view class="item-title">我的报修</view>
-      <view class="item-desc">查看历史工单和处理进度</view>
+  <view class="item member-grid">
+    <view class="metric" bindtap="goBills">
+      <view class="metric-value">{{ stats.billUnpaidCount }}</view>
+      <view class="metric-label">待缴账单</view>
+      <view class="metric-sub">已支付 {{ stats.billPaidCount }} / 共 {{ stats.billCount }}</view>
+    </view>
+    <view class="metric" bindtap="goParkingCards">
+      <view class="metric-value">{{ stats.monthCardVehicleCount }}</view>
+      <view class="metric-label">月卡车辆</view>
+      <view class="metric-sub" wx:if="{{stats.monthCardExpiringSoonCount > 0}}">3天内到期 {{ stats.monthCardExpiringSoonCount }}</view>
+      <view class="metric-sub" wx:else>暂无近期到期</view>
+    </view>
+  </view>
+
+  <view class="item nav-item" bindtap="goBills">
+    <view class="nav-leading">
+      <image class="nav-icon" src="/assets/icons/ticket-percent.png" mode="aspectFit" />
+      <view class="nav-body">
+        <view class="item-title">我的账单</view>
+        <view class="item-desc">物业费、停车费、维修费已缴/待缴</view>
+      </view>
     </view>
     <view class="nav-arrow">></view>
-  </navigator>
+  </view>
 
-  <navigator class="item nav-item" url="/pages/notice/list">
-    <view class="nav-body">
-      <view class="item-title">公告中心</view>
-      <view class="item-desc">回看社区历史公告信息</view>
+  <view class="item nav-item" bindtap="goParkingCards">
+    <view class="nav-leading">
+      <image class="nav-icon" src="/assets/icons/circle-parking.png" mode="aspectFit" />
+      <view class="nav-body">
+        <view class="item-title">停车月卡</view>
+        <view class="item-desc">多车牌月卡有效期、代缴费用与续费提醒</view>
+      </view>
     </view>
     <view class="nav-arrow">></view>
-  </navigator>
+  </view>
 
-  <view class="btn logout-btn" bindtap="onLogout">退出登录</view>
+  <view class="item nav-item" bindtap="goFavorites">
+    <view class="nav-leading">
+      <image class="nav-icon" src="/assets/icons/star.png" mode="aspectFit" />
+      <view class="nav-body">
+        <view class="item-title">我的收藏</view>
+        <view class="item-desc">闲置交易收藏</view>
+      </view>
+    </view>
+    <view class="nav-arrow">></view>
+  </view>
+
+  <view class="item nav-item" bindtap="goComplaint">
+    <view class="nav-leading">
+      <image class="nav-icon" src="/assets/icons/info.png" mode="aspectFit" />
+      <view class="nav-body">
+        <view class="item-title">投诉建议</view>
+        <view class="item-desc">提交意见反馈与服务建议</view>
+      </view>
+    </view>
+    <view class="nav-arrow">></view>
+  </view>
+
+  <view class="item nav-item" bindtap="goSettings">
+    <view class="nav-leading">
+      <image class="nav-icon" src="/assets/icons/settings.png" mode="aspectFit" />
+      <view class="nav-body">
+        <view class="item-title">设置</view>
+        <view class="item-desc">账号与安全、退出登录等</view>
+      </view>
+    </view>
+    <view class="nav-arrow">></view>
+  </view>
 </view>

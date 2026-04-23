@@ -1,0 +1,19 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">停车月卡</view>
+    <view class="hero-desc">按车牌查看月卡到期时间、剩余天数与代缴费用</view>
+  </view>
+
+  <view wx:if="{{!cards.length}}" class="empty">暂无停车月卡记录</view>
+
+  <view wx:for="{{cards}}" wx:key="vehicleNo" class="item" bindtap="goPay" data-vehicle-no="{{item.vehicleNo}}">
+    <view class="row-between">
+      <view class="item-title">{{ item.vehicleNo }}</view>
+      <view class="status-tag">剩余 {{ item.remainingDaysText }} 天</view>
+    </view>
+    <view class="item-desc">月卡有效期至：{{ item.endTimeText }}</view>
+    <view class="item-desc">停车代缴费用：￥{{ item.unpaidAmountText }}</view>
+    <view class="item-desc warn-text">{{ item.reminderText }}</view>
+    <view class="link">点击前往停车费缴纳 ></view>
+  </view>
+</view>

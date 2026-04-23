@@ -1,0 +1,11 @@
+<view class="section">
+  <view class="item nav-item" bindtap="goAccountSecurity">
+    <view class="nav-body">
+      <view class="item-title">账号与安全</view>
+      <view class="item-desc">变更手机号、修改密码</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </view>
+
+  <view class="btn logout-btn" bindtap="onLogout">退出登录</view>
+</view>

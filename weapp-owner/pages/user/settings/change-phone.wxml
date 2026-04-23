@@ -1,0 +1,16 @@
+<view class="section">
+  <view class="item">
+    <view class="item-title">新手机号</view>
+    <input
+      class="input"
+      type="number"
+      maxlength="11"
+      value="{{phone}}"
+      placeholder="请输入11位手机号"
+      bindinput="onPhoneInput"
+    />
+    <view class="meta">将用于账号登录与通知联系</view>
+  </view>
+
+  <view class="btn" bindtap="onSubmit">{{submitting ? "提交中..." : "确认变更"}}</view>
+</view>

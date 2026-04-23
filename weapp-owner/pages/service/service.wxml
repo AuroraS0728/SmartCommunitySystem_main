@@ -1,7 +1,7 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">物业服务中心</view>
-    <view class="hero-desc">统一办理报修、公告、访客、费用与邻里互助服务</view>
+    <view class="hero-title">服务中心</view>
+    <view class="hero-desc">物业服务统一办理入口</view>
   </view>
 
   <view class="item points-card">
@@ -13,34 +13,47 @@
     <navigator class="link" url="/pages/points/detail/index">查看积分明细 ></navigator>
   </view>
 
-  <view class="group-title">费用缴纳</view>
+  <view class="group-title">核心服务</view>
+  <view class="item service-grid-card">
+    <navigator class="service-cell" url="/pages/repair/submit">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/repair.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">报事报修</view>
+    </navigator>
+    <navigator class="service-cell" url="/pages/points/bills/index">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/fee.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">物业缴费</view>
+    </navigator>
+    <navigator class="service-cell" url="/pages/door/invite">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/invite.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">访客邀请</view>
+    </navigator>
+    <navigator class="service-cell" url="/pages/points/parking/index">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/parking.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">车牌车位管理</view>
+    </navigator>
+    <navigator class="service-cell" url="/pages/neighbor/secondhand/list">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/house.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">租售管理</view>
+    </navigator>
+    <navigator class="service-cell" url="/pages/neighbor/secondhand/list">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/rent-sale.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">闲置交易</view>
+    </navigator>
+  </view>
 
-  <navigator class="item nav-item" url="/pages/points/bills/index">
-    <view class="nav-body">
-      <view class="item-title">物业费缴纳</view>
-      <view class="item-desc">查看账单并使用积分支付物业费</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
-  <navigator class="item nav-item" url="/pages/points/parking/index">
-    <view class="nav-body">
-      <view class="item-title">停车费缴纳</view>
-      <view class="item-desc">月卡续费、临停缴费均支持积分抵扣</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
-  <view class="group-title">常用服务</view>
-
-  <navigator class="item nav-item" url="/pages/repair/submit">
-    <view class="nav-body">
-      <view class="item-title">报修提交</view>
-      <view class="item-desc">新建维修/家政工单并提交问题描述</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
+  <view class="group-title">其他服务</view>
   <navigator class="item nav-item" url="/pages/repair/list">
     <view class="nav-body">
       <view class="item-title">报修列表</view>
@@ -48,25 +61,13 @@
     </view>
     <view class="nav-arrow">></view>
   </navigator>
-
   <navigator class="item nav-item" url="/pages/notice/list">
     <view class="nav-body">
       <view class="item-title">社区公告</view>
-      <view class="item-desc">最新通知、活动和物业提醒</view>
+      <view class="item-desc">查看最新通知和提醒</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
-
-  <view class="group-title">邻里互助</view>
-
-  <navigator class="item nav-item" url="/pages/neighbor/secondhand/list">
-    <view class="nav-body">
-      <view class="item-title">闲置交易</view>
-      <view class="item-desc">发布二手物品、收藏与举报管理</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
   <navigator class="item nav-item" url="/pages/neighbor/lostfound/list">
     <view class="nav-body">
       <view class="item-title">失物招领</view>
@@ -74,48 +75,4 @@
     </view>
     <view class="nav-arrow">></view>
   </navigator>
-
-  <navigator class="item nav-item" url="/pages/neighbor/forum/list">
-    <view class="nav-body">
-      <view class="item-title">社区论坛</view>
-      <view class="item-desc">板块发帖、评论互动、点赞</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
-  <view class="group-title">门禁与其他</view>
-
-  <navigator class="item nav-item" url="/pages/door/qrcode">
-    <view class="nav-body">
-      <view class="item-title">门禁二维码</view>
-      <view class="item-desc">获取当前通行令牌，便捷开门</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
-  <navigator class="item nav-item" url="/pages/door/invite">
-    <view class="nav-body">
-      <view class="item-title">访客邀请</view>
-      <view class="item-desc">创建访客邀请码并分享使用</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
-  <navigator class="item nav-item" url="/pages/complaint/submit">
-    <view class="nav-body">
-      <view class="item-title">投诉建议</view>
-      <view class="item-desc">提交意见反馈，持续优化服务</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
-  <navigator class="item nav-item" url="/pages/user/profile">
-    <view class="nav-body">
-      <view class="item-title">个人中心</view>
-      <view class="item-desc">查看个人服务记录与常用入口</view>
-    </view>
-    <view class="nav-arrow">></view>
-  </navigator>
-
-  <view class="btn logout-btn" bindtap="onLogout">退出登录</view>
 </view>

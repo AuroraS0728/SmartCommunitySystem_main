@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "物业安防端"
+  "navigationBarTitleText": "Property Console",
+  "navigationBarBackgroundColor": "#92400e",
+  "navigationBarTextStyle": "white"
 }
+

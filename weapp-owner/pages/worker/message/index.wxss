@@ -1,1 +1,3 @@
-/* reuse app.wxss */
+.message-item {
+  min-height: 128rpx;
+}

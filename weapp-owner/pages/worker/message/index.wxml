@@ -1,5 +1,19 @@
 <view class="section">
-  <view class="item">新工单通知（模拟）</view>
-  <view class="item">催单提醒（模拟）</view>
-  <view class="item">评价反馈（模拟）</view>
+  <view wx:if="{{loading}}" class="empty">消息加载中...</view>
+
+  <block wx:else>
+    <view
+      wx:for="{{messages}}"
+      wx:key="id"
+      class="item nav-item message-item"
+      bindtap="openTaskList"
+      data-status="{{item.status}}"
+    >
+      <view class="nav-body">
+        <view class="item-title">{{item.title}}</view>
+        <view class="item-desc">{{item.desc}}</view>
+      </view>
+      <view class="nav-arrow">></view>
+    </view>
+  </block>
 </view>

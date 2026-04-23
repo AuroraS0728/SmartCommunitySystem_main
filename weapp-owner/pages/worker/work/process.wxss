@@ -5,3 +5,7 @@
 .worker-btn + .worker-btn {
   margin-top: 24rpx !important;
 }
+
+.worker-btn-secondary {
+  background: linear-gradient(135deg, #334155, #475569);
+}

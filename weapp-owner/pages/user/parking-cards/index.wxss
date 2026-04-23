@@ -1,0 +1,9 @@
+.warn-text {
+  color: #c8a88a;
+}
+
+.status-tag {
+  border-color: #e0e7ff;
+  background: #f4f7ff;
+  color: #2a6dff;
+}

@@ -6,17 +6,21 @@ Page({
     code: "",
     result: ""
   },
+
   onLoad(query) {
     if (query?.orderId) {
       this.setData({ orderId: String(query.orderId) })
     }
   },
+
   onOrderId(e) {
     this.setData({ orderId: e.detail.value.trim() })
   },
+
   onCode(e) {
     this.setData({ code: e.detail.value.trim() })
   },
+
   async verify() {
     if (!this.data.orderId || !this.data.code) {
       wx.showToast({ title: "请输入工单ID和验证码", icon: "none" })
@@ -32,8 +36,17 @@ Page({
         }
       })
       const pass = !!resp?.pass
-      this.setData({ result: pass ? "验证通过，已进入服务中" : "验证失败，请核对验证码" })
-      if (pass) {
+      const allVerified = !!resp?.allVerified
+      if (!pass) {
+        this.setData({ result: "验证码不正确，请重试" })
+        return
+      }
+      this.setData({
+        result: allVerified
+          ? "验证码通过，全部工人已完成核验，可进入服务流程"
+          : `验证码通过，待核验工人：${(resp?.pendingWorkerIds || []).join(",") || "--"}`
+      })
+      if (allVerified) {
         setTimeout(() => {
           wx.navigateTo({ url: `/pages/worker/work/process?id=${this.data.orderId}` })
         }, 400)
@@ -43,3 +56,4 @@ Page({
     }
   }
 })
+

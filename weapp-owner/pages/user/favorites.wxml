@@ -1,0 +1,12 @@
+<view class="section">
+  <view wx:if="{{!list.length}}" class="empty">暂无二手收藏</view>
+  <view wx:for="{{list}}" wx:key="id" class="item card" data-id="{{item.id}}" bindtap="goDetail">
+    <view class="row-between">
+      <view class="item-title">{{item.title || "未命名商品"}}</view>
+      <view class="status-tag">{{item.priceText}}</view>
+    </view>
+    <view class="item-desc">{{item.description || "暂无描述"}}</view>
+    <image wx:if="{{item.cover}}" class="cover" src="{{item.cover}}" mode="aspectFill" />
+    <view class="meta">{{item.timeText}}</view>
+  </view>
+</view>

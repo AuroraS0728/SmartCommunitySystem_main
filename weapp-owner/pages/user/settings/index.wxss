@@ -1,0 +1,5 @@
+.logout-btn {
+  margin-top: 24rpx;
+  background: #bfa5a5;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.05);
+}

@@ -25,13 +25,26 @@ Page({
   data: {
     points: 0,
     vehicleNo: '',
+    autoQueryPlate: '',
     queryResult: null,
     orders: [],
     loading: false
   },
 
-  onShow() {
-    this.loadAll()
+  onLoad(options) {
+    const vehicleNo = decodeURIComponent((options && options.vehicleNo) || '').trim().toUpperCase()
+    if (!vehicleNo) return
+    this.setData({
+      vehicleNo,
+      autoQueryPlate: vehicleNo
+    })
+  },
+
+  async onShow() {
+    await this.loadAll()
+    if (!this.data.autoQueryPlate) return
+    this.setData({ autoQueryPlate: '' })
+    await this.onQueryByPlate()
   },
 
   async loadAll() {

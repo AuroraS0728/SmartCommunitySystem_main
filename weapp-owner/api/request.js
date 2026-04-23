@@ -30,13 +30,31 @@ function handleMustChangePassword() {
   wx.reLaunch({ url: '/pages/auth/change-password' })
 }
 
+function sanitizeData(value) {
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizeData(item))
+  }
+  if (value && typeof value === 'object') {
+    const obj = {}
+    Object.keys(value).forEach((key) => {
+      const next = sanitizeData(value[key])
+      if (next !== undefined) {
+        obj[key] = next
+      }
+    })
+    return obj
+  }
+  return value === undefined ? undefined : value
+}
+
 function request({ url, method = 'GET', data = {}, skipAuth = false }) {
+  const payload = sanitizeData(data || {})
   const doRequest = () =>
     new Promise((resolve, reject) => {
       wx.request({
         url: `${app.globalData.baseUrl}${url}`,
         method,
-        data,
+        data: payload,
         header: { Authorization: app.globalData.token ? `Bearer ${app.globalData.token}` : '' },
         success: (res) => {
           const body = res.data || {}

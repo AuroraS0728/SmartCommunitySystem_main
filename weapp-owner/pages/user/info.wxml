@@ -1,0 +1,44 @@
+<view class="section">
+  <view class="item info-item" bindtap="onChooseAvatar">
+    <view class="row-between">
+      <view class="item-title">头像</view>
+      <view class="avatar-row">
+        <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill" />
+        <view wx:else class="avatar avatar-fallback">{{nickname ? nickname.slice(0,1) : "我"}}</view>
+        <view class="nav-arrow">></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">昵称</view>
+    <input class="input" value="{{nickname}}" placeholder="请输入昵称" bindinput="onNicknameInput" />
+  </view>
+
+  <view class="item">
+    <view class="row-between">
+      <view class="item-title">生日</view>
+      <picker
+        wx:if="{{!birthdayLocked}}"
+        mode="date"
+        value="{{birthday}}"
+        end="{{maxBirthday}}"
+        bindchange="onBirthdayChange"
+      >
+        <view class="picker-text">{{birthday || "去设置"}}</view>
+      </picker>
+      <view wx:else class="picker-text">{{birthday}}</view>
+    </view>
+    <view class="meta">生日仅可设置一次，设置后不可修改</view>
+  </view>
+
+  <view class="item nav-item" bindtap="goSettings">
+    <view class="nav-body">
+      <view class="item-title">设置</view>
+      <view class="item-desc">账号与安全、退出登录</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </view>
+
+  <view class="btn" bindtap="onSave">{{saving ? "保存中..." : "保存"}}</view>
+</view>

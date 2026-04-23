@@ -2,6 +2,26 @@
   <view class="item">
     <view class="item-title">工单ID：{{id || "--"}}</view>
     <view class="item-desc">当前状态：{{order ? order.status : "--"}}</view>
+    <view class="meta" wx:if="{{verifyPassed}}">现场核验：全部通过</view>
+    <view class="meta" wx:else>现场核验：未全部通过</view>
+    <view wx:if="{{pendingWorkerIds.length}}" class="meta">待核验工人：{{pendingWorkerIds.join(",")}}</view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">参与工人</view>
+    <view wx:for="{{participants}}" wx:key="workerId" class="meta">
+      {{item.workerName || ("工人" + item.workerId)}}：
+      {{item.verifyPassed ? "已核验" : "未核验"}} /
+      {{item.finishConfirmed ? "已完工确认" : "未完工确认"}}
+    </view>
+  </view>
+
+  <view class="item" wx:if="{{!verifyPassed}}">
+    <view class="field-label">现场验证码</view>
+    <input class="input" value="{{verifyCode}}" bindinput="onVerifyCodeInput" placeholder="输入业主提供的验证码" />
+    <view class="btn worker-btn worker-btn-secondary" bindtap="submitVerifyCode">
+      {{verifying ? "校验中..." : "校验验证码"}}
+    </view>
   </view>
 
   <view class="item">
@@ -12,14 +32,31 @@
     <view class="field-label">服务后照片</view>
     <view class="btn worker-btn" bindtap="chooseImage" data-field="afterImages">拍照上传服务后照片</view>
     <view class="meta">{{afterImages ? "已上传" : "未上传"}}</view>
-
-    <view class="field-label">外包收费金额（可选）</view>
-    <input class="input" type="digit" value="{{chargeAmount}}" bindinput="onChargeAmountInput" placeholder="如：120.00" />
-    <view class="field-label">收费说明（可选）</view>
-    <input class="input" value="{{chargeRemark}}" bindinput="onChargeRemarkInput" placeholder="如：更换配件+上门费" />
   </view>
 
-  <view class="btn worker-btn" bindtap="start" loading="{{loading}}">开始服务</view>
-  <view class="btn worker-btn" bindtap="finish" loading="{{loading}}">确认结束（维修端）</view>
+  <view class="item">
+    <view class="item-title">本人工费录入</view>
+    <view class="field-label">技术费</view>
+    <input class="input" type="digit" value="{{techFee}}" data-field="techFee" bindinput="onFeeInput" placeholder="如：100.00" />
+
+    <view class="field-label">配件/材料费</view>
+    <input class="input" type="digit" value="{{materialFee}}" data-field="materialFee" bindinput="onFeeInput" placeholder="如：80.00" />
+
+    <view class="field-label">高空作业费</view>
+    <input class="input" type="digit" value="{{highAltitudeFee}}" data-field="highAltitudeFee" bindinput="onFeeInput" placeholder="如：50.00" />
+
+    <view class="field-label">其他费用</view>
+    <input class="input" type="digit" value="{{otherFee}}" data-field="otherFee" bindinput="onFeeInput" placeholder="如：20.00" />
+
+    <view class="field-label">费用说明</view>
+    <input class="input" value="{{feeRemark}}" bindinput="onFeeRemarkInput" placeholder="填写本人工费说明（可选）" />
+  </view>
+
+  <view wx:if="{{order && order.status !== 2}}" class="btn worker-btn" bindtap="start">
+    {{loading ? "提交中..." : "开始服务"}}
+  </view>
+  <view wx:if="{{order && order.status === 2}}" class="btn worker-btn" bindtap="finish">
+    {{loading ? "提交中..." : "确认结束（工人端）"}}
+  </view>
 </view>
 

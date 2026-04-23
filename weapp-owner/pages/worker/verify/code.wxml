@@ -14,3 +14,4 @@
     <view class="item-desc">{{result}}</view>
   </view>
 </view>
+

@@ -1,5 +1,89 @@
-.logout-btn {
-  margin-top: 30rpx;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  box-shadow: 0 12rpx 24rpx -16rpx rgba(220, 38, 38, 0.75);
+.member-page {
+  padding-bottom: 40rpx;
+}
+
+.member-hero {
+  margin-bottom: 28rpx;
+  background: linear-gradient(135deg, #fde8d3, #fce1c1);
+}
+
+.member-hero .hero-title {
+  color: #b8860b;
+}
+
+.member-hero .hero-desc {
+  color: #9b9b9b;
+}
+
+.member-hero .meta {
+  color: #b8860b;
+}
+
+.avatar-wrap {
+  width: 92rpx;
+  height: 92rpx;
+}
+
+.avatar {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 50%;
+  border: 2rpx solid #e3d2b5;
+}
+
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff5e6;
+  color: #b8860b;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+  padding: 26rpx;
+}
+
+.metric {
+  padding: 22rpx;
+  border-radius: 16rpx;
+  background: #ffffff;
+  border: 1rpx solid #e5e2df;
+}
+
+.metric-value {
+  color: #2a6dff;
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.metric-label {
+  margin-top: 10rpx;
+  color: #9b9b9b;
+  font-size: 24rpx;
+}
+
+.metric-sub {
+  margin-top: 8rpx;
+  color: #9b9b9b;
+  font-size: 22rpx;
+}
+
+.nav-leading {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.nav-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
 }

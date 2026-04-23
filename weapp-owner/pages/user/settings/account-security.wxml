@@ -1,0 +1,17 @@
+<view class="section">
+  <view class="item nav-item" bindtap="goChangePhone">
+    <view class="nav-body">
+      <view class="item-title">变更手机号</view>
+      <view class="item-desc">{{phone || "未绑定"}}</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </view>
+
+  <view class="item nav-item" bindtap="goChangePassword">
+    <view class="nav-body">
+      <view class="item-title">修改密码</view>
+      <view class="item-desc">修改当前账号登录密码</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </view>
+</view>

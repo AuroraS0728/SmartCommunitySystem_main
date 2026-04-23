@@ -1,21 +1,33 @@
 <view class="section">
   <view class="hero security-hero">
-    <view class="hero-title">物业安防工作台</view>
-    <view class="hero-desc">欢迎，{{user && user.nickname ? user.nickname : '安防人员'}}</view>
+    <view class="hero-title">物业工作台</view>
+    <view class="hero-desc">欢迎，{{user && user.nickname ? user.nickname : "物业管理员"}}</view>
   </view>
 
   <navigator class="item nav-item" url="/pages/security/verify/scan">
     <view class="nav-body">
       <view class="item-title">门禁扫码核验</view>
-      <view class="item-desc">申请相机权限后，先用模拟扫码方式核验访客动态二维码。</view>
+      <view class="item-desc">用于门禁访客二维码核验</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
 
-  <view class="item">
-    <view class="item-title">说明</view>
-    <view class="item-desc">访客二维码每30秒刷新，旧截图 token 自动失效。</view>
-  </view>
+  <navigator class="item nav-item" url="/pages/security/objection/list">
+    <view class="nav-body">
+      <view class="item-title">维修费用异议审核</view>
+      <view class="item-desc">审核业主发起的费用异议，支持驳回或同意退款</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
+
+  <navigator class="item nav-item" url="/pages/security/complaint/list">
+    <view class="nav-body">
+      <view class="item-title">投诉建议反馈</view>
+      <view class="item-desc">查看业主投诉建议并在线回复</view>
+    </view>
+    <view class="nav-arrow">></view>
+  </navigator>
 
   <view class="btn security-btn" bindtap="logout">退出登录</view>
 </view>
+

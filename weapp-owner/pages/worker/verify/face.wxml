@@ -1,33 +1,37 @@
 <view class="section">
   <view class="hero worker-hero">
-    <view class="hero-title">维修员上门人脸验证</view>
-    <view class="hero-desc">到达现场后拍照，核验是否为已注册维修员</view>
+    <view class="hero-title">上门人脸实时检测</view>
+    <view class="hero-desc">支持单人实时核验，也支持多人同框连续核验</view>
   </view>
 
   <view class="item">
     <view class="item-title">当前信息</view>
-    <view class="meta">维修员ID：{{workerId || '--'}}</view>
-    <view class="meta">工单ID：{{orderId || '--'}}</view>
+    <view class="meta">工人ID：{{workerId || "--"}}</view>
+    <view class="meta">工单ID：{{orderId || "--"}}</view>
   </view>
 
   <view class="item">
-    <view class="item-title">验证操作</view>
-    <view class="item-desc">点击后仅调用相机拍照，不允许从相册选择。</view>
-    <view class="btn worker-btn" bindtap="startFaceVerify">
-      {{loading ? '验证中...' : '开始人脸验证'}}
-    </view>
-    <image wx:if="{{imagePath}}" class="preview" src="{{imagePath}}" mode="aspectFill" />
+    <view class="item-title">实时取帧区域</view>
+    <camera id="liveCamera" class="live-camera" device-position="front" flash="off" />
+    <view class="meta">请正对镜头，保持1-2秒稳定</view>
   </view>
 
-  <view class="item" wx:if="{{!loading && imagePath}}">
-    <view class="item-title">验证结果</view>
-    <view wx:if="{{verified}}">
-      <view class="success">人脸验证通过（分数：{{score.toFixed(4)}}）</view>
-      <view class="meta">系统将自动跳转至工单处理页面</view>
+  <view class="item">
+    <view class="item-title">检测状态</view>
+    <view class="item-desc">{{statusText}}</view>
+    <view class="meta">检测次数：{{attempts}}</view>
+    <view class="meta">连续通过次数：{{passCount}}</view>
+    <view class="meta">活体：{{livenessLabel}}</view>
+    <view class="meta">相似度：{{score.toFixed(4)}} / 阈值：{{threshold.toFixed(4)}}</view>
+    <view wx:if="{{pendingWorkerIds.length}}" class="meta">
+      待通过工人：{{pendingWorkerIds.join(",")}}
     </view>
-    <view wx:else>
-      <view class="danger">人脸不匹配，请确认是否为本人（分数：{{score.toFixed(4)}}）</view>
-      <view class="btn worker-btn retry-btn" bindtap="retryVerify">重新验证</view>
+    <view wx:if="{{resultRows.length}}" class="meta-list">
+      <view wx:for="{{resultRows}}" wx:key="*this" class="meta">{{item}}</view>
     </view>
   </view>
+
+  <view wx:if="{{!running}}" class="btn worker-btn" bindtap="startLiveVerify">开始实时检测</view>
+  <view wx:else class="btn worker-btn danger-btn" bindtap="stopLiveVerify">停止检测</view>
 </view>
+

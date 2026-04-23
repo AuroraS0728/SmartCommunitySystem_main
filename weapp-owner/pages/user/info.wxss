@@ -1,0 +1,29 @@
+.info-item {
+  margin-bottom: 28rpx;
+}
+
+.avatar-row {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+}
+
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(107, 142, 156, 0.18);
+  color: #6b8e9c;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.picker-text {
+  color: #4a4a4a;
+  font-size: 28rpx;
+}

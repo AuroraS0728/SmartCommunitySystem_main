@@ -1,7 +1,7 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">工单详情</view>
-    <view class="hero-desc">提交报修 -> 派单 -> 验码 -> 服务 -> 双方确认 -> 评价</view>
+    <view class="hero-desc">提交报修 -> 派单核验 -> 服务执行 -> 费用结算 -> 评价</view>
   </view>
 
   <view wx:if="{{loading}}" class="empty">加载中...</view>
@@ -12,7 +12,37 @@
       <view class="item-desc">{{detail.order.description || "暂无详细描述"}}</view>
       <view class="meta">状态：{{detail.statusText || detail.order.status}}</view>
       <view class="meta">工单ID：{{detail.order.id}}</view>
-      <view class="meta" wx:if="{{detail.order.assignee}}">维修人员ID：{{detail.order.assignee}}</view>
+      <view class="meta" wx:if="{{detail.order.assignee}}">主工人ID：{{detail.order.assignee}}</view>
+      <view class="meta">服务开始：{{detail.order.serviceStartTime || "--"}}</view>
+      <view class="meta">服务结束：{{detail.order.serviceEndTime || "--"}}</view>
+      <view class="meta">服务时长(分钟)：{{detail.order.serviceDurationMinutes || 0}}</view>
+    </view>
+
+    <view class="item">
+      <view class="item-title">参与工人核验/完工状态</view>
+      <view wx:for="{{detail.participants}}" wx:key="workerId" class="meta">
+        {{item.workerName || ("工人" + item.workerId)}}：
+        {{item.verifyPassed ? "核验通过" : "未核验"}} /
+        {{item.finishConfirmed ? "已确认完工" : "未确认完工"}}
+      </view>
+      <view wx:if="{{detail.pendingWorkerIds.length}}" class="meta">
+        待核验工人：{{detail.pendingWorkerIds.join(",")}}
+      </view>
+    </view>
+
+    <view class="item" wx:if="{{detail.verifyCode}}">
+      <view class="item-title">现场验证码</view>
+      <view class="item-desc code-value">{{detail.verifyCode}}</view>
+      <view class="meta">请向上门工人提供验证码，支持多人核验</view>
+    </view>
+
+    <view class="item" wx:if="{{detail.feeDetails && detail.feeDetails.length}}">
+      <view class="item-title">费用明细（按工人）</view>
+      <view wx:for="{{detail.feeDetails}}" wx:key="id" class="meta">
+        工人{{item.workerId}}：技术费{{item.techFee || 0}}，材料费{{item.materialFee || 0}}，
+        高空费{{item.highAltitudeFee || 0}}，其他{{item.otherFee || 0}}，小计{{item.totalAmount || 0}}
+      </view>
+      <view class="meta">费用合计：{{detail.feeTotal || 0}} 元</view>
     </view>
 
     <view class="item" wx:if="{{detail.repairFeeBill}}">
@@ -27,21 +57,24 @@
       </view>
     </view>
 
-    <view class="item" wx:if="{{detail.verifyCode}}">
-      <view class="item-title">现场验证码</view>
-      <view class="item-desc code-value">{{detail.verifyCode}}</view>
-      <view class="meta">维修人员上门后，请当面提供验证码进行核验。</view>
+    <view class="item" wx:if="{{detail.repairFeeBill}}">
+      <view class="item-title">费用异议</view>
+      <input class="input" value="{{objectionReason}}" bindinput="onObjectionReasonInput" placeholder="填写费用异议原因" />
+      <input class="input" type="number" value="{{objectionDepositPoints}}" bindinput="onObjectionDepositInput" placeholder="异议保证金积分" />
+      <view class="btn" bindtap="submitFeeObjection">
+        {{submittingObjection ? "提交中..." : "提交费用异议"}}
+      </view>
+      <view wx:for="{{detail.objections}}" wx:key="id" class="meta">
+        异议#{{item.id}}：状态{{item.status}}，保证金{{item.depositPoints}}，退款{{item.refundPoints || 0}}
+      </view>
     </view>
 
     <view class="item">
       <view class="item-title">结束确认</view>
       <view class="meta">业主确认：{{detail.ownerFinishConfirmed ? "已确认" : "未确认"}}</view>
-      <view class="meta">维修端确认：{{detail.workerFinishConfirmed ? "已确认" : "未确认"}}</view>
+      <view class="meta">工人确认：{{detail.workerFinishConfirmed ? "已确认" : "未确认"}}</view>
       <view class="btn" wx:if="{{detail.canOwnerFinish}}" bindtap="confirmFinish">
         {{confirmingFinish ? "提交中..." : "确认服务结束"}}
-      </view>
-      <view class="meta" wx:if="{{!detail.canOwnerFinish && detail.order.status === 2}}">
-        需业主与维修端都点击“结束”后，系统才进入完单结算流程。
       </view>
     </view>
 
@@ -66,12 +99,7 @@
           ★
         </text>
       </view>
-      <textarea
-        class="input textarea"
-        value="{{comment}}"
-        placeholder="可填写服务体验，如响应速度、处理质量等"
-        bindinput="onCommentInput"
-      ></textarea>
+      <textarea class="input textarea" value="{{comment}}" placeholder="可填写服务体验" bindinput="onCommentInput"></textarea>
       <view class="btn" bindtap="submitEvaluation">{{evaluating ? "提交中..." : "提交评价"}}</view>
     </view>
   </block>

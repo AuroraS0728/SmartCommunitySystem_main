@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "维修员上门人脸验证"
+  "navigationBarTitleText": "上门人脸核验",
+  "navigationBarBackgroundColor": "#0f766e",
+  "navigationBarTextStyle": "white"
 }
+

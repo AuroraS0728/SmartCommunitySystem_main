@@ -18,16 +18,21 @@
     "pages/neighbor/lostfound/list",
     "pages/neighbor/lostfound/detail",
     "pages/neighbor/lostfound/publish",
-    "pages/neighbor/forum/list",
-    "pages/neighbor/forum/detail",
-    "pages/neighbor/forum/post",
     "pages/door/qrcode",
     "pages/door/invite",
     "pages/door/verify",
     "pages/security/home/home",
     "pages/security/verify/scan",
+    "pages/security/objection/list",
+    "pages/security/complaint/list",
     "pages/complaint/submit",
     "pages/user/profile",
+    "pages/user/info",
+    "pages/user/favorites",
+    "pages/user/parking-cards/index",
+    "pages/user/settings/index",
+    "pages/user/settings/account-security",
+    "pages/user/settings/change-phone",
     "pages/worker/home/home",
     "pages/worker/task/list",
     "pages/worker/task/detail",
@@ -38,15 +43,41 @@
     "pages/worker/profile/index"
   ],
   "window": {
-    "navigationBarTitleText": "\u667a\u6167\u793e\u533a\u4e1a\u4e3b\u7aef",
-    "navigationBarBackgroundColor": "#0f172a",
-    "backgroundColor": "#f3f6fb",
+    "navigationBarTitleText": "智慧社区业主端",
+    "navigationBarBackgroundColor": "#6B8E9C",
+    "backgroundColor": "#F5F5F5",
     "navigationBarTextStyle": "white"
   },
   "permission": {
     "scope.camera": {
-      "desc": "\u7528\u4e8e\u95e8\u7981\u626b\u7801\u6838\u9a8c\u4e0e\u7ef4\u4fee\u5458\u4e0a\u95e8\u4eba\u8138\u9a8c\u8bc1\u62cd\u7167"
+      "desc": "用于门禁扫码核验与维修员上门人脸验证拍照"
     }
+  },
+  "tabBar": {
+    "color": "#8E8E93",
+    "selectedColor": "#2A6DFF",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/tab-home.png",
+        "selectedIconPath": "assets/icons/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/service/service",
+        "text": "服务",
+        "iconPath": "assets/icons/tab-service.png",
+        "selectedIconPath": "assets/icons/tab-service-active.png"
+      },
+      {
+        "pagePath": "pages/user/profile",
+        "text": "会员",
+        "iconPath": "assets/icons/tab-member.png",
+        "selectedIconPath": "assets/icons/tab-member-active.png"
+      }
+    ]
   },
   "style": "v2"
 }
