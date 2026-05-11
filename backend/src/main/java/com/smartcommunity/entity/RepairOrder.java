@@ -31,6 +31,8 @@ public class RepairOrder {
     private Integer needOutsource;
     private Integer status;
     private Long assignee;
+    private Integer priority;
+    private Long suggestedWorkerId;
     private LocalDateTime assignedTime;
     private String remark;
     private Integer ownerFinishConfirmed;
@@ -41,6 +43,8 @@ public class RepairOrder {
     private LocalDateTime serviceEndTime;
     private Integer serviceDurationMinutes;
     private LocalDateTime completionTime;
+    private LocalDateTime slaDeadline;
+    private Integer delayCount;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Integer isDeleted;

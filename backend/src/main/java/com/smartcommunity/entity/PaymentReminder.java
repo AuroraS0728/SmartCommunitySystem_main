@@ -5,27 +5,19 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("complaint")
-public class Complaint {
+@TableName("payment_reminder")
+public class PaymentReminder {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long userId;
-    private Integer type;
-    private String title;
+    private Long feeBillId;
+    private String method;
     private String content;
-    private String images;
     private Integer status;
-    private String reply;
-    private LocalDateTime replyTime;
-    private Integer satisfaction;
-    private BigDecimal sentimentScore;
-    private String sentimentLabel;
-    private String riskLevel;
-    private LocalDateTime analyzedAt;
+    private LocalDateTime sendTime;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Integer isDeleted;

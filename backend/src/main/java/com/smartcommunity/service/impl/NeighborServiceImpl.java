@@ -2,6 +2,7 @@ package com.smartcommunity.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.smartcommunity.common.RoleUtils;
 import com.smartcommunity.config.NeighborModuleConfig;
 import com.smartcommunity.dto.request.AddCommentReq;
 import com.smartcommunity.dto.request.PublishForumReq;
@@ -25,10 +26,13 @@ import com.smartcommunity.mapper.SecondHandFavoriteMapper;
 import com.smartcommunity.mapper.SecondHandMapper;
 import com.smartcommunity.mapper.SecondHandReportMapper;
 import com.smartcommunity.service.ContentSafetyService;
+import com.smartcommunity.service.CreditService;
 import com.smartcommunity.service.NeighborService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -48,6 +52,7 @@ public class NeighborServiceImpl implements NeighborService {
 
     private final NeighborModuleConfig neighborModuleConfig;
     private final ContentSafetyService contentSafetyService;
+    private final CreditService creditService;
     private final SecondHandMapper secondHandMapper;
     private final SecondHandFavoriteMapper secondHandFavoriteMapper;
     private final SecondHandReportMapper secondHandReportMapper;
@@ -168,6 +173,7 @@ public class NeighborServiceImpl implements NeighborService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SecondHand updateSecondHandStatus(Long id, Long userId, Integer role, Integer status) {
         if (status == null || status < 1 || status > 3) {
             throw new IllegalArgumentException("status仅支持1-在售 2-已售 3-下架");
@@ -177,9 +183,13 @@ public class NeighborServiceImpl implements NeighborService {
             throw new IllegalArgumentException("商品不存在");
         }
         requireOwnerOrAdmin(item.getUserId(), userId, role);
+        Integer oldStatus = item.getStatus();
         item.setStatus(status);
         item.setUpdateTime(LocalDateTime.now());
         secondHandMapper.updateById(item);
+        if (Integer.valueOf(1).equals(oldStatus) && Integer.valueOf(2).equals(status)) {
+            afterCommit(() -> creditService.changeCredit(item.getUserId(), 5, "二手交易成功"));
+        }
         return item;
     }
 
@@ -724,7 +734,7 @@ public class NeighborServiceImpl implements NeighborService {
     }
 
     private boolean isAdmin(Integer role) {
-        return role != null && role == 2;
+        return RoleUtils.isPropertyAdmin(role);
     }
 
     private void requireAdmin(Integer role) {
@@ -785,5 +795,18 @@ public class NeighborServiceImpl implements NeighborService {
             return new PageData<>(List.of(), (long) rows.size(), p, s);
         }
         return new PageData<>(rows.subList(from, to), (long) rows.size(), p, s);
+    }
+
+    private void afterCommit(Runnable action) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+            return;
+        }
+        action.run();
     }
 }

@@ -1,13 +1,16 @@
 package com.smartcommunity.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.smartcommunity.common.AuthContext;
 import com.smartcommunity.common.Result;
+import com.smartcommunity.common.RoleUtils;
 import com.smartcommunity.common.StatusCode;
 import com.smartcommunity.dto.request.AssignRepairReq;
 import com.smartcommunity.dto.request.EvaluateRepairReq;
 import com.smartcommunity.dto.request.RepairWorkerFeeItemReq;
 import com.smartcommunity.dto.request.ReviewRepairFeeObjectionReq;
+import com.smartcommunity.dto.request.RepairPriorityReq;
 import com.smartcommunity.dto.request.SubmitRepairReq;
 import com.smartcommunity.dto.request.SubmitRepairFeeObjectionReq;
 import com.smartcommunity.dto.request.UpdateRepairStatusReq;
@@ -31,6 +34,10 @@ import com.smartcommunity.mapper.RepairOrderMapper;
 import com.smartcommunity.mapper.RepairOrderWorkerMapper;
 import com.smartcommunity.mapper.UserMapper;
 import com.smartcommunity.mapper.WorkerStaffingMapper;
+import com.smartcommunity.service.RepairEvaluationService;
+import com.smartcommunity.service.RepairGradingService;
+import com.smartcommunity.service.SlaMonitorService;
+import com.smartcommunity.service.WorkerRecommendService;
 import com.smartcommunity.utils.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +49,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -101,6 +109,10 @@ public class RepairController {
     private final PointsRechargeRecordMapper pointsRechargeRecordMapper;
     private final UserMapper userMapper;
     private final WorkerStaffingMapper workerStaffingMapper;
+    private final RepairEvaluationService repairEvaluationService;
+    private final RepairGradingService repairGradingService;
+    private final SlaMonitorService slaMonitorService;
+    private final WorkerRecommendService workerRecommendService;
     private final RedisUtil redisUtil;
 
     @PostMapping("/submit")
@@ -138,7 +150,8 @@ public class RepairController {
             return Result.fail(StatusCode.BAD_REQUEST, "selected appointment time slot has no available worker");
         }
         RepairOrder order = new RepairOrder();
-        order.setUserId(AuthContext.getUserId());
+        Long currentUserId = AuthContext.getUserId();
+        order.setUserId(currentUserId);
         order.setPropertyId(req.getPropertyId());
         Integer serviceType = virtualOrder.getServiceType();
         order.setServiceType(serviceType);
@@ -155,14 +168,20 @@ public class RepairController {
         order.setChargeRemark(null);
         order.setNeedOutsource(isOutsourceMajor(serviceMajor) ? 1 : 0);
         order.setStatus(STATUS_WAIT_DISPATCH);
+        Integer priority = repairGradingService.calculatePriority(req.getDescription(), currentUserId);
+        order.setPriority(priority);
+        order.setSuggestedWorkerId(pickAssignee(order));
+        LocalDateTime now = LocalDateTime.now();
+        order.setSlaDeadline(dispatchSlaDeadline(now));
+        order.setDelayCount(0);
         order.setRemark("submitted");
         order.setOwnerFinishConfirmed(0);
         order.setOwnerFinishTime(null);
         order.setWorkerFinishConfirmed(0);
         order.setWorkerFinishTime(null);
         order.setCompletionTime(null);
-        order.setCreateTime(LocalDateTime.now());
-        order.setUpdateTime(LocalDateTime.now());
+        order.setCreateTime(now);
+        order.setUpdateTime(now);
         order.setIsDeleted(0);
         repairOrderMapper.insert(order);
         return Result.success(order);
@@ -214,35 +233,31 @@ public class RepairController {
 
     @GetMapping("/list")
     public Result<List<RepairOrder>> list(@RequestParam(required = false) Integer status,
-                                          @RequestParam(required = false) Long assignee) {
-        Integer role = AuthContext.getRole();
-        Long uid = AuthContext.getUserId();
-        LambdaQueryWrapper<RepairOrder> wrapper = new LambdaQueryWrapper<RepairOrder>()
-                .eq(RepairOrder::getIsDeleted, 0);
-        if (role != null && role == 1) {
-            wrapper.eq(RepairOrder::getUserId, uid);
-        }
-        if (role != null && role == 3) {
-            List<Long> orderIds = participantOrderIds(uid);
-            if (orderIds.isEmpty()) {
-                wrapper.eq(RepairOrder::getAssignee, uid);
-            } else {
-                wrapper.and(w -> w.eq(RepairOrder::getAssignee, uid).or().in(RepairOrder::getId, orderIds));
-            }
-        }
-        if (status != null) {
-            wrapper.eq(RepairOrder::getStatus, status);
-        }
-        if (assignee != null) {
-            List<Long> assignedOrderIds = participantOrderIds(assignee);
-            if (assignedOrderIds.isEmpty()) {
-                wrapper.eq(RepairOrder::getAssignee, assignee);
-            } else {
-                wrapper.and(w -> w.eq(RepairOrder::getAssignee, assignee).or().in(RepairOrder::getId, assignedOrderIds));
-            }
-        }
-        wrapper.orderByDesc(RepairOrder::getId);
+                                          @RequestParam(required = false) Long assignee,
+                                          @RequestParam(required = false) Integer priority) {
+        LambdaQueryWrapper<RepairOrder> wrapper = buildRepairListWrapper(status, assignee, priority, null);
+        wrapper.last("ORDER BY CASE WHEN priority IS NULL THEN 1 ELSE 0 END, priority ASC, id DESC");
         return Result.success(repairOrderMapper.selectList(wrapper));
+    }
+
+    @GetMapping("/page")
+    public Result<Map<String, Object>> page(@RequestParam(defaultValue = "1") int pageNum,
+                                            @RequestParam(defaultValue = "10") int pageSize,
+                                            @RequestParam(required = false) Integer status,
+                                            @RequestParam(required = false) Long assignee,
+                                            @RequestParam(required = false) Integer priority,
+                                            @RequestParam(required = false) String keyword) {
+        int safePageNum = Math.max(pageNum, 1);
+        int safePageSize = Math.min(Math.max(pageSize, 1), 100);
+        LambdaQueryWrapper<RepairOrder> wrapper = buildRepairListWrapper(status, assignee, priority, keyword);
+        wrapper.last("ORDER BY CASE WHEN priority IS NULL THEN 1 ELSE 0 END, priority ASC, id DESC");
+        Page<RepairOrder> result = repairOrderMapper.selectPage(new Page<>(safePageNum, safePageSize), wrapper);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("records", repairOrderRows(result.getRecords()));
+        payload.put("total", result.getTotal());
+        payload.put("pageNum", safePageNum);
+        payload.put("pageSize", safePageSize);
+        return Result.success(payload);
     }
 
     @GetMapping("/fee-bills")
@@ -312,7 +327,8 @@ public class RepairController {
 
         Integer role = AuthContext.getRole();
         Long uid = AuthContext.getUserId();
-        boolean showVerifyCode = (role != null && role == 2)
+        ensureSuggestedWorker(order, role);
+        boolean showVerifyCode = RoleUtils.isPropertyAdmin(role)
                 || (role != null && role == 1 && uid != null && uid.equals(order.getUserId()));
 
         String verifyCode = null;
@@ -347,6 +363,10 @@ public class RepairController {
 
         RepairOrderWorker currentWorkerParticipant = uid == null ? null : participantMap.get(uid);
         data.put("order", order);
+        Map<Long, User> relatedUserMap = userMap(java.util.Arrays.asList(order.getUserId(), order.getAssignee(), order.getSuggestedWorkerId()));
+        data.put("ownerName", displayName(relatedUserMap.get(order.getUserId()), "业主", order.getUserId()));
+        data.put("assigneeName", displayName(relatedUserMap.get(order.getAssignee()), "维修员", order.getAssignee()));
+        data.put("suggestedWorkerName", displayName(relatedUserMap.get(order.getSuggestedWorkerId()), "维修员", order.getSuggestedWorkerId()));
         data.put("evaluation", eval);
         data.put("repairFeeBill", repairFeeBill);
         data.put("repairFeeDetails", feeDetails);
@@ -379,10 +399,98 @@ public class RepairController {
         return Result.success(data);
     }
 
+    @PostMapping("/{id}/priority")
+    public Result<RepairOrder> updatePriority(@PathVariable Long id, @RequestBody RepairPriorityReq req) {
+        Integer role = AuthContext.getRole();
+        if (!RoleUtils.isPropertyAdmin(role)) {
+            return Result.fail(StatusCode.FORBIDDEN, "only admin can update priority");
+        }
+        RepairOrder order = repairOrderMapper.selectById(id);
+        if (order == null || Integer.valueOf(1).equals(order.getIsDeleted())) {
+            return Result.fail(StatusCode.NOT_FOUND, "order not found");
+        }
+        if (req != null && req.getPriority() != null) {
+            order.setPriority(req.getPriority());
+        }
+        if (req != null && req.getSuggestedWorkerId() != null) {
+            order.setSuggestedWorkerId(req.getSuggestedWorkerId());
+        }
+        if (req != null && req.getSlaDeadline() != null) {
+            order.setSlaDeadline(req.getSlaDeadline());
+        }
+        order.setUpdateTime(LocalDateTime.now());
+        repairOrderMapper.updateById(order);
+        return Result.success(order);
+    }
+
+    @PostMapping("/sla/scan")
+    public Result<Map<String, Object>> scanSla() {
+        Integer role = AuthContext.getRole();
+        if (!RoleUtils.isPropertyAdmin(role)) {
+            return Result.fail(StatusCode.FORBIDDEN, "only admin can scan sla");
+        }
+        int delayCount = slaMonitorService.scanAndUrge();
+        return Result.success(Map.of("delayCount", delayCount));
+    }
+
+    @PostMapping("/autoAssign/{orderId}")
+    @Transactional
+    public Result<Map<String, Object>> autoAssign(@PathVariable Long orderId) {
+        Integer role = AuthContext.getRole();
+        if (!RoleUtils.isPropertyAdmin(role)) {
+            return Result.fail(StatusCode.FORBIDDEN, "only admin can auto assign");
+        }
+        if (orderId == null || orderId <= 0) {
+            return Result.fail(StatusCode.BAD_REQUEST, "orderId is invalid");
+        }
+
+        RepairOrder order = repairOrderMapper.selectById(orderId);
+        if (order == null || Integer.valueOf(1).equals(order.getIsDeleted())) {
+            return Result.fail(StatusCode.NOT_FOUND, "order not found");
+        }
+        if (!Integer.valueOf(STATUS_WAIT_DISPATCH).equals(order.getStatus())) {
+            return Result.fail(StatusCode.BAD_REQUEST, "only waiting orders can be auto assigned");
+        }
+        if (!StringUtils.hasText(order.getCategory())) {
+            return Result.fail(StatusCode.BAD_REQUEST, "category is empty");
+        }
+
+        Long workerId = workerRecommendService.recommendWorker(order.getCategory());
+        if (workerId == null) {
+            return Result.fail(StatusCode.BAD_REQUEST, "暂无可用维修员");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        order.setAssignee(workerId);
+        order.setSuggestedWorkerId(workerId);
+        order.setAssignedTime(now);
+        order.setStatus(STATUS_IN_SERVICE);
+        order.setSlaDeadline(completionSlaDeadline(now));
+        order.setRemark("auto assigned");
+        order.setOwnerFinishConfirmed(0);
+        order.setOwnerFinishTime(null);
+        order.setWorkerFinishConfirmed(0);
+        order.setWorkerFinishTime(null);
+        order.setServiceStartTime(null);
+        order.setServiceEndTime(null);
+        order.setServiceDurationMinutes(0);
+        order.setCompletionTime(null);
+        order.setUpdateTime(now);
+        repairOrderMapper.updateById(order);
+        resetParticipants(order.getId(), List.of(workerId));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("order", order);
+        data.put("workerId", workerId);
+        data.put("statusText", statusText(order.getStatus()));
+        return Result.success(data);
+    }
+
     @PostMapping("/assign")
+    @Transactional
     public Result<Map<String, Object>> assign(@RequestBody AssignRepairReq req) {
         Integer role = AuthContext.getRole();
-        if (role == null || role != 2) {
+        if (!RoleUtils.isPropertyAdmin(role)) {
             return Result.fail(StatusCode.FORBIDDEN, "only admin can assign");
         }
         if (req.getOrderId() == null) {
@@ -452,9 +560,12 @@ public class RepairController {
 
         List<RepairOrderWorker> oldParticipants = activeParticipants(order);
 
+        LocalDateTime now = LocalDateTime.now();
         order.setAssignee(assigneeIds.get(0));
-        order.setAssignedTime(LocalDateTime.now());
-        order.setStatus(STATUS_WAIT_DISPATCH);
+        order.setSuggestedWorkerId(assigneeIds.get(0));
+        order.setAssignedTime(now);
+        order.setStatus(STATUS_IN_SERVICE);
+        order.setSlaDeadline(completionSlaDeadline(now));
         order.setRemark(StringUtils.hasText(req.getRemark()) ? req.getRemark().trim() : "assigned");
         order.setOwnerFinishConfirmed(0);
         order.setOwnerFinishTime(null);
@@ -464,7 +575,7 @@ public class RepairController {
         order.setServiceEndTime(null);
         order.setServiceDurationMinutes(0);
         order.setCompletionTime(null);
-        order.setUpdateTime(LocalDateTime.now());
+        order.setUpdateTime(now);
         repairOrderMapper.updateById(order);
         resetParticipants(order.getId(), assigneeIds);
         clearFeeDetails(order.getId());
@@ -640,7 +751,7 @@ public class RepairController {
                     applyAggregateFeeToOrder(order);
                     createOrUpdateRepairFeeBill(order, now);
                 }
-            } else if (role != null && role == 2) {
+            } else if (RoleUtils.isPropertyAdmin(role)) {
                 // Admin fallback: force both confirmations for exceptional handling.
                 order.setOwnerFinishConfirmed(1);
                 order.setWorkerFinishConfirmed(1);
@@ -680,6 +791,9 @@ public class RepairController {
                 order.setStatus(STATUS_WAIT_EVALUATE);
                 if (order.getCompletionTime() == null) {
                     order.setCompletionTime(now);
+                }
+                if (order.getSlaDeadline() != null && now.isAfter(order.getSlaDeadline())) {
+                    order.setDelayCount((order.getDelayCount() == null ? 0 : order.getDelayCount()) + 1);
                 }
             } else {
                 order.setStatus(STATUS_IN_SERVICE);
@@ -729,26 +843,7 @@ public class RepairController {
             finalAnonymous = 0;
         }
 
-        RepairEvaluation current = repairEvaluationMapper.selectOne(new LambdaQueryWrapper<RepairEvaluation>()
-                .eq(RepairEvaluation::getOrderId, id)
-                .last("LIMIT 1"));
-        RepairEvaluation evaluation = current == null ? new RepairEvaluation() : current;
-        evaluation.setOrderId(id);
-        evaluation.setRating(finalRating);
-        evaluation.setComment(finalComment);
-        evaluation.setIsAnonymous(finalAnonymous);
-        evaluation.setUpdateTime(LocalDateTime.now());
-        if (current == null) {
-            evaluation.setCreateTime(LocalDateTime.now());
-            evaluation.setIsDeleted(0);
-            repairEvaluationMapper.insert(evaluation);
-        } else {
-            repairEvaluationMapper.updateById(evaluation);
-        }
-
-        order.setStatus(STATUS_COMPLETED);
-        order.setUpdateTime(LocalDateTime.now());
-        repairOrderMapper.updateById(order);
+        RepairEvaluation evaluation = repairEvaluationService.saveEvaluation(order, finalRating, finalComment, finalAnonymous);
         return Result.success(evaluation);
     }
 
@@ -832,7 +927,7 @@ public class RepairController {
     @GetMapping("/fee-objection/list")
     public Result<List<Map<String, Object>>> feeObjectionList(@RequestParam(required = false) Integer status) {
         Integer role = AuthContext.getRole();
-        if (role == null || role != 2) {
+        if (!RoleUtils.isPropertyAdmin(role)) {
             return Result.fail(StatusCode.FORBIDDEN, "only admin can query objections");
         }
         LambdaQueryWrapper<RepairFeeObjection> wrapper = new LambdaQueryWrapper<RepairFeeObjection>()
@@ -898,7 +993,7 @@ public class RepairController {
                                                           @RequestBody ReviewRepairFeeObjectionReq req) {
         Integer role = AuthContext.getRole();
         Long uid = AuthContext.getUserId();
-        if (role == null || role != 2 || uid == null) {
+        if (!RoleUtils.isPropertyAdmin(role) || uid == null) {
             return Result.fail(StatusCode.FORBIDDEN, "only admin can review objection");
         }
         if (req == null || req.getStatus() == null
@@ -989,11 +1084,170 @@ public class RepairController {
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         Integer role = AuthContext.getRole();
-        if (role == null || role != 2) {
+        if (!RoleUtils.isPropertyAdmin(role)) {
             return Result.fail(StatusCode.FORBIDDEN, "only admin can delete");
         }
         repairOrderMapper.deleteById(id);
         return Result.success("deleted", null);
+    }
+
+    private LambdaQueryWrapper<RepairOrder> buildRepairListWrapper(Integer status,
+                                                                   Long assignee,
+                                                                   Integer priority,
+                                                                   String keyword) {
+        Integer role = AuthContext.getRole();
+        Long uid = AuthContext.getUserId();
+        LambdaQueryWrapper<RepairOrder> wrapper = new LambdaQueryWrapper<RepairOrder>()
+                .eq(RepairOrder::getIsDeleted, 0);
+        if (role != null && role == 1) {
+            wrapper.eq(RepairOrder::getUserId, uid);
+        }
+        if (role != null && role == 3) {
+            List<Long> orderIds = participantOrderIds(uid);
+            if (orderIds.isEmpty()) {
+                wrapper.eq(RepairOrder::getAssignee, uid);
+            } else {
+                wrapper.and(w -> w.eq(RepairOrder::getAssignee, uid).or().in(RepairOrder::getId, orderIds));
+            }
+        }
+        if (status != null) {
+            wrapper.eq(RepairOrder::getStatus, status);
+        }
+        if (assignee != null) {
+            List<Long> assignedOrderIds = participantOrderIds(assignee);
+            if (assignedOrderIds.isEmpty()) {
+                wrapper.eq(RepairOrder::getAssignee, assignee);
+            } else {
+                wrapper.and(w -> w.eq(RepairOrder::getAssignee, assignee).or().in(RepairOrder::getId, assignedOrderIds));
+            }
+        }
+        if (priority != null) {
+            wrapper.eq(RepairOrder::getPriority, priority);
+        }
+        applyRepairKeyword(wrapper, keyword);
+        return wrapper;
+    }
+
+    private List<Map<String, Object>> repairOrderRows(List<RepairOrder> orders) {
+        if (orders == null || orders.isEmpty()) {
+            return List.of();
+        }
+        Set<Long> userIds = new HashSet<>();
+        for (RepairOrder order : orders) {
+            if (order.getUserId() != null) {
+                userIds.add(order.getUserId());
+            }
+            if (order.getAssignee() != null) {
+                userIds.add(order.getAssignee());
+            }
+            if (order.getSuggestedWorkerId() != null) {
+                userIds.add(order.getSuggestedWorkerId());
+            }
+        }
+        Map<Long, User> users = userMap(userIds);
+        return orders.stream()
+                .map(order -> repairOrderRow(order, users))
+                .toList();
+    }
+
+    private Map<String, Object> repairOrderRow(RepairOrder order, Map<Long, User> users) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("id", order.getId());
+        row.put("userId", order.getUserId());
+        row.put("ownerName", displayName(users.get(order.getUserId()), "业主", order.getUserId()));
+        row.put("propertyId", order.getPropertyId());
+        row.put("serviceType", order.getServiceType());
+        row.put("serviceMajor", order.getServiceMajor());
+        row.put("serviceSubType", order.getServiceSubType());
+        row.put("appointmentDate", order.getAppointmentDate());
+        row.put("appointmentTimeSlot", order.getAppointmentTimeSlot());
+        row.put("category", order.getCategory());
+        row.put("description", order.getDescription());
+        row.put("images", order.getImages());
+        row.put("status", order.getStatus());
+        row.put("assignee", order.getAssignee());
+        row.put("assigneeName", displayName(users.get(order.getAssignee()), "维修员", order.getAssignee()));
+        row.put("priority", order.getPriority());
+        row.put("suggestedWorkerId", order.getSuggestedWorkerId());
+        row.put("suggestedWorkerName", displayName(users.get(order.getSuggestedWorkerId()), "维修员", order.getSuggestedWorkerId()));
+        row.put("assignedTime", order.getAssignedTime());
+        row.put("completionTime", order.getCompletionTime());
+        row.put("slaDeadline", order.getSlaDeadline());
+        row.put("delayCount", order.getDelayCount());
+        row.put("createTime", order.getCreateTime());
+        row.put("updateTime", order.getUpdateTime());
+        return row;
+    }
+
+    private Map<Long, User> userMap(Collection<Long> userIds) {
+        if (userIds == null) {
+            return Map.of();
+        }
+        List<Long> ids = userIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return userMapper.selectList(new LambdaQueryWrapper<User>()
+                        .in(User::getId, ids)
+                        .eq(User::getIsDeleted, 0))
+                .stream()
+                .filter(user -> user.getId() != null)
+                .collect(Collectors.toMap(User::getId, user -> user, (a, b) -> a));
+    }
+
+    private String displayName(User user, String prefix, Long id) {
+        if (user != null) {
+            if (StringUtils.hasText(user.getNickname())) {
+                return user.getNickname();
+            }
+            if (StringUtils.hasText(user.getPhone())) {
+                return user.getPhone();
+            }
+        }
+        return id == null ? "-" : prefix + id;
+    }
+
+    private void applyRepairKeyword(LambdaQueryWrapper<RepairOrder> wrapper, String keyword) {
+        if (!StringUtils.hasText(keyword)) {
+            return;
+        }
+        String text = keyword.trim();
+        Long orderId = parseLong(text);
+        List<Long> ownerIds = userMapper.selectList(new LambdaQueryWrapper<User>()
+                        .eq(User::getRole, 1)
+                        .eq(User::getIsDeleted, 0)
+                        .and(w -> w.like(User::getNickname, text).or().like(User::getPhone, text)))
+                .stream()
+                .map(User::getId)
+                .filter(Objects::nonNull)
+                .limit(100)
+                .toList();
+
+        wrapper.and(w -> {
+            w.like(RepairOrder::getDescription, text)
+                    .or()
+                    .like(RepairOrder::getCategory, text);
+            if (orderId != null) {
+                w.or().eq(RepairOrder::getId, orderId);
+            }
+            if (!ownerIds.isEmpty()) {
+                w.or().in(RepairOrder::getUserId, ownerIds);
+            }
+        });
+    }
+
+    private Long parseLong(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+        try {
+            return Long.parseLong(value.trim());
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 
     private boolean canViewOrder(RepairOrder order) {
@@ -1002,7 +1256,7 @@ public class RepairController {
         if (role == null || uid == null) {
             return false;
         }
-        if (role == 2) {
+        if (RoleUtils.isPropertyAdmin(role)) {
             return true;
         }
         if (role == 1) {
@@ -1597,6 +1851,34 @@ public class RepairController {
             return false;
         }
         return APPOINTMENT_SLOT_DEFS.stream().anyMatch(slot -> slot.code().equals(slotCode));
+    }
+
+    private void ensureSuggestedWorker(RepairOrder order, Integer role) {
+        if (order == null || !RoleUtils.isPropertyAdmin(role)) {
+            return;
+        }
+        if (!Integer.valueOf(STATUS_WAIT_DISPATCH).equals(order.getStatus())
+                || order.getSuggestedWorkerId() != null
+                || !StringUtils.hasText(order.getCategory())) {
+            return;
+        }
+        Long workerId = workerRecommendService.recommendWorker(order.getCategory());
+        if (workerId == null) {
+            return;
+        }
+        order.setSuggestedWorkerId(workerId);
+        order.setUpdateTime(LocalDateTime.now());
+        repairOrderMapper.updateById(order);
+    }
+
+    private LocalDateTime dispatchSlaDeadline(LocalDateTime baseTime) {
+        LocalDateTime base = baseTime == null ? LocalDateTime.now() : baseTime;
+        return base.plusMinutes(30);
+    }
+
+    private LocalDateTime completionSlaDeadline(LocalDateTime baseTime) {
+        LocalDateTime base = baseTime == null ? LocalDateTime.now() : baseTime;
+        return base.plusHours(2);
     }
 
     private record AppointmentSlotDef(String code, String label) {

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smartcommunity.mapper.WorkerMapper">
+    <select id="selectAvailableUserWorkerByCategory" resultType="java.lang.Long">
+        SELECT
+            u.id
+        FROM `user` u
+        INNER JOIN worker_staffing ws ON ws.worker_id = u.id
+        LEFT JOIN (
+            SELECT assignee AS worker_id, COUNT(*) AS open_tasks
+            FROM repair_order
+            WHERE is_deleted = 0
+              AND status IN (1, 2)
+              AND assignee IS NOT NULL
+            GROUP BY assignee
+        ) task_load ON task_load.worker_id = u.id
+        WHERE u.role = 3
+          AND u.status = 1
+          AND u.is_deleted = 0
+          AND ws.is_deleted = 0
+          AND ws.current_status = 1
+          AND (
+              FIND_IN_SET(#{category}, REPLACE(ws.specialties, '，', ',')) > 0
+              OR REPLACE(ws.specialties, '，', ',') LIKE CONCAT('%', #{category}, '%')
+          )
+        ORDER BY IFNULL(task_load.open_tasks, 0) ASC, u.id ASC
+        LIMIT 1
+    </select>
+</mapper>

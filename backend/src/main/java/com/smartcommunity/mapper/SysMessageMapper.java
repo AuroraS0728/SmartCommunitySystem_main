@@ -1,10 +1,9 @@
 package com.smartcommunity.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.smartcommunity.entity.User;
+import com.smartcommunity.entity.SysMessage;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserMapper extends BaseMapper<User> {
-    int decayCreditScores();
+public interface SysMessageMapper extends BaseMapper<SysMessage> {
 }

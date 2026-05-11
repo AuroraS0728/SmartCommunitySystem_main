@@ -4,14 +4,19 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.smartcommunity.common.AuthContext;
 import com.smartcommunity.common.Result;
 import com.smartcommunity.common.StatusCode;
+import com.smartcommunity.dto.request.AnalyzeComplaintReq;
 import com.smartcommunity.dto.request.ComplaintReplyReq;
 import com.smartcommunity.dto.request.SubmitComplaintReq;
 import com.smartcommunity.entity.Complaint;
 import com.smartcommunity.mapper.ComplaintMapper;
+import com.smartcommunity.service.ComplaintAnalysisService;
+import com.smartcommunity.utils.SentimentAnalyzer;
+import com.smartcommunity.utils.SentimentResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +26,7 @@ import java.util.List;
 public class ComplaintController {
 
     private final ComplaintMapper complaintMapper;
+    private final ComplaintAnalysisService complaintAnalysisService;
 
     @PostMapping("/submit")
     public Result<Complaint> submit(@RequestBody SubmitComplaintReq req) {
@@ -39,15 +45,23 @@ public class ComplaintController {
         c.setContent(req.getContent());
         c.setImages(req.getImages());
         c.setStatus(1);
-        c.setCreateTime(LocalDateTime.now());
-        c.setUpdateTime(LocalDateTime.now());
+        SentimentResult sentiment = SentimentAnalyzer.analyze(req.getContent());
+        LocalDateTime now = LocalDateTime.now();
+        c.setSentimentScore(BigDecimal.valueOf(sentiment.getScore()));
+        c.setSentimentLabel(sentiment.getLabel());
+        c.setRiskLevel(sentiment.getRiskLevel());
+        c.setAnalyzedAt(now);
+        c.setCreateTime(now);
+        c.setUpdateTime(now);
         c.setIsDeleted(0);
         complaintMapper.insert(c);
         return Result.success(c);
     }
 
     @GetMapping("/list")
-    public Result<List<Complaint>> list(@RequestParam(required = false) Integer status) {
+    public Result<List<Complaint>> list(@RequestParam(required = false) Integer status,
+                                        @RequestParam(required = false) String riskLevel,
+                                        @RequestParam(required = false) String sentimentLabel) {
         Integer role = AuthContext.getRole();
         Long uid = AuthContext.getUserId();
         if (role == null || uid == null) {
@@ -63,6 +77,12 @@ public class ComplaintController {
         }
         if (status != null) {
             wrapper.eq(Complaint::getStatus, status);
+        }
+        if (StringUtils.hasText(riskLevel)) {
+            wrapper.eq(Complaint::getRiskLevel, riskLevel.trim());
+        }
+        if (StringUtils.hasText(sentimentLabel)) {
+            wrapper.eq(Complaint::getSentimentLabel, sentimentLabel.trim());
         }
         wrapper.orderByDesc(Complaint::getId);
         return Result.success(complaintMapper.selectList(wrapper));
@@ -109,6 +129,32 @@ public class ComplaintController {
         c.setTitle(req.getTitle());
         c.setContent(req.getContent());
         c.setImages(req.getImages());
+        complaintAnalysisService.apply(c);
+        c.setUpdateTime(LocalDateTime.now());
+        complaintMapper.updateById(c);
+        return Result.success(c);
+    }
+
+    @PostMapping("/{id}/analyze")
+    public Result<Complaint> analyze(@PathVariable Long id,
+                                     @RequestBody(required = false) AnalyzeComplaintReq req) {
+        Integer role = AuthContext.getRole();
+        if (role == null || role != 2) {
+            return Result.fail(StatusCode.FORBIDDEN, "only property admin can analyze");
+        }
+        Complaint c = complaintMapper.selectById(id);
+        if (c == null || Integer.valueOf(1).equals(c.getIsDeleted())) {
+            return Result.fail(StatusCode.NOT_FOUND, "complaint not found");
+        }
+        if (req != null && req.getSentimentScore() != null && StringUtils.hasText(req.getSentimentLabel())
+                && StringUtils.hasText(req.getRiskLevel())) {
+            c.setSentimentScore(req.getSentimentScore());
+            c.setSentimentLabel(req.getSentimentLabel().trim());
+            c.setRiskLevel(req.getRiskLevel().trim());
+            c.setAnalyzedAt(LocalDateTime.now());
+        } else {
+            complaintAnalysisService.apply(c);
+        }
         c.setUpdateTime(LocalDateTime.now());
         complaintMapper.updateById(c);
         return Result.success(c);

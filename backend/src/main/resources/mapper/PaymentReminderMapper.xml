@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smartcommunity.mapper.PaymentReminderMapper">
+    <select id="selectOverdueFeeBillsForReminder" resultType="com.smartcommunity.dto.response.OverdueFeeBillReminderRow">
+        SELECT
+            fb.id AS feeBillId,
+            fb.property_id AS propertyId,
+            up.user_id AS userId,
+            COALESCE(NULLIF(u.nickname, ''), NULLIF(p.owner_name, ''), CONCAT('用户', up.user_id)) AS ownerName,
+            fb.bill_period AS billPeriod,
+            fb.amount AS amount,
+            fb.paid_amount AS paidAmount,
+            fb.due_date AS dueDate
+        FROM fee_bill fb
+        INNER JOIN property p ON p.id = fb.property_id AND p.is_deleted = 0
+        INNER JOIN user_property up ON up.property_id = fb.property_id
+            AND up.is_deleted = 0
+            AND up.id = (
+                SELECT up2.id
+                FROM user_property up2
+                WHERE up2.property_id = fb.property_id
+                  AND up2.is_deleted = 0
+                ORDER BY up2.is_primary DESC, up2.id ASC
+                LIMIT 1
+            )
+        INNER JOIN `user` u ON u.id = up.user_id AND u.is_deleted = 0
+        WHERE fb.is_deleted = 0
+          AND fb.status &lt;&gt; 2
+          AND fb.due_date &lt; NOW()
+        ORDER BY fb.due_date ASC, fb.id ASC
+    </select>
+</mapper>

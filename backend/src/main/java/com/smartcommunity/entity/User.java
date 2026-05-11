@@ -24,6 +24,13 @@ public class User {
     private String avatarUrl;
     private String phone;
     private Integer points;
+    private Integer creditScore;
+    private LocalDateTime creditLastUpdate;
+    private Integer hasElderly;
+    private Integer hasChild;
+    private Integer hasPet;
+    private Integer houseArea;
+    private Integer roomCount;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

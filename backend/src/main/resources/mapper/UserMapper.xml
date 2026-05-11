@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.smartcommunity.mapper.UserMapper">
+    <update id="decayCreditScores">
+        UPDATE `user`
+        SET
+            `credit_score` = GREATEST(
+                0,
+                LEAST(
+                    200,
+                    ROUND(IFNULL(`credit_score`, 100) * POW(0.98, DATEDIFF(NOW(), `credit_last_update`) / 30))
+                )
+            ),
+            `credit_last_update` = NOW(),
+            `update_time` = NOW()
+        WHERE `is_deleted` = 0
+          AND `credit_last_update` IS NOT NULL
+          AND DATEDIFF(NOW(), `credit_last_update`) &gt; 1
+    </update>
 </mapper>

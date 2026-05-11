@@ -5,27 +5,17 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("complaint")
-public class Complaint {
+@TableName("property_task")
+public class PropertyTask {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private Long userId;
-    private Integer type;
     private String title;
-    private String content;
-    private String images;
+    private String description;
+    private Long assignedTo;
     private Integer status;
-    private String reply;
-    private LocalDateTime replyTime;
-    private Integer satisfaction;
-    private BigDecimal sentimentScore;
-    private String sentimentLabel;
-    private String riskLevel;
-    private LocalDateTime analyzedAt;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Integer isDeleted;
