@@ -16,9 +16,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -44,7 +46,7 @@ public class SeetaFaceConfig {
             String message = "SeetaFace initialized, modelDir=" + modelDir;
             log.info(message);
             return SeetaFaceRuntime.ready(properties, engine, message);
-        } catch (Exception ex) {
+        } catch (Exception | LinkageError ex) {
             log.error("SeetaFace runtime init failed", ex);
             return SeetaFaceRuntime.failed(properties, ex.getMessage());
         }
@@ -81,16 +83,49 @@ public class SeetaFaceConfig {
         Path extractDir = Paths.get(properties.getNativeExtractDir());
         Files.createDirectories(extractDir);
         String resourceRoot = trimSlashes(properties.getNativeResourceDir());
-        Set<String> loaded = new HashSet<>();
+        LinkedHashSet<String> orderedLibs = new LinkedHashSet<>();
         for (String lib : libs) {
             String libName = lib == null ? "" : lib.trim();
-            if (libName.isEmpty() || loaded.contains(libName)) {
-                continue;
+            if (!libName.isEmpty()) {
+                orderedLibs.add(libName);
             }
+        }
+        for (String dependency : optionalNativeDependencies(osType)) {
+            extractOptionalNativeLibrary(resourceRoot, dependency, extractDir, osType);
+        }
+        Map<String, Path> nativePaths = new LinkedHashMap<>();
+        for (String libName : orderedLibs) {
             Path nativePath = extractNativeLibrary(resourceRoot, libName, extractDir, osType);
+            nativePaths.put(libName, nativePath);
+        }
+        Set<String> loaded = new HashSet<>();
+        for (Map.Entry<String, Path> entry : nativePaths.entrySet()) {
+            String libName = entry.getKey();
+            Path nativePath = entry.getValue();
             System.load(nativePath.toAbsolutePath().toString());
             loaded.add(libName);
             log.info("Loaded native library: {}, osType={}", nativePath, osType);
+        }
+    }
+
+    private List<String> optionalNativeDependencies(OsType osType) {
+        List<String> dependencies = new ArrayList<>();
+        if (osType == OsType.WINDOWS) {
+            dependencies.add("SeetaAuthorized");
+        }
+        dependencies.add("SeetaAgePredictor600");
+        dependencies.add("SeetaFaceTracking600");
+        dependencies.add("SeetaGenderPredictor600");
+        return dependencies;
+    }
+
+    private void extractOptionalNativeLibrary(String resourceRoot, String libName, Path extractDir, OsType osType)
+            throws IOException {
+        try {
+            Path nativePath = extractNativeLibrary(resourceRoot, libName, extractDir, osType);
+            log.info("Extracted optional native dependency: {}, osType={}", nativePath, osType);
+        } catch (IllegalArgumentException ex) {
+            log.debug("Optional native dependency not found: {}, osType={}", libName, osType);
         }
     }
 

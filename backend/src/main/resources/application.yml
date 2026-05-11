@@ -45,10 +45,10 @@ seetaface:
     - tennis_pentium
     - tennis_sandy_bridge
     - SeetaAuthorize
+    - SeetaPoseEstimation600
     - SeetaMaskDetector200
     - SeetaEyeStateDetector200
     - SeetaQualityAssessor300
-    - SeetaPoseEstimation600
     - SeetaFaceAntiSpoofingX600
     - SeetaFaceDetector600
     - SeetaFaceLandmarker600
