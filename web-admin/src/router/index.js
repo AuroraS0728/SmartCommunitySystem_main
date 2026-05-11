@@ -33,9 +33,34 @@ const routes = [
         meta: { title: '工单管理', subtitle: '跟踪报修工单处理进度' }
       },
       {
+        path: 'repair/work-order',
+        component: () => import('@/views/repair/WorkOrder.vue'),
+        meta: { title: '工单管理', subtitle: '查看工单优先级、推荐维修员与一键派单' }
+      },
+      {
+        path: 'operation/tasks',
+        component: () => import('@/views/operation/TaskList.vue'),
+        meta: { title: '催缴待办', subtitle: '处理物业费催缴生成的客服待办任务' }
+      },
+      {
+        path: 'credit/log',
+        component: () => import('@/views/credit/CreditLog.vue'),
+        meta: { title: '信用分明细', subtitle: '查询业主信用分与变动记录' }
+      },
+      {
+        path: 'recommend/rules',
+        component: () => import('@/views/recommend/RuleConfig.vue'),
+        meta: { title: '推荐规则配置', subtitle: '维护小程序首页个性化推荐规则' }
+      },
+      {
         path: 'fee/manage',
         component: () => import('@/views/fee/FeeManage.vue'),
         meta: { title: '费用管理', subtitle: '查看账单收缴状态与欠费风险' }
+      },
+      {
+        path: 'innovation/ops',
+        component: () => import('@/views/innovation/InnovationOps.vue'),
+        meta: { title: '智能运营', subtitle: '投诉分析、信用体系、智能催缴、任务与SLA监控' }
       },
       {
         path: 'notice/manage',

@@ -26,6 +26,21 @@
         <el-table-column prop="nickname" label="业主昵称" min-width="140" />
         <el-table-column prop="account" label="房产号" min-width="150" />
         <el-table-column prop="phone" label="手机号" min-width="130" />
+        <el-table-column label="家庭画像" min-width="190">
+          <template #default="{ row }">
+            <div class="profile-tags">
+              <el-tag v-if="Number(row.hasElderly) === 1" type="warning">老人</el-tag>
+              <el-tag v-if="Number(row.hasChild) === 1" type="success">儿童</el-tag>
+              <el-tag v-if="Number(row.hasPet) === 1" type="info">宠物</el-tag>
+              <span v-if="Number(row.hasElderly) !== 1 && Number(row.hasChild) !== 1 && Number(row.hasPet) !== 1" class="muted">未填写</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="房屋信息" min-width="130">
+          <template #default="{ row }">
+            {{ row.houseArea ?? '-' }}㎡ / {{ row.roomCount ?? '-' }}间
+          </template>
+        </el-table-column>
         <el-table-column prop="points" label="当前积分" min-width="120" />
         <el-table-column label="状态" min-width="110">
           <template #default="{ row }">
@@ -35,9 +50,10 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="注册时间" min-width="180" />
-        <el-table-column label="操作" width="140" fixed="right">
+        <el-table-column label="操作" width="190" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link @click="openRecharge(row)">积分充值</el-button>
+            <el-button type="primary" link @click="openProfile(row)">画像编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -67,13 +83,54 @@
         <el-button type="primary" :loading="submitLoading" @click="submitRecharge">确认充值</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="profileVisible" title="编辑业主画像" width="460px" destroy-on-close>
+      <el-form label-width="96px">
+        <el-form-item label="业主">
+          <span>{{ profileForm.userName }}</span>
+        </el-form-item>
+        <el-form-item label="家庭成员">
+          <div class="switch-group">
+            <el-switch v-model="profileForm.hasElderly" active-text="老人" />
+            <el-switch v-model="profileForm.hasChild" active-text="儿童" />
+            <el-switch v-model="profileForm.hasPet" active-text="宠物" />
+          </div>
+        </el-form-item>
+        <el-form-item label="房屋面积">
+          <el-input-number
+            v-model="profileForm.houseArea"
+            :min="0"
+            :max="10000"
+            :step="1"
+            step-strictly
+            controls-position="right"
+          />
+          <span class="unit">㎡</span>
+        </el-form-item>
+        <el-form-item label="房间数">
+          <el-input-number
+            v-model="profileForm.roomCount"
+            :min="0"
+            :max="127"
+            :step="1"
+            step-strictly
+            controls-position="right"
+          />
+          <span class="unit">间</span>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="profileVisible = false">取消</el-button>
+        <el-button type="primary" :loading="profileLoading" @click="submitProfile">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getUsers } from '@/api/user'
+import { getUsers, updateUserProfile } from '@/api/user'
 import { rechargePoints } from '@/api/points'
 
 const loading = ref(false)
@@ -81,11 +138,22 @@ const submitLoading = ref(false)
 const keyword = ref('')
 const ownerRows = ref([])
 const rechargeVisible = ref(false)
+const profileVisible = ref(false)
+const profileLoading = ref(false)
 const rechargeForm = ref({
   userId: null,
   userName: '',
   amount: 100,
   remark: '物业充值'
+})
+const profileForm = ref({
+  userId: null,
+  userName: '',
+  hasElderly: false,
+  hasChild: false,
+  hasPet: false,
+  houseArea: null,
+  roomCount: null
 })
 
 const displayList = computed(() => {
@@ -148,6 +216,19 @@ function openRecharge(row) {
   rechargeVisible.value = true
 }
 
+function openProfile(row) {
+  profileForm.value = {
+    userId: row.id,
+    userName: row.nickname || row.account || `用户${row.id}`,
+    hasElderly: Number(row.hasElderly) === 1,
+    hasChild: Number(row.hasChild) === 1,
+    hasPet: Number(row.hasPet) === 1,
+    houseArea: row.houseArea ?? null,
+    roomCount: row.roomCount ?? null
+  }
+  profileVisible.value = true
+}
+
 async function submitRecharge() {
   const amount = Number(rechargeForm.value.amount || 0)
   if (!rechargeForm.value.userId) {
@@ -170,6 +251,28 @@ async function submitRecharge() {
     await loadData()
   } finally {
     submitLoading.value = false
+  }
+}
+
+async function submitProfile() {
+  if (!profileForm.value.userId) {
+    ElMessage.error('未选择业主')
+    return
+  }
+  profileLoading.value = true
+  try {
+    await updateUserProfile(profileForm.value.userId, {
+      hasElderly: profileForm.value.hasElderly ? 1 : 0,
+      hasChild: profileForm.value.hasChild ? 1 : 0,
+      hasPet: profileForm.value.hasPet ? 1 : 0,
+      houseArea: profileForm.value.houseArea,
+      roomCount: profileForm.value.roomCount
+    })
+    ElMessage.success('画像信息已保存')
+    profileVisible.value = false
+    await loadData()
+  } finally {
+    profileLoading.value = false
   }
 }
 
@@ -224,6 +327,27 @@ onMounted(loadData)
 .panel-header h3 {
   margin: 0;
   font-size: 16px;
+}
+
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.muted {
+  color: #94a3b8;
+}
+
+.switch-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.unit {
+  margin-left: 8px;
+  color: #64748b;
 }
 
 @media (max-width: 960px) {

@@ -49,6 +49,23 @@
             {{ row.assignee || "-" }}
           </template>
         </el-table-column>
+        <el-table-column label="推荐维修员" min-width="150">
+          <template #default="{ row }">
+            <div class="recommend-cell">
+              <span>{{ row.suggestedWorkerId ? workerLabel(row.suggestedWorkerId) : "-" }}</span>
+              <el-button
+                v-if="Number(row.status) === 1"
+                size="small"
+                type="primary"
+                link
+                :loading="autoAssignLoadingId === row.id"
+                @click="submitAutoAssign(row)"
+              >
+                {{ row.suggestedWorkerId ? "采纳推荐" : "推荐派单" }}
+              </el-button>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="状态" width="150">
           <template #default="{ row }">
             <el-tag :type="statusType(row.status)">{{ statusText(row.status) }}</el-tag>
@@ -110,7 +127,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
-import { assignRepair, getRepairList, getRepairVerifyCode } from "@/api/repair"
+import { assignRepair, autoAssignRepair, getRepairList, getRepairVerifyCode } from "@/api/repair"
 import { getWorkerList } from "@/api/worker"
 
 const keyword = ref("")
@@ -119,6 +136,7 @@ const list = ref([])
 const workerOptions = ref([])
 const assignVisible = ref(false)
 const assignLoading = ref(false)
+const autoAssignLoadingId = ref(null)
 const assignForm = ref({
   orderId: null,
   assignee: null,
@@ -144,6 +162,17 @@ const pendingCount = computed(() => list.value.filter((item) => Number(item.stat
 const serviceCount = computed(() => list.value.filter((item) => Number(item.status) === 2).length)
 const waitRateCount = computed(() => list.value.filter((item) => Number(item.status) === 3).length)
 const doneCount = computed(() => list.value.filter((item) => Number(item.status) === 4).length)
+const workerNameMap = computed(() => {
+  const map = new Map()
+  workerOptions.value.forEach((worker) => {
+    map.set(Number(worker.id), worker.nickname || worker.name || `维修员${worker.id}`)
+  })
+  return map
+})
+
+function workerLabel(workerId) {
+  return workerNameMap.value.get(Number(workerId)) || `ID:${workerId}`
+}
 
 function statusText(status) {
   const map = {
@@ -201,6 +230,19 @@ async function submitAssign() {
     await loadData()
   } finally {
     assignLoading.value = false
+  }
+}
+
+async function submitAutoAssign(row) {
+  if (!row?.id) return
+  autoAssignLoadingId.value = row.id
+  try {
+    const res = await autoAssignRepair(row.id)
+    const workerId = res.data?.workerId || res.data?.order?.assignee
+    ElMessage.success(`已派给${workerLabel(workerId)}`)
+    await loadData()
+  } finally {
+    autoAssignLoadingId.value = null
   }
 }
 
@@ -282,6 +324,12 @@ onMounted(async () => {
 
 .filters .el-input {
   width: 240px;
+}
+
+.recommend-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 @media (max-width: 1300px) {

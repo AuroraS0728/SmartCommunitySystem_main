@@ -74,7 +74,9 @@ const menuGroups = [
       { label: '房屋管理', path: '/house/property' },
       { label: '业主管理', path: '/house/owner' },
       { label: '工单管理', path: '/repair/list' },
-      { label: '费用管理', path: '/fee/manage' }
+      { label: '智能工单', path: '/repair/work-order' },
+      { label: '费用管理', path: '/fee/manage' },
+      { label: '智能运营', path: '/innovation/ops' }
     ]
   },
   {
@@ -82,7 +84,10 @@ const menuGroups = [
     items: [
       { label: '公告管理', path: '/notice/manage' },
       { label: '访客管理', path: '/visitor/record' },
-      { label: '家政维修管理', path: '/worker/manage' }
+      { label: '家政维修管理', path: '/worker/manage' },
+      { label: '催缴待办', path: '/operation/tasks' },
+      { label: '信用分明细', path: '/credit/log' },
+      { label: '推荐规则配置', path: '/recommend/rules' }
     ]
   },
   {
