@@ -1,7 +1,11 @@
 package com.smartcommunity.aspect;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.smartcommunity.common.AuthContext;
 import com.smartcommunity.common.Result;
 import jakarta.servlet.ServletRequest;
@@ -18,7 +22,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Aspect
 @Component
@@ -27,6 +34,7 @@ public class OperationLogAspect {
 
     private static final Logger OP_LOGGER = LoggerFactory.getLogger("operationLogger");
     private static final long SLOW_REQUEST_MS = 800L;
+    private static final int MAX_LOG_STRING_LENGTH = 160;
     private final ObjectMapper objectMapper;
 
     @Around("within(com.smartcommunity.controller..*) && (" +
@@ -84,16 +92,82 @@ public class OperationLogAspect {
                 continue;
             }
             if (arg instanceof MultipartFile file) {
-                safeArgs.add("MultipartFile(" + file.getOriginalFilename() + ")");
+                safeArgs.add("MultipartFile(size=" + file.getSize() + ")");
                 continue;
             }
             safeArgs.add(arg);
         }
         try {
-            return objectMapper.writeValueAsString(safeArgs);
+            return objectMapper.writeValueAsString(maskSensitiveData(objectMapper.valueToTree(safeArgs)));
         } catch (JsonProcessingException e) {
             return "[unserializable-args]";
+        } catch (IllegalArgumentException e) {
+            return "[unserializable-args]";
         }
+    }
+
+    private JsonNode maskSensitiveData(JsonNode node) {
+        if (node == null) {
+            return null;
+        }
+        if (node instanceof ObjectNode objectNode) {
+            Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                if (isSensitiveKey(field.getKey())) {
+                    objectNode.put(field.getKey(), "[REDACTED]");
+                } else {
+                    objectNode.set(field.getKey(), maskSensitiveData(field.getValue()));
+                }
+            }
+            return objectNode;
+        }
+        if (node instanceof ArrayNode arrayNode) {
+            for (int i = 0; i < arrayNode.size(); i++) {
+                arrayNode.set(i, maskSensitiveData(arrayNode.get(i)));
+            }
+            return arrayNode;
+        }
+        if (node instanceof TextNode textNode) {
+            return TextNode.valueOf(sanitizeText(textNode.asText()));
+        }
+        return node;
+    }
+
+    private boolean isSensitiveKey(String key) {
+        if (key == null) {
+            return false;
+        }
+        String normalized = key.toLowerCase(Locale.ROOT);
+        return normalized.contains("password")
+                || normalized.contains("token")
+                || normalized.contains("authorization")
+                || normalized.contains("secret")
+                || normalized.contains("imagebase64")
+                || normalized.contains("base64")
+                || normalized.contains("openid")
+                || normalized.contains("unionid")
+                || normalized.contains("phone")
+                || normalized.contains("mobile")
+                || normalized.contains("email")
+                || normalized.contains("idcard")
+                || normalized.contains("address");
+    }
+
+    private String sanitizeText(String text) {
+        if (text == null) {
+            return null;
+        }
+        String trimmed = text.trim();
+        if (trimmed.startsWith("Bearer ")
+                || trimmed.startsWith("data:image/")
+                || (trimmed.split("\\.").length == 3 && trimmed.length() > 80)) {
+            return "[REDACTED]";
+        }
+        if (text.length() > MAX_LOG_STRING_LENGTH) {
+            return text.substring(0, MAX_LOG_STRING_LENGTH) + "...[truncated length=" + text.length() + "]";
+        }
+        return text;
     }
 
     private String truncate(String value, int maxLen) {
