@@ -20,12 +20,13 @@ Page({
 
     this.setData({ submitting: true })
     try {
-      await request({
+      const complaint = await request({
         url: '/complaint/submit',
         method: 'POST',
         data: { type: 1, title, content, images: '[]' }
       })
-      wx.showToast({ title: '提交成功' })
+      const risk = complaint?.riskLevel ? `，风险${complaint.riskLevel}` : ''
+      wx.showToast({ title: `提交成功${risk}`, icon: 'none' })
       this.setData({ title: '', content: '' })
     } catch (error) {
       wx.showToast({ title: error?.message || '提交失败', icon: 'none' })

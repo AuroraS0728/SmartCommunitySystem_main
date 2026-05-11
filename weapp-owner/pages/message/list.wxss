@@ -1,0 +1,45 @@
+.message-page {
+  padding-bottom: 40rpx;
+}
+
+.toolbar {
+  margin: 8rpx 0 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mark-all {
+  color: #2a6dff;
+  font-size: 26rpx;
+}
+
+.message-card {
+  padding: 28rpx;
+}
+
+.message-card.unread {
+  border-left: 6rpx solid #2a6dff;
+}
+
+.message-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #e5484d;
+  flex-shrink: 0;
+}
+
+.end {
+  padding: 24rpx 0;
+  color: #9b9b9b;
+  font-size: 24rpx;
+  text-align: center;
+}

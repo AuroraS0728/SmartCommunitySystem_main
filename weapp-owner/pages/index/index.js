@@ -3,11 +3,16 @@ const { request } = require("../../api/request")
 Page({
   data: {
     user: null,
-    points: 0
+    points: 0,
+    recommendations: []
   },
 
   onShow() {
-    this.loadUser()
+    this.loadAll()
+  },
+
+  async loadAll() {
+    await Promise.allSettled([this.loadUser(), this.loadRecommendations()])
   },
 
   async loadUser() {
@@ -20,6 +25,19 @@ Page({
     } catch (error) {
       wx.showToast({ title: error?.message || "加载失败", icon: "none" })
     }
+  },
+
+  async loadRecommendations() {
+    try {
+      const list = await request({ url: "/recommend/services" })
+      this.setData({ recommendations: Array.isArray(list) ? list : [] })
+    } catch (error) {
+      this.setData({ recommendations: [] })
+    }
+  },
+
+  openRecommendation() {
+    wx.switchTab({ url: "/pages/service/service" })
   },
 
   goFeeBills() {

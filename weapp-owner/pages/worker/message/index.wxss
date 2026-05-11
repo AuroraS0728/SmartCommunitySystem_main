@@ -1,3 +1,18 @@
 .message-item {
   min-height: 128rpx;
 }
+
+.message-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #e5484d;
+  flex-shrink: 0;
+}

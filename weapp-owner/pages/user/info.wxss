@@ -27,3 +27,12 @@
   color: #4a4a4a;
   font-size: 28rpx;
 }
+
+.profile-row {
+  min-height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #4a4a4a;
+  font-size: 28rpx;
+}

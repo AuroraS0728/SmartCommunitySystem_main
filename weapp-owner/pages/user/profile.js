@@ -44,6 +44,15 @@ Page({
   data: {
     points: 0,
     user: null,
+    unreadMessageCount: 0,
+    savingProfile: false,
+    profileForm: {
+      hasElderly: 0,
+      hasChild: 0,
+      hasPet: 0,
+      houseArea: "",
+      roomCount: ""
+    },
     stats: {
       billCount: 0,
       billPaidCount: 0,
@@ -59,16 +68,23 @@ Page({
   },
 
   async loadAll() {
-    await Promise.allSettled([this.loadUser(), this.loadStats()])
+    await Promise.allSettled([this.loadUser(), this.loadStats(), this.loadUnreadMessages()])
   },
 
   async loadUser() {
     const app = getApp()
     try {
-      const user = await request({ url: "/user/me" })
+      const user = await request({ url: "/user/info" })
       this.setData({
         user,
-        points: Number(user?.points || 0)
+        points: Number(user?.points || 0),
+        profileForm: {
+          hasElderly: Number(user?.hasElderly || 0),
+          hasChild: Number(user?.hasChild || 0),
+          hasPet: Number(user?.hasPet || 0),
+          houseArea: user?.houseArea === null || user?.houseArea === undefined ? "" : String(user.houseArea),
+          roomCount: user?.roomCount === null || user?.roomCount === undefined ? "" : String(user.roomCount)
+        }
       })
       app.globalData.userInfo = user
       wx.setStorageSync("userInfo", user)
@@ -103,6 +119,83 @@ Page({
     }
   },
 
+  async loadUnreadMessages() {
+    try {
+      const result = await request({ url: "/messages/unread-count" })
+      this.setData({ unreadMessageCount: Number(result?.count || 0) })
+    } catch (error) {
+      this.setData({ unreadMessageCount: 0 })
+    }
+  },
+
+  onToggleProfile(e) {
+    const key = e.currentTarget.dataset.key
+    if (!key) return
+    this.setData({ [`profileForm.${key}`]: e.detail.value ? 1 : 0 })
+  },
+
+  onProfileNumberInput(e) {
+    const key = e.currentTarget.dataset.key
+    if (!key) return
+    this.setData({ [`profileForm.${key}`]: e.detail.value || "" })
+  },
+
+  normalizeOptionalInt(value) {
+    if (value === "" || value === null || value === undefined) {
+      return null
+    }
+    const numberValue = Number(value)
+    return Number.isInteger(numberValue) ? numberValue : NaN
+  },
+
+  async saveProfile() {
+    if (this.data.savingProfile) return
+    const houseArea = this.normalizeOptionalInt(this.data.profileForm.houseArea)
+    const roomCount = this.normalizeOptionalInt(this.data.profileForm.roomCount)
+    if (Number.isNaN(houseArea) || houseArea < 0) {
+      wx.showToast({ title: "房屋面积需为非负整数", icon: "none" })
+      return
+    }
+    if (Number.isNaN(roomCount) || roomCount < 0) {
+      wx.showToast({ title: "房间数需为非负整数", icon: "none" })
+      return
+    }
+
+    this.setData({ savingProfile: true })
+    try {
+      const updated = await request({
+        url: "/user/profile",
+        method: "PUT",
+        data: {
+          hasElderly: Number(this.data.profileForm.hasElderly || 0),
+          hasChild: Number(this.data.profileForm.hasChild || 0),
+          hasPet: Number(this.data.profileForm.hasPet || 0),
+          houseArea,
+          roomCount
+        }
+      })
+      const nextUser = { ...(this.data.user || {}), ...(updated || {}) }
+      this.setData({
+        user: nextUser,
+        profileForm: {
+          hasElderly: Number(nextUser?.hasElderly || 0),
+          hasChild: Number(nextUser?.hasChild || 0),
+          hasPet: Number(nextUser?.hasPet || 0),
+          houseArea: nextUser?.houseArea === null || nextUser?.houseArea === undefined ? "" : String(nextUser.houseArea),
+          roomCount: nextUser?.roomCount === null || nextUser?.roomCount === undefined ? "" : String(nextUser.roomCount)
+        }
+      })
+      const app = getApp()
+      app.globalData.userInfo = nextUser
+      wx.setStorageSync("userInfo", nextUser)
+      wx.showToast({ title: "保存成功", icon: "success" })
+    } catch (error) {
+      wx.showToast({ title: error?.message || "保存失败", icon: "none" })
+    } finally {
+      this.setData({ savingProfile: false })
+    }
+  },
+
   goInfo() {
     wx.navigateTo({ url: "/pages/user/info" })
   },
@@ -121,6 +214,10 @@ Page({
 
   goComplaint() {
     wx.navigateTo({ url: "/pages/complaint/submit" })
+  },
+
+  goMessages() {
+    wx.navigateTo({ url: "/pages/message/list" })
   },
 
   goSettings() {

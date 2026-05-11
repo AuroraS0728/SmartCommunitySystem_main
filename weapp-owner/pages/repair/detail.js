@@ -50,6 +50,7 @@ Page({
       this.setData({
         detail: {
           ...detail,
+          priorityText: this.priorityText(detail?.order?.priority),
           repairFeeBillStatusText: bill ? (Number(bill.status) === 1 ? "已支付" : "未支付") : "",
           repairFeeNeedPoints: bill ? Number(bill.needPoints || Math.ceil(Number(bill.amount || 0))) : 0,
           participants,
@@ -109,6 +110,11 @@ Page({
 
   onObjectionDepositInput(e) {
     this.setData({ objectionDepositPoints: e.detail.value })
+  },
+
+  priorityText(priority) {
+    const map = { 1: "紧急", 2: "普通", 3: "低" }
+    return map[Number(priority)] || "--"
   },
 
   async payRepairFee() {

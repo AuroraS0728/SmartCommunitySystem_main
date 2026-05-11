@@ -8,6 +8,13 @@
 
   <block wx:elif="{{detail && detail.order}}">
     <view class="item">
+      <view class="item-title">工单分级与SLA</view>
+      <view class="meta">优先级：{{detail.priorityText || "--"}}</view>
+      <view class="meta">推荐维修员：{{detail.order.suggestedWorkerId || "--"}}</view>
+      <view class="meta">SLA截止：{{detail.order.slaDeadline || "--"}}</view>
+      <view class="meta">逾期次数：{{detail.order.delayCount || 0}}</view>
+    </view>
+    <view class="item">
       <view class="item-title">{{detail.order.category || "报修工单"}}</view>
       <view class="item-desc">{{detail.order.description || "暂无详细描述"}}</view>
       <view class="meta">状态：{{detail.statusText || detail.order.status}}</view>

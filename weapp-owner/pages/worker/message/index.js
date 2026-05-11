@@ -1,5 +1,22 @@
 const { request } = require("../../../api/request")
 
+function formatTime(value) {
+  if (!value) return ""
+  return String(value).replace("T", " ").slice(0, 16)
+}
+
+function buildSystemMessages(list) {
+  return (Array.isArray(list) ? list : []).map((item) => ({
+    id: `sys-${item.id}`,
+    messageId: item.id,
+    title: item.title || "系统消息",
+    desc: item.content || "暂无内容",
+    status: 0,
+    isRead: Number(item.isRead || 0),
+    time: formatTime(item.createTime)
+  }))
+}
+
 function buildMessages(list) {
   const all = Array.isArray(list) ? list : []
   const countByStatus = all.reduce((acc, item) => {
@@ -68,13 +85,21 @@ Page({
       if (!workerId) {
         throw new Error("未获取到维修人员身份")
       }
-      const list = await request({
-        url: "/worker/tasks",
-        data: { workerId }
-      })
+      const [list, messagePage] = await Promise.all([
+        request({
+          url: "/worker/tasks",
+          data: { workerId }
+        }),
+        request({
+          url: "/messages",
+          data: { pageNum: 1, pageSize: 10 }
+        }).catch(() => ({ records: [] }))
+      ])
+      const systemMessages = buildSystemMessages(messagePage?.records)
+      const taskMessages = buildMessages(list).filter((item) => item.id !== "empty" || !systemMessages.length)
       this.setData({
         workerId,
-        messages: buildMessages(list)
+        messages: systemMessages.concat(taskMessages)
       })
     } catch (error) {
       wx.showToast({ title: error?.message || "加载失败", icon: "none" })
@@ -91,7 +116,21 @@ Page({
     }
   },
 
-  openTaskList(e) {
+  async openTaskList(e) {
+    const messageId = e?.currentTarget?.dataset?.messageId
+    if (messageId) {
+      try {
+        await request({ url: `/messages/${messageId}/read`, method: "PUT" })
+        this.setData({
+          messages: this.data.messages.map((item) => (
+            Number(item.messageId) === Number(messageId) ? { ...item, isRead: 1 } : item
+          ))
+        })
+      } catch (error) {
+        wx.showToast({ title: error?.message || "操作失败", icon: "none" })
+      }
+      return
+    }
     const status = Number(e?.currentTarget?.dataset?.status || 0)
     if (status > 0) {
       wx.navigateTo({ url: `/pages/worker/task/list?status=${status}` })

@@ -8,12 +8,17 @@
       class="item nav-item message-item"
       bindtap="openTaskList"
       data-status="{{item.status}}"
+      data-message-id="{{item.messageId || ''}}"
     >
       <view class="nav-body">
-        <view class="item-title">{{item.title}}</view>
+        <view class="message-title-row">
+          <view class="item-title">{{item.title}}</view>
+          <view wx:if="{{item.messageId && item.isRead === 0}}" class="dot"></view>
+        </view>
         <view class="item-desc">{{item.desc}}</view>
+        <view wx:if="{{item.time}}" class="meta">{{item.time}}</view>
       </view>
-      <view class="nav-arrow">></view>
+      <view wx:if="{{!item.messageId}}" class="nav-arrow">></view>
     </view>
   </block>
 </view>

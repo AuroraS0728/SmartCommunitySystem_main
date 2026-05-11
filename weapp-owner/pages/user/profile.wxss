@@ -43,7 +43,7 @@
 
 .member-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16rpx;
   padding: 26rpx;
 }
@@ -74,6 +74,40 @@
   font-size: 22rpx;
 }
 
+.profile-editor {
+  padding: 28rpx;
+}
+
+.profile-head {
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-row,
+.profile-field {
+  min-height: 78rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #4a4a4a;
+  font-size: 28rpx;
+  border-top: 1rpx solid #f0efed;
+}
+
+.profile-input {
+  width: 220rpx;
+  min-height: 64rpx;
+  text-align: right;
+  color: #222;
+  font-size: 28rpx;
+}
+
+.profile-save {
+  margin-top: 18rpx;
+}
+
 .nav-leading {
   flex: 1;
   min-width: 0;
@@ -86,4 +120,17 @@
   height: 40rpx;
   margin-right: 20rpx;
   flex-shrink: 0;
+}
+
+.badge {
+  min-width: 34rpx;
+  height: 34rpx;
+  padding: 0 10rpx;
+  border-radius: 999rpx;
+  background: #e5484d;
+  color: #fff;
+  font-size: 22rpx;
+  line-height: 34rpx;
+  text-align: center;
+  margin-right: 16rpx;
 }

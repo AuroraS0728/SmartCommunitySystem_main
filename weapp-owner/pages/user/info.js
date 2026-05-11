@@ -18,6 +18,11 @@ Page({
     avatarUrl: "",
     birthday: "",
     birthdayLocked: false,
+    hasElderly: 0,
+    hasChild: 0,
+    hasPet: 0,
+    houseArea: "",
+    roomCount: "",
     saving: false,
     maxBirthday: formatDate(new Date())
   },
@@ -35,7 +40,12 @@ Page({
         nickname: user?.nickname || "",
         avatarUrl: extra.avatarUrl || user?.avatarUrl || "",
         birthday: extra.birthday || "",
-        birthdayLocked: !!extra.birthday
+        birthdayLocked: !!extra.birthday,
+        hasElderly: Number(user?.hasElderly || 0),
+        hasChild: Number(user?.hasChild || 0),
+        hasPet: Number(user?.hasPet || 0),
+        houseArea: user?.houseArea || "",
+        roomCount: user?.roomCount || ""
       })
     } catch (error) {
       wx.showToast({ title: error?.message || "加载失败", icon: "none" })
@@ -64,6 +74,20 @@ Page({
     this.setData({ birthday: e.detail.value || "" })
   },
 
+  onToggleProfile(e) {
+    const key = e.currentTarget.dataset.key
+    if (!key) return
+    this.setData({ [key]: e.detail.value ? 1 : 0 })
+  },
+
+  onHouseAreaInput(e) {
+    this.setData({ houseArea: e.detail.value || "" })
+  },
+
+  onRoomCountInput(e) {
+    this.setData({ roomCount: e.detail.value || "" })
+  },
+
   async onSave() {
     if (this.data.saving) return
     const user = this.data.user
@@ -84,7 +108,12 @@ Page({
           avatarUrl: user.avatarUrl || "",
           phone: user.phone || "",
           role: user.role,
-          status: user.status
+          status: user.status,
+          hasElderly: Number(this.data.hasElderly || 0),
+          hasChild: Number(this.data.hasChild || 0),
+          hasPet: Number(this.data.hasPet || 0),
+          houseArea: this.data.houseArea === "" ? null : Number(this.data.houseArea),
+          roomCount: this.data.roomCount === "" ? null : Number(this.data.roomCount)
         }
       })
       const extra = {
@@ -97,7 +126,12 @@ Page({
       app.globalData.userInfo = {
         ...(app.globalData.userInfo || {}),
         nickname,
-        avatarUrl: this.data.avatarUrl || user.avatarUrl || ""
+        avatarUrl: this.data.avatarUrl || user.avatarUrl || "",
+        hasElderly: Number(this.data.hasElderly || 0),
+        hasChild: Number(this.data.hasChild || 0),
+        hasPet: Number(this.data.hasPet || 0),
+        houseArea: this.data.houseArea === "" ? null : Number(this.data.houseArea),
+        roomCount: this.data.roomCount === "" ? null : Number(this.data.roomCount)
       }
       wx.setStorageSync("userInfo", app.globalData.userInfo)
       wx.showToast({ title: "保存成功", icon: "success" })

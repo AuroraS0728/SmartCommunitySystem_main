@@ -32,6 +32,24 @@
     <view class="meta">生日仅可设置一次，设置后不可修改</view>
   </view>
 
+  <view class="item">
+    <view class="item-title">业主画像</view>
+    <view class="profile-row">
+      <text>有老人</text>
+      <switch checked="{{hasElderly === 1}}" data-key="hasElderly" bindchange="onToggleProfile" />
+    </view>
+    <view class="profile-row">
+      <text>有儿童</text>
+      <switch checked="{{hasChild === 1}}" data-key="hasChild" bindchange="onToggleProfile" />
+    </view>
+    <view class="profile-row">
+      <text>有宠物</text>
+      <switch checked="{{hasPet === 1}}" data-key="hasPet" bindchange="onToggleProfile" />
+    </view>
+    <input class="input" type="number" value="{{houseArea}}" placeholder="房屋面积(㎡)" bindinput="onHouseAreaInput" />
+    <input class="input" type="number" value="{{roomCount}}" placeholder="房间数" bindinput="onRoomCountInput" />
+  </view>
+
   <view class="item nav-item" bindtap="goSettings">
     <view class="nav-body">
       <view class="item-title">设置</view>

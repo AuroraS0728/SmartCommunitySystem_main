@@ -12,6 +12,7 @@
     "pages/repair/list",
     "pages/repair/detail",
     "pages/notice/list",
+    "pages/message/list",
     "pages/neighbor/secondhand/list",
     "pages/neighbor/secondhand/detail",
     "pages/neighbor/secondhand/publish",

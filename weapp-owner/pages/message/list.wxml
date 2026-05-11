@@ -1,0 +1,26 @@
+<view class="section message-page">
+  <view class="toolbar">
+    <view class="meta">共 {{total}} 条消息</view>
+    <view class="mark-all" bindtap="markAllRead">全部已读</view>
+  </view>
+
+  <view wx:if="{{!messages.length && !loading}}" class="empty">暂无系统消息</view>
+
+  <view
+    wx:for="{{messages}}"
+    wx:key="id"
+    class="item message-card {{item.isRead === 0 ? 'unread' : ''}}"
+    data-id="{{item.id}}"
+    bindtap="markRead"
+  >
+    <view class="message-head">
+      <view class="item-title">{{item.title || '系统消息'}}</view>
+      <view wx:if="{{item.isRead === 0}}" class="dot"></view>
+    </view>
+    <view class="item-desc">{{item.content || '暂无内容'}}</view>
+    <view class="meta">{{item.createTimeText}}</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty">消息加载中...</view>
+  <view wx:if="{{!loading && messages.length && !hasMore}}" class="end">没有更多消息了</view>
+</view>

@@ -35,4 +35,22 @@
       <view class="item-desc">发布与查看闲置物品</view>
     </view>
   </view>
+
+  <view wx:if="{{recommendations.length > 0}}" class="recommend-section">
+    <view class="group-title">为您推荐</view>
+    <view
+      wx:for="{{recommendations}}"
+      wx:key="serviceId"
+      class="item recommend-card"
+    >
+      <view class="recommend-main">
+        <view class="recommend-body">
+          <view class="item-title">{{item.serviceName}}</view>
+          <view class="item-desc">{{item.reason}}</view>
+        </view>
+        <view class="recommend-price">￥{{item.price}}</view>
+      </view>
+      <view class="recommend-action" data-id="{{item.serviceId}}" bindtap="openRecommendation">查看详情</view>
+    </view>
+  </view>
 </view>

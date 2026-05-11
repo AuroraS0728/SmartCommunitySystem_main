@@ -25,6 +25,56 @@
       <view class="metric-sub" wx:if="{{stats.monthCardExpiringSoonCount > 0}}">3天内到期 {{ stats.monthCardExpiringSoonCount }}</view>
       <view class="metric-sub" wx:else>暂无近期到期</view>
     </view>
+    <view class="metric" bindtap="goInfo">
+      <view class="metric-value">{{ user && user.creditScore !== null && user.creditScore !== undefined ? user.creditScore : 100 }}</view>
+      <view class="metric-label">信用分</view>
+      <view class="metric-sub">家庭画像与信用记录</view>
+    </view>
+  </view>
+
+  <view class="item profile-editor">
+    <view class="profile-head">
+      <view>
+        <view class="item-title">家庭信息</view>
+        <view class="item-desc">用于物业服务、报修分级和关怀提醒</view>
+      </view>
+    </view>
+
+    <view class="profile-row">
+      <text>家中有老人</text>
+      <switch checked="{{profileForm.hasElderly === 1}}" data-key="hasElderly" bindchange="onToggleProfile" />
+    </view>
+    <view class="profile-row">
+      <text>家中有儿童</text>
+      <switch checked="{{profileForm.hasChild === 1}}" data-key="hasChild" bindchange="onToggleProfile" />
+    </view>
+    <view class="profile-row">
+      <text>家中有宠物</text>
+      <switch checked="{{profileForm.hasPet === 1}}" data-key="hasPet" bindchange="onToggleProfile" />
+    </view>
+
+    <view class="profile-field">
+      <text>房屋面积</text>
+      <input class="profile-input" type="number" value="{{profileForm.houseArea}}" data-key="houseArea" placeholder="㎡" bindinput="onProfileNumberInput" />
+    </view>
+    <view class="profile-field">
+      <text>房间数</text>
+      <input class="profile-input" type="number" value="{{profileForm.roomCount}}" data-key="roomCount" placeholder="间" bindinput="onProfileNumberInput" />
+    </view>
+
+    <view class="btn profile-save" bindtap="saveProfile">{{savingProfile ? "保存中..." : "保存家庭信息"}}</view>
+  </view>
+
+  <view class="item nav-item" bindtap="goMessages">
+    <view class="nav-leading">
+      <image class="nav-icon" src="/assets/icons/info.png" mode="aspectFit" />
+      <view class="nav-body">
+        <view class="item-title">消息中心</view>
+        <view class="item-desc">催缴提醒、工单催办和系统通知</view>
+      </view>
+    </view>
+    <view wx:if="{{unreadMessageCount > 0}}" class="badge">{{ unreadMessageCount }}</view>
+    <view class="nav-arrow">></view>
   </view>
 
   <view class="item nav-item" bindtap="goBills">
