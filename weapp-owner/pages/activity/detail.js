@@ -17,7 +17,7 @@ Page({
   async loadDetail() {
     if (!this.data.id) return
     try {
-      const detail = await request({ url: `/activity/${this.data.id}` })
+      const detail = await request({ url: `/activity/${this.data.id}`, skipAuth: true })
       this.setData({ detail })
     } catch (error) {
       wx.showToast({ title: error?.message || '详情加载失败', icon: 'none' })
@@ -26,6 +26,7 @@ Page({
 
   goRegister() {
     if (!this.data.detail?.canRegister) return
+    if (!getApp().requireFeatureLogin()) return
     wx.navigateTo({ url: `/pages/activity/register?id=${this.data.id}` })
   }
 })

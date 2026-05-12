@@ -16,7 +16,7 @@ Page({
     this.setData({ loading: true })
     try {
       const type = this.data.activeTab === '全部' ? undefined : this.data.activeTab
-      const list = await request({ url: '/activity/list', data: { type } })
+      const list = await request({ url: '/activity/list', data: { type }, skipAuth: true })
       this.setData({ list: Array.isArray(list) ? list : [] })
     } catch (error) {
       wx.showToast({ title: error?.message || '活动加载失败', icon: 'none' })

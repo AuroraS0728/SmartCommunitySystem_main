@@ -1,8 +1,8 @@
 <view class="section">
   <view class="hero home-hero">
     <view class="hero-title">首页</view>
-    <view class="hero-desc">欢迎回来，{{ (user && user.nickname) || "业主" }}</view>
-    <view class="meta">当前积分：{{ points }}</view>
+    <view class="hero-desc">{{ guestMode ? "当前为游客模式，可先浏览社区内容" : ("欢迎回来，" + ((user && user.nickname) || "业主")) }}</view>
+    <view class="meta">{{ guestMode ? "登录后可使用缴费、报修、邀请和个性化推荐" : ("当前积分：" + points) }}</view>
   </view>
 
   <swiper class="banner-swiper" indicator-dots autoplay circular interval="4000" duration="500">

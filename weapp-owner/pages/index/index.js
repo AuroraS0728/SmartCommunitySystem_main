@@ -4,6 +4,7 @@ Page({
   data: {
     user: null,
     points: 0,
+    guestMode: false,
     recommendations: [],
     popupVisible: false,
     popupRecommendations: [],
@@ -33,10 +34,22 @@ Page({
   },
 
   onShow() {
-    this.loadAll()
+    const guestMode = !!getApp().globalData.guestMode
+    this.setData({ guestMode })
+    this.loadAll(guestMode)
   },
 
-  async loadAll() {
+  async loadAll(guestMode = this.data.guestMode) {
+    if (guestMode) {
+      this.setData({
+        user: null,
+        points: 0,
+        recommendations: [],
+        popupVisible: false,
+        popupRecommendations: []
+      })
+      return
+    }
     await Promise.allSettled([this.loadUser(), this.loadRecommendations(), this.loadPopupRecommendations()])
   },
 
@@ -96,8 +109,25 @@ Page({
     this.openPath(item.path, item.mode)
   },
 
+  ensurePathAccess(path) {
+    const guardedPaths = [
+      '/pages/complaint/submit',
+      '/pages/door/invite',
+      '/pages/points/bills/index',
+      '/pages/repair/submit'
+    ]
+    const target = path || ''
+    if (!guardedPaths.some((item) => target.startsWith(item))) {
+      return true
+    }
+    return getApp().requireFeatureLogin()
+  },
+
   openPath(path, mode) {
     const target = path || '/pages/service/service'
+    if (!this.ensurePathAccess(target)) {
+      return
+    }
     if (target.startsWith('/pages/index/index') || target.startsWith('/pages/service/service') || target.startsWith('/pages/user/profile')) {
       wx.switchTab({ url: target })
       return
@@ -110,26 +140,26 @@ Page({
   },
 
   goFeeBills() {
-    wx.navigateTo({ url: "/pages/points/bills/index" })
+    this.openPath('/pages/points/bills/index')
   },
 
   goInvite() {
-    wx.navigateTo({ url: "/pages/door/invite" })
+    this.openPath('/pages/door/invite')
   },
 
   goRepair() {
-    wx.navigateTo({ url: "/pages/repair/submit" })
+    this.openPath('/pages/repair/submit')
   },
 
   goRentSale() {
-    wx.navigateTo({ url: "/pages/neighbor/secondhand/list" })
+    this.openPath('/pages/neighbor/secondhand/list')
   },
 
   goService() {
-    wx.switchTab({ url: "/pages/service/service" })
+    this.openPath('/pages/service/service', 'switchTab')
   },
 
   goActivity() {
-    wx.navigateTo({ url: "/pages/activity/list" })
+    this.openPath('/pages/activity/list')
   }
 })

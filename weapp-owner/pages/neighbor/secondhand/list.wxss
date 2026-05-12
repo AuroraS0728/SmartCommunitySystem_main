@@ -1,3 +1,30 @@
+.page {
+  min-height: 100vh;
+}
+
+.page-enter {
+  animation: pageFadeSlide 0.25s ease both;
+}
+
+.card,
+.button {
+  transition: all 0.25s ease;
+}
+
+.card-hover {
+  transform: translateY(-4rpx);
+  box-shadow: 0 16rpx 38rpx rgba(15, 23, 42, 0.12);
+}
+
+.button-hover {
+  transform: scale(0.98);
+  box-shadow: 0 12rpx 28rpx rgba(37, 99, 235, 0.18);
+}
+
+.chip-hover {
+  transform: scale(0.98);
+}
+
 .search-card {
   margin-bottom: 24rpx;
 }
@@ -34,6 +61,7 @@
   color: #1e3a8a;
   background: #eff6ff;
   font-size: 24rpx;
+  transition: all 0.25s ease;
 }
 
 .chip.active {
@@ -65,6 +93,7 @@
   background: #f8fafc;
   color: #475569;
   font-size: 24rpx;
+  transition: all 0.25s ease;
 }
 
 .mini-chip.active {
@@ -93,6 +122,10 @@
   margin-bottom: 24rpx;
   padding: 0;
   overflow: hidden;
+}
+
+.fade-item {
+  animation: itemFadeUp 0.25s ease both;
 }
 
 .thumb-wrap {
@@ -146,4 +179,85 @@
 .goods-time {
   color: #94a3b8;
   font-size: 24rpx;
+}
+
+.skel-card {
+  margin-bottom: 24rpx;
+  padding: 0;
+  overflow: hidden;
+}
+
+.skel {
+  position: relative;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.skel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 60%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: skelEffect 1.2s ease-in-out infinite;
+}
+
+.skel-image {
+  height: 280rpx;
+}
+
+.skel-body {
+  padding: 28rpx 30rpx 30rpx;
+}
+
+.skel-line {
+  height: 24rpx;
+  margin-top: 20rpx;
+  border-radius: 999rpx;
+}
+
+.skel-line.title {
+  width: 70%;
+  height: 32rpx;
+  margin-top: 0;
+}
+
+.skel-line.short {
+  width: 44%;
+}
+
+@keyframes pageFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12rpx) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes skelEffect {
+  from {
+    left: -60%;
+  }
+
+  to {
+    left: 120%;
+  }
 }

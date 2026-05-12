@@ -1,86 +1,104 @@
-<view class="section">
-  <view class="hero">
-    <view class="hero-title">闲置交易</view>
-    <view class="hero-desc">支持分类筛选、收藏、举报和在售状态管理</view>
-  </view>
-
-  <view class="item search-card">
-    <input
-      class="input search-input"
-      value="{{keyword}}"
-      placeholder="搜索商品标题或描述"
-      confirm-type="search"
-      bindinput="onKeywordInput"
-      bindconfirm="onSearch"
-    />
-    <view class="btn search-btn" bindtap="onSearch">搜索</view>
-    <view class="btn publish-btn" bindtap="goPublish">发布商品</view>
-  </view>
-
-  <view class="item filter-card">
-    <scroll-view class="chip-scroll" scroll-x enable-flex>
-      <view
-        wx:for="{{categories}}"
-        wx:key="value"
-        class="chip {{category === item.value ? 'active' : ''}}"
-        data-value="{{item.value}}"
-        bindtap="onCategoryTap"
-      >
-        {{item.label}}
-      </view>
-    </scroll-view>
-
-    <view class="row-between mine-row">
-      <view class="mine-label">仅看我的发布</view>
-      <switch checked="{{mine}}" color="#2563eb" bindchange="onMineSwitch" />
+<view class="page page-enter">
+  <view class="section">
+    <view class="hero">
+      <view class="hero-title">闲置交易</view>
+      <view class="hero-desc">社区邻里发布的二手物品，游客可浏览，发布和管理需登录。</view>
     </view>
 
-    <view wx:if="{{mine}}" class="status-row">
-      <view
-        wx:for="{{statusOptions}}"
-        wx:key="label"
-        class="mini-chip {{String(mineStatus) === String(item.value) ? 'active' : ''}}"
-        data-value="{{item.value}}"
-        bindtap="onMineStatusTap"
-      >
-        {{item.label}}
-      </view>
+    <view class="item search-card card">
+      <input
+        class="input search-input"
+        value="{{keyword}}"
+        placeholder="搜索商品标题或描述"
+        confirm-type="search"
+        bindinput="onKeywordInput"
+        bindconfirm="onSearch"
+      />
+      <view class="btn button search-btn" hover-class="button-hover" bindtap="onSearch">搜索</view>
+      <view class="btn button publish-btn" hover-class="button-hover" bindtap="goPublish">发布商品</view>
     </view>
 
-    <view class="row-between sort-row" bindtap="onSortTap">
-      <view class="sort-label">排序：{{sortLabel}}</view>
-      <view class="sort-arrow">切换 ></view>
-    </view>
-  </view>
-
-  <block wx:if="{{list.length}}">
-    <view
-      wx:for="{{list}}"
-      wx:key="id"
-      class="item goods-card"
-      data-id="{{item.id}}"
-      bindtap="goDetail"
-    >
-      <view class="thumb-wrap">
-        <image wx:if="{{item.cover}}" class="thumb" src="{{item.cover}}" mode="aspectFill" />
-        <view wx:else class="thumb-empty">暂无图片</view>
-      </view>
-      <view class="goods-body">
-        <view class="row-between">
-          <view class="goods-title">{{item.title}}</view>
-          <view class="status-tag">{{item.statusText}}</view>
+    <view class="item filter-card card">
+      <scroll-view class="chip-scroll" scroll-x enable-flex>
+        <view
+          wx:for="{{categories}}"
+          wx:key="value"
+          class="chip {{category === item.value ? 'active' : ''}}"
+          hover-class="chip-hover"
+          data-value="{{item.value}}"
+          bindtap="onCategoryTap"
+        >
+          {{item.label}}
         </view>
-        <view class="goods-meta">{{item.category || "other"}} · 浏览 {{item.viewCount || 0}}</view>
-        <view class="row-between goods-footer">
-          <view class="goods-price">{{item.priceText}}</view>
-          <view class="goods-time">{{item.timeText}}</view>
+      </scroll-view>
+
+      <view class="row-between mine-row">
+        <view class="mine-label">仅看我的发布</view>
+        <switch checked="{{mine}}" color="#2563eb" bindchange="onMineSwitch" />
+      </view>
+
+      <view wx:if="{{mine}}" class="status-row">
+        <view
+          wx:for="{{statusOptions}}"
+          wx:key="label"
+          class="mini-chip {{mineStatusKey === item.key ? 'active' : ''}}"
+          hover-class="chip-hover"
+          data-value="{{item.value}}"
+          data-key="{{item.key}}"
+          bindtap="onMineStatusTap"
+        >
+          {{item.label}}
         </view>
       </view>
+
+      <view class="row-between sort-row" hover-class="card-hover" bindtap="onSortTap">
+        <view class="sort-label">排序：{{sortLabel}}</view>
+        <view class="sort-arrow">切换 ></view>
+      </view>
     </view>
-  </block>
 
-  <view wx:else class="empty">暂无交易数据</view>
+    <block wx:if="{{showSkeleton}}">
+      <view wx:for="{{skeletonRows}}" wx:key="*this" class="item skel-card">
+        <view class="skel skel-image"></view>
+        <view class="skel-body">
+          <view class="skel skel-line title"></view>
+          <view class="skel skel-line"></view>
+          <view class="skel skel-line short"></view>
+        </view>
+      </view>
+    </block>
 
-  <view wx:if="{{loading}}" class="meta">加载中...</view>
-  <view wx:else-if="{{!hasMore && list.length}}" class="meta">没有更多了</view>
+    <block wx:elif="{{list.length}}">
+      <view
+        wx:for="{{list}}"
+        wx:key="id"
+        class="item goods-card card fade-item"
+        hover-class="card-hover"
+        style="animation-delay: {{index * 0.05}}s"
+        data-id="{{item.id}}"
+        bindtap="goDetail"
+      >
+        <view class="thumb-wrap">
+          <image wx:if="{{item.cover}}" class="thumb" src="{{item.cover}}" mode="aspectFill" />
+          <view wx:else class="thumb-empty">暂无图片</view>
+        </view>
+        <view class="goods-body">
+          <view class="row-between">
+            <view class="goods-title">{{item.title}}</view>
+            <view class="status-tag">{{item.statusText}}</view>
+          </view>
+          <view class="goods-meta">{{item.categoryLabel}} · 浏览 {{item.viewCount || 0}}</view>
+          <view class="row-between goods-footer">
+            <view class="goods-price">{{item.priceText}}</view>
+            <view class="goods-time">{{item.timeText}}</view>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view wx:else class="empty">暂无交易数据</view>
+
+    <view wx:if="{{loading && list.length}}" class="meta">加载中...</view>
+    <view wx:else-if="{{!hasMore && list.length}}" class="meta">没有更多了</view>
+  </view>
 </view>

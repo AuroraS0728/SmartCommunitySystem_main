@@ -48,7 +48,8 @@ Page({
     this.setData({ loading: true })
     try {
       const data = await request({
-        url: `/neighbor/second-hand/${this.data.id}`
+        url: `/neighbor/second-hand/${this.data.id}`,
+        skipAuth: true
       })
       const item = data?.item || null
       if (!item) throw new Error("商品不存在")
@@ -91,6 +92,7 @@ Page({
 
   async onToggleFavorite() {
     if (this.data.actionLoading || !this.data.id) return
+    if (!getApp().requireFeatureLogin()) return
     this.setData({ actionLoading: true })
     try {
       const favorited = this.data.favorited
@@ -112,6 +114,7 @@ Page({
 
   onReport() {
     if (this.data.actionLoading || !this.data.id) return
+    if (!getApp().requireFeatureLogin()) return
     wx.showActionSheet({
       itemList: REPORT_REASONS,
       success: ({ tapIndex }) => {
@@ -148,6 +151,7 @@ Page({
 
   changeStatus(action, title) {
     if (this.data.actionLoading || !this.data.id) return
+    if (!getApp().requireFeatureLogin()) return
     wx.showModal({
       title,
       content: "确认继续？",
@@ -176,6 +180,7 @@ Page({
 
   onDelete() {
     if (this.data.actionLoading || !this.data.id) return
+    if (!getApp().requireFeatureLogin()) return
     wx.showModal({
       title: "删除商品",
       content: "删除后不可恢复，确认删除？",

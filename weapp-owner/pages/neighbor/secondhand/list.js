@@ -18,11 +18,16 @@ const SORT_OPTIONS = [
 ]
 
 const MINE_STATUS = [
-  { label: "全部", value: "" },
-  { label: "在售", value: 1 },
-  { label: "已售", value: 2 },
-  { label: "下架", value: 3 }
+  { label: "全部", value: "", key: "" },
+  { label: "在售", value: 1, key: "1" },
+  { label: "已售", value: 2, key: "2" },
+  { label: "下架", value: 3, key: "3" }
 ]
+
+const CATEGORY_LABELS = CATEGORIES.reduce((map, item) => {
+  map[item.value] = item.label
+  return map
+}, {})
 
 function parseImages(images) {
   if (!images) return []
@@ -51,8 +56,10 @@ Page({
     categories: CATEGORIES,
     statusOptions: MINE_STATUS,
     sortOptions: SORT_OPTIONS,
+    skeletonRows: [1, 2, 3],
     category: "",
     mineStatus: "",
+    mineStatusKey: "",
     sortBy: "",
     sortLabel: "最新发布",
     keyword: "",
@@ -62,6 +69,7 @@ Page({
     total: 0,
     list: [],
     loading: false,
+    showSkeleton: true,
     hasMore: true
   },
 
@@ -93,13 +101,18 @@ Page({
 
   onMineSwitch(e) {
     const mine = !!e.detail.value
-    this.setData({ mine, mineStatus: "" }, () => this.reload())
+    if (mine && !getApp().requireFeatureLogin()) {
+      this.setData({ mine: false, mineStatus: "", mineStatusKey: "" })
+      return
+    }
+    this.setData({ mine, mineStatus: "", mineStatusKey: "" }, () => this.reload())
   },
 
   onMineStatusTap(e) {
     const value = e.currentTarget.dataset.value
-    if (String(value) === String(this.data.mineStatus)) return
-    this.setData({ mineStatus: value }, () => this.reload())
+    const key = e.currentTarget.dataset.key || ""
+    if (key === this.data.mineStatusKey) return
+    this.setData({ mineStatus: value, mineStatusKey: key }, () => this.reload())
   },
 
   onSortTap() {
@@ -119,6 +132,7 @@ Page({
   },
 
   goPublish() {
+    if (!getApp().requireFeatureLogin()) return
     wx.navigateTo({ url: "/pages/neighbor/secondhand/publish" })
   },
 
@@ -133,7 +147,8 @@ Page({
       page: 1,
       total: 0,
       list: [],
-      hasMore: true
+      hasMore: true,
+      showSkeleton: true
     })
     return this.loadList(true)
   },
@@ -156,7 +171,8 @@ Page({
       }
       const data = await request({
         url: "/neighbor/second-hand/list",
-        data: params
+        data: params,
+        skipAuth: !this.data.mine
       })
       const items = Array.isArray(data?.items) ? data.items : []
       const mapped = items.map((item) => {
@@ -166,6 +182,7 @@ Page({
           ...item,
           imageList,
           cover: imageList[0] || "",
+          categoryLabel: CATEGORY_LABELS[item.category] || "其他",
           statusText: statusText(item.status),
           timeText: formatTime(item.updateTime || item.createTime),
           priceText: price > 0 ? `¥${price.toFixed(2)}` : "面议"
@@ -184,7 +201,7 @@ Page({
     } catch (error) {
       wx.showToast({ title: error?.message || "加载失败", icon: "none" })
     } finally {
-      this.setData({ loading: false })
+      this.setData({ loading: false, showSkeleton: false })
     }
   }
 })
