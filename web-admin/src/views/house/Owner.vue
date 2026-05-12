@@ -17,8 +17,13 @@
 
     <section class="panel">
       <div class="panel-header">
-        <h3>业主积分管理</h3>
-        <el-input v-model="keyword" placeholder="按昵称/房产号/手机号搜索" clearable style="max-width: 280px" />
+        <h3>积分与画像</h3>
+        <el-input
+          v-model="keyword"
+          placeholder="按昵称、房产号、手机号搜索"
+          clearable
+          style="max-width: 280px"
+        />
       </div>
 
       <el-table v-loading="loading" :data="displayList" stripe>
@@ -32,7 +37,12 @@
               <el-tag v-if="Number(row.hasElderly) === 1" type="warning">老人</el-tag>
               <el-tag v-if="Number(row.hasChild) === 1" type="success">儿童</el-tag>
               <el-tag v-if="Number(row.hasPet) === 1" type="info">宠物</el-tag>
-              <span v-if="Number(row.hasElderly) !== 1 && Number(row.hasChild) !== 1 && Number(row.hasPet) !== 1" class="muted">未填写</span>
+              <span
+                v-if="Number(row.hasElderly) !== 1 && Number(row.hasChild) !== 1 && Number(row.hasPet) !== 1"
+                class="muted"
+              >
+                未填写
+              </span>
             </div>
           </template>
         </el-table-column>

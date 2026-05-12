@@ -1,28 +1,28 @@
 <template>
   <div class="dashboard-content">
     <section class="metrics-grid">
-      <article class="metric-card">
+      <article class="metric-card card">
         <p class="metric-label">业主总数</p>
         <h3 class="metric-value">{{ formatNumber(ownerTotal) }}</h3>
         <p class="metric-note positive">较上月增长 {{ ownerGrowth }}%</p>
       </article>
 
-      <article class="metric-card">
+      <article class="metric-card card">
         <p class="metric-label">本月物业费实收</p>
-        <h3 class="metric-value">￥ {{ formatNumber(feeIncome) }}</h3>
+        <h3 class="metric-value">¥{{ formatNumber(feeIncome) }}</h3>
         <div class="progress-track">
           <div class="progress-fill" :style="{ width: `${feeCompletion}%` }"></div>
         </div>
         <p class="metric-note">当前完成率 {{ feeCompletion }}%</p>
       </article>
 
-      <article class="metric-card">
+      <article class="metric-card card">
         <p class="metric-label">待处理报修工单</p>
         <h3 class="metric-value">{{ repairWaiting }}</h3>
         <p class="metric-note warning">紧急工单 {{ repairUrgent }}</p>
       </article>
 
-      <article class="metric-card">
+      <article class="metric-card card">
         <p class="metric-label">设备在线率</p>
         <h3 class="metric-value">{{ onlineRate.toFixed(1) }}%</h3>
         <p class="metric-note positive">实时计算</p>
@@ -30,9 +30,9 @@
     </section>
 
     <section class="charts-grid">
-      <article class="panel panel-large">
+      <article class="panel panel-large card">
         <div class="panel-header">
-          <h4>报修趋势（近7天）</h4>
+          <h4>报修趋势（近 7 天）</h4>
         </div>
         <div class="line-chart-wrap">
           <svg class="line-chart" viewBox="0 0 640 260" preserveAspectRatio="none">
@@ -48,14 +48,7 @@
             <polyline :points="newRepairPoints" class="line-blue" />
             <polyline :points="finishedRepairPoints" class="line-green" />
             <circle v-for="(dot, idx) in newRepairDots" :key="`new-${idx}`" :cx="dot.x" :cy="dot.y" r="3.5" class="dot-blue" />
-            <circle
-              v-for="(dot, idx) in finishedRepairDots"
-              :key="`done-${idx}`"
-              :cx="dot.x"
-              :cy="dot.y"
-              r="3.5"
-              class="dot-green"
-            />
+            <circle v-for="(dot, idx) in finishedRepairDots" :key="`done-${idx}`" :cx="dot.x" :cy="dot.y" r="3.5" class="dot-green" />
           </svg>
           <div class="x-axis">
             <span v-for="label in trendLabels" :key="label">{{ label }}</span>
@@ -67,7 +60,7 @@
         </div>
       </article>
 
-      <article class="panel">
+      <article class="panel card">
         <h4 class="panel-title">收缴结构统计</h4>
         <div class="pie-wrap">
           <div class="donut" :style="{ backgroundImage: pieGradient }">
@@ -87,13 +80,42 @@
     </section>
 
     <section class="bottom-grid">
-      <article class="panel">
+      <article class="panel card">
         <div class="panel-header">
-          <h4>最新社区动态</h4>
+          <h4>社区在线动态</h4>
+          <span class="active-visitors">当前活跃访客: {{ activeVisitors }}</span>
+        </div>
+        <el-skeleton v-if="loading" :rows="5" animated />
+        <div v-else class="live-list">
+          <div
+            v-for="(item, index) in liveActivities"
+            :key="`${item.text}-${item.time}-${index}`"
+            class="live-item"
+            :style="{ animationDelay: `${index * 0.05}s` }"
+          >
+            <span class="live-dot" :class="item.type"></span>
+            <div class="live-body">
+              <p>{{ item.text }}</p>
+              <span>{{ item.time }}</span>
+            </div>
+          </div>
+          <div v-if="!liveActivities.length" class="news-empty">暂无在线动态</div>
+        </div>
+      </article>
+
+      <article class="panel card">
+        <div class="panel-header">
+          <h4>最新社区公告</h4>
           <router-link class="panel-link" to="/notice/manage">查看全部</router-link>
         </div>
-        <div class="news-list">
-          <div v-for="item in notices" :key="`${item.title}-${item.time}`" class="news-item">
+        <el-skeleton v-if="loading" :rows="4" animated />
+        <div v-else class="news-list">
+          <div
+            v-for="(item, index) in notices"
+            :key="`${item.title}-${item.time}`"
+            class="news-item"
+            :style="{ animationDelay: `${index * 0.05}s` }"
+          >
             <div class="news-top">
               <span class="news-title">{{ item.title }}</span>
               <span class="news-time">{{ item.time }}</span>
@@ -101,38 +123,6 @@
             <p>{{ item.summary }}</p>
           </div>
           <div v-if="!notices.length" class="news-empty">暂无公告</div>
-        </div>
-      </article>
-
-      <article class="panel">
-        <div class="panel-header">
-          <h4>访客实时播报</h4>
-          <span class="active-visitors">当前活跃访客: {{ activeVisitors }}</span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>访客名称</th>
-                <th>状态</th>
-                <th>受访对象</th>
-                <th>时间</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in visitors" :key="`${row.name}-${row.time}`">
-                <td>{{ row.name }}</td>
-                <td>
-                  <span class="tag" :class="row.tagType">{{ row.reason }}</span>
-                </td>
-                <td>{{ row.target }}</td>
-                <td>{{ row.time }}</td>
-              </tr>
-              <tr v-if="!visitors.length">
-                <td colspan="4">暂无访客记录</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </article>
     </section>
@@ -144,6 +134,7 @@ import { computed, onMounted, ref } from 'vue'
 import { getOverview } from '@/api/statistics'
 
 const overview = ref({})
+const loading = ref(true)
 
 const trendLabels = computed(() => {
   const labels = overview.value.trendLabels
@@ -172,13 +163,17 @@ const feeSegments = computed(() => {
     { name: '逾期未缴', percent: 0, color: '#f59e0b' }
   ]
 })
-const notices = computed(() => {
-  const list = overview.value.notices
-  return Array.isArray(list) ? list : []
-})
-const visitors = computed(() => {
-  const list = overview.value.visitors
-  return Array.isArray(list) ? list : []
+const notices = computed(() => (Array.isArray(overview.value.notices) ? overview.value.notices : []))
+const liveActivities = computed(() => {
+  const list = overview.value.liveActivities
+  if (Array.isArray(list) && list.length) {
+    return list
+  }
+  return notices.value.slice(0, 3).map((item) => ({
+    text: `物业发布了社区公告《${item.title || '最新通知'}》`,
+    time: item.time || '--',
+    type: 'notice'
+  }))
 })
 
 const ownerTotal = computed(() => Number(overview.value.ownerTotal ?? 0))
@@ -242,17 +237,18 @@ function toDots(data) {
 }
 
 async function loadOverview() {
+  loading.value = true
   try {
     const res = await getOverview()
     overview.value = res.data || {}
   } catch {
     overview.value = {}
+  } finally {
+    loading.value = false
   }
 }
 
-onMounted(async () => {
-  await loadOverview()
-})
+onMounted(loadOverview)
 </script>
 
 <style scoped>
@@ -267,10 +263,14 @@ onMounted(async () => {
   gap: 14px;
 }
 
-.metric-card {
+.metric-card,
+.panel {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 8px;
+}
+
+.metric-card {
   padding: 18px;
 }
 
@@ -326,9 +326,6 @@ onMounted(async () => {
 }
 
 .panel {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   padding: 16px 18px;
 }
 
@@ -340,6 +337,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
@@ -356,10 +354,6 @@ onMounted(async () => {
 
 .panel-link:hover {
   text-decoration: underline;
-}
-
-.line-chart-wrap {
-  position: relative;
 }
 
 .line-chart {
@@ -463,15 +457,20 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-.fee-item {
+.fee-item,
+.fee-left,
+.news-top,
+.live-item {
   display: flex;
   align-items: center;
+}
+
+.fee-item,
+.news-top {
   justify-content: space-between;
 }
 
 .fee-left {
-  display: flex;
-  align-items: center;
   gap: 8px;
 }
 
@@ -481,8 +480,54 @@ onMounted(async () => {
   border-radius: 50%;
 }
 
+.live-list,
 .news-list {
   border-top: 1px solid #f1f5f9;
+}
+
+.live-item,
+.news-item {
+  animation: listFadeIn 0.25s ease both;
+}
+
+.live-item {
+  gap: 10px;
+  min-height: 54px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2563eb;
+  flex: 0 0 auto;
+}
+
+.live-dot.second-hand {
+  background: #f59e0b;
+}
+
+.live-dot.notice {
+  background: #10b981;
+}
+
+.live-dot.visitor {
+  background: #6366f1;
+}
+
+.live-body p {
+  margin: 0;
+  color: #1e293b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.live-body span,
+.active-visitors {
+  color: #64748b;
+  font-size: 12px;
 }
 
 .news-item {
@@ -496,14 +541,9 @@ onMounted(async () => {
   font-size: 13px;
 }
 
-.news-item:last-child {
+.news-item:last-child,
+.live-item:last-child {
   border-bottom: none;
-}
-
-.news-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 .news-title {
@@ -523,63 +563,16 @@ onMounted(async () => {
   font-size: 12px;
 }
 
-.active-visitors {
-  font-size: 12px;
-  color: #64748b;
-}
+@keyframes listFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
 
-.table-wrap {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-thead {
-  background: #f8fafc;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 10px 8px;
-  border-bottom: 1px solid #f1f5f9;
-  white-space: nowrap;
-}
-
-th {
-  color: #64748b;
-  font-weight: 500;
-}
-
-td {
-  color: #1e293b;
-}
-
-.tag {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.tag.blue {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.tag.green {
-  background: #dcfce7;
-  color: #047857;
-}
-
-.tag.orange {
-  background: #ffedd5;
-  color: #c2410c;
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @media (max-width: 1400px) {

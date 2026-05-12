@@ -1,6 +1,6 @@
 <template>
   <div class="page-grid">
-    <section class="toolbar-card">
+    <section class="toolbar-card card">
       <div class="toolbar">
         <el-input v-model="keyword" placeholder="搜索工单ID/类型/描述" clearable style="width: 280px" @keyup.enter="loadData" />
         <el-select v-model="statusFilter" clearable placeholder="状态" style="width: 130px" @change="loadData">
@@ -21,13 +21,38 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel card">
       <div class="panel-header">
-        <h3>智能工单管控</h3>
-        <span class="hint">工单列表、智能优先级、推荐维修员、派单和状态流转统一在此处理</span>
+        <div>
+          <h3>智能工单管控</h3>
+          <span class="hint">工单列表、智能优先级、推荐维修员、派单和状态流转统一在此处理</span>
+        </div>
       </div>
 
-      <el-table :data="rows" stripe v-loading="loading">
+      <el-skeleton v-if="loading && !rows.length" :rows="5" animated />
+      <div v-else-if="rows.length" class="work-order-preview">
+        <article
+          v-for="(row, index) in rows.slice(0, 4)"
+          :key="row.id"
+          class="work-order-card card fade-list-item"
+          :style="{ animationDelay: `${index * 0.05}s` }"
+          @click="openDetail(row.id)"
+        >
+          <div class="work-order-top">
+            <span class="order-id">#{{ row.id }}</span>
+            <el-tag :type="priorityMeta(row.priority).type">{{ row.priorityText || priorityMeta(row.priority).text }}</el-tag>
+          </div>
+          <div class="order-title">{{ row.category || '维修工单' }}</div>
+          <p>{{ row.description || '暂无问题描述' }}</p>
+          <div class="order-meta">
+            <span>{{ row.ownerName || '未知业主' }}</span>
+            <span>{{ row.suggestedWorkerName || '待推荐维修员' }}</span>
+            <span>{{ formatTime(row.slaDeadline) }}</span>
+          </div>
+        </article>
+      </div>
+
+      <el-table :data="rows" stripe v-loading="loading && rows.length > 0" empty-text="">
         <el-table-column prop="id" label="工单ID" width="88" />
         <el-table-column prop="ownerName" label="业主" min-width="120" />
         <el-table-column prop="category" label="类型" min-width="110" />
@@ -125,7 +150,7 @@
               {{ option.label }}
             </el-button>
           </div>
-          <div class="detail-title" style="margin-top: 16px;">执行人员</div>
+          <div class="detail-title detail-subtitle">执行人员</div>
           <el-table :data="detail.participants || []" size="small" stripe>
             <el-table-column prop="workerName" label="维修员" min-width="120" />
             <el-table-column label="角色" min-width="100">
@@ -301,7 +326,7 @@ onMounted(async () => {
 .detail-card {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .toolbar-card,
@@ -331,8 +356,58 @@ onMounted(async () => {
 }
 
 .hint {
+  display: inline-block;
+  margin-top: 6px;
   color: #64748b;
   font-size: 13px;
+}
+
+.work-order-preview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.work-order-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  background: #f8fafc;
+  animation: listFadeIn 0.25s ease both;
+}
+
+.work-order-top,
+.order-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.order-id {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.order-title {
+  margin-top: 10px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.work-order-card p {
+  height: 42px;
+  margin: 8px 0 12px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.order-meta {
+  color: #64748b;
+  font-size: 12px;
 }
 
 .sla-cell {
@@ -355,9 +430,37 @@ onMounted(async () => {
   padding: 16px;
 }
 
+.detail-subtitle {
+  margin-top: 16px;
+}
+
 .status-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+@keyframes listFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 1400px) {
+  .work-order-preview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .work-order-preview {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

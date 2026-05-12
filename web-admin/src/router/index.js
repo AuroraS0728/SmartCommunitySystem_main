@@ -30,7 +30,7 @@ const routes = [
       {
         path: 'house/owner',
         component: () => import('@/views/house/Owner.vue'),
-        meta: { title: '业主管理', subtitle: '管理业主账号与积分余额' }
+        meta: { title: '积分与画像', subtitle: '统一管理业主积分余额、家庭画像与基础资料' }
       },
       {
         path: 'repair/list',
@@ -75,7 +75,7 @@ const routes = [
       {
         path: 'innovation/ops',
         component: () => import('@/views/innovation/InnovationOps.vue'),
-        meta: { title: '智能运营', subtitle: '投诉分析、信用体系、智能催缴、任务与SLA监控' }
+        meta: { title: '智能运营', subtitle: '投诉分析、信用体系、智能催缴、任务与 SLA 监控' }
       },
       {
         path: 'notice/manage',

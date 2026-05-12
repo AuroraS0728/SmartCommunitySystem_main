@@ -71,7 +71,7 @@ const menuGroups = [
     items: [
       { label: '数据看板', path: '/dashboard' },
       { label: '房产档案', path: '/house/archive' },
-      { label: '业主管理', path: '/house/owner' },
+      { label: '积分与画像', path: '/house/owner' },
       { label: '智能工单管控', path: '/repair/smart' },
       { label: '费用管理', path: '/fee/manage' },
       { label: '智能运营', path: '/innovation/ops' },
