@@ -19,6 +19,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${blog.asset-dir:./blog-assets}")
     private String blogAssetDir;
 
+    @Value("${activity.asset-dir:./activity-assets}")
+    private String activityAssetDir;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtAuthInterceptor)
@@ -34,6 +37,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/blog/profile",
                         "/api/blog/admin/login",
                         "/api/blog/assets/**",
+                        "/api/activity/assets/**",
                         "/error"
                 );
     }
@@ -44,6 +48,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
         String location = assetPath.toUri().toString();
         registry.addResourceHandler("/api/blog/assets/**")
                 .addResourceLocations(location)
+                .setCachePeriod(31_536_000);
+
+        Path activityPath = Paths.get(activityAssetDir).toAbsolutePath().normalize();
+        String activityLocation = activityPath.toUri().toString();
+        registry.addResourceHandler("/api/activity/assets/**")
+                .addResourceLocations(activityLocation)
                 .setCachePeriod(31_536_000);
     }
 }
