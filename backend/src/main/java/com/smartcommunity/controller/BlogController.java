@@ -12,6 +12,7 @@ import com.smartcommunity.service.BlogProfileService;
 import com.smartcommunity.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/blog")
+@RequestMapping(value = "/api/blog", produces = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
 @RequiredArgsConstructor
 public class BlogController {
 
