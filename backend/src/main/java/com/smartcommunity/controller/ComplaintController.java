@@ -10,13 +10,10 @@ import com.smartcommunity.dto.request.SubmitComplaintReq;
 import com.smartcommunity.entity.Complaint;
 import com.smartcommunity.mapper.ComplaintMapper;
 import com.smartcommunity.service.ComplaintAnalysisService;
-import com.smartcommunity.utils.SentimentAnalyzer;
-import com.smartcommunity.utils.SentimentResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -45,12 +42,8 @@ public class ComplaintController {
         c.setContent(req.getContent());
         c.setImages(req.getImages());
         c.setStatus(1);
-        SentimentResult sentiment = SentimentAnalyzer.analyze(req.getContent());
         LocalDateTime now = LocalDateTime.now();
-        c.setSentimentScore(BigDecimal.valueOf(sentiment.getScore()));
-        c.setSentimentLabel(sentiment.getLabel());
-        c.setRiskLevel(sentiment.getRiskLevel());
-        c.setAnalyzedAt(now);
+        complaintAnalysisService.apply(c);
         c.setCreateTime(now);
         c.setUpdateTime(now);
         c.setIsDeleted(0);

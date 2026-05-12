@@ -8,6 +8,7 @@ import com.smartcommunity.entity.Notice;
 import com.smartcommunity.entity.ParkingOrder;
 import com.smartcommunity.entity.Property;
 import com.smartcommunity.entity.RepairOrder;
+import com.smartcommunity.entity.SecondHand;
 import com.smartcommunity.entity.User;
 import com.smartcommunity.entity.VisitorInvite;
 import com.smartcommunity.mapper.AccessTokenMapper;
@@ -16,6 +17,7 @@ import com.smartcommunity.mapper.NoticeMapper;
 import com.smartcommunity.mapper.ParkingOrderMapper;
 import com.smartcommunity.mapper.PropertyMapper;
 import com.smartcommunity.mapper.RepairOrderMapper;
+import com.smartcommunity.mapper.SecondHandMapper;
 import com.smartcommunity.mapper.UserMapper;
 import com.smartcommunity.mapper.VisitorInviteMapper;
 import com.smartcommunity.service.LocalCacheService;
@@ -32,9 +34,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -50,6 +54,7 @@ public class StatisticsController {
     private final PropertyMapper propertyMapper;
     private final FeeBillMapper feeBillMapper;
     private final RepairOrderMapper repairOrderMapper;
+    private final SecondHandMapper secondHandMapper;
     private final ParkingOrderMapper parkingOrderMapper;
     private final UserMapper userMapper;
     private final AccessTokenMapper accessTokenMapper;
@@ -102,6 +107,10 @@ public class StatisticsController {
                 .eq(VisitorInvite::getIsDeleted, 0)
                 .orderByDesc(VisitorInvite::getCreateTime)
                 .last("LIMIT 5")), queryExecutor);
+        CompletableFuture<List<SecondHand>> latestSecondHandsFuture = CompletableFuture.supplyAsync(() -> secondHandMapper.selectList(new LambdaQueryWrapper<SecondHand>()
+                .eq(SecondHand::getIsDeleted, 0)
+                .orderByDesc(SecondHand::getCreateTime)
+                .last("LIMIT 5")), queryExecutor);
         CompletableFuture<Long> activeVisitorsFuture = CompletableFuture.supplyAsync(() -> visitorInviteMapper.selectCount(new LambdaQueryWrapper<VisitorInvite>()
                 .eq(VisitorInvite::getIsDeleted, 0)
                 .gt(VisitorInvite::getExpireTime, now)), queryExecutor);
@@ -113,7 +122,7 @@ public class StatisticsController {
         CompletableFuture.allOf(
                 totalPropertyFuture, occupiedFuture, billsFuture, ordersFuture, parkingOrdersFuture,
                 accessTokenTotalFuture, accessTokenOnlineFuture, latestNoticesFuture, latestVisitorsFuture,
-                activeVisitorsFuture, ownerTotalFuture, ownerGrowthFuture
+                latestSecondHandsFuture, activeVisitorsFuture, ownerTotalFuture, ownerGrowthFuture
         ).join();
 
         long totalProperty = totalPropertyFuture.join();
@@ -123,6 +132,7 @@ public class StatisticsController {
         List<ParkingOrder> parkingOrders = parkingOrdersFuture.join();
         List<Notice> latestNotices = latestNoticesFuture.join();
         List<VisitorInvite> latestVisitors = latestVisitorsFuture.join();
+        List<SecondHand> latestSecondHands = latestSecondHandsFuture.join();
         long activeVisitors = activeVisitorsFuture.join();
         long ownerTotal = ownerTotalFuture.join();
         double ownerGrowthRate = ownerGrowthFuture.join();
@@ -183,6 +193,7 @@ public class StatisticsController {
             item.put("tagType", visitorTag(v, now));
             return item;
         }).toList();
+        List<Map<String, Object>> liveActivities = buildLiveActivities(latestSecondHands, latestNotices, latestVisitors, now);
 
         double deviceOnlineRate = accessTokenTotal == 0
                 ? 0
@@ -218,7 +229,65 @@ public class StatisticsController {
         data.put("feeSegments", feeSegments);
         data.put("notices", noticeCards);
         data.put("visitors", visitorCards);
+        data.put("liveActivities", liveActivities);
         return data;
+    }
+
+    private List<Map<String, Object>> buildLiveActivities(
+            List<SecondHand> secondHands,
+            List<Notice> notices,
+            List<VisitorInvite> visitors,
+            LocalDateTime now
+    ) {
+        List<Long> userIds = secondHands.stream()
+                .map(SecondHand::getUserId)
+                .filter(id -> id != null && id > 0)
+                .distinct()
+                .toList();
+        Map<Long, String> nicknameMap = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            nicknameMap = userMapper.selectBatchIds(userIds).stream()
+                    .collect(Collectors.toMap(User::getId, u -> safeName(u.getNickname()), (left, right) -> left));
+        }
+
+        List<Map<String, Object>> items = new ArrayList<>();
+        for (SecondHand goods : secondHands) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            String name = nicknameMap.getOrDefault(goods.getUserId(), "社区业主");
+            item.put("text", name + "业主刚刚发布了二手物品《" + safeTitle(goods.getTitle()) + "》");
+            item.put("time", relativeTime(goods.getCreateTime(), now));
+            item.put("type", "second-hand");
+            item.put("sortTime", goods.getCreateTime());
+            items.add(item);
+        }
+        for (Notice notice : notices) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("text", "物业发布了社区公告《" + safeTitle(notice.getTitle()) + "》");
+            item.put("time", relativeTime(notice.getPublishTime(), now));
+            item.put("type", "notice");
+            item.put("sortTime", notice.getPublishTime());
+            items.add(item);
+        }
+        for (VisitorInvite visitor : visitors) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("text", safeName(visitor.getVisitorName()) + "提交了访客通行申请");
+            item.put("time", relativeTime(visitor.getCreateTime(), now));
+            item.put("type", "visitor");
+            item.put("sortTime", visitor.getCreateTime());
+            items.add(item);
+        }
+        items.sort((left, right) -> {
+            LocalDateTime l = (LocalDateTime) left.get("sortTime");
+            LocalDateTime r = (LocalDateTime) right.get("sortTime");
+            if (l == null && r == null) return 0;
+            if (l == null) return 1;
+            if (r == null) return -1;
+            return r.compareTo(l);
+        });
+        return items.stream()
+                .limit(6)
+                .peek(item -> item.remove("sortTime"))
+                .toList();
     }
 
     private Map<String, Object> calcRepairTrend(List<RepairOrder> orders, LocalDate today) {
@@ -331,6 +400,38 @@ public class StatisticsController {
             return "";
         }
         return s.length() <= max ? s : s.substring(0, max) + "...";
+    }
+
+    private String safeTitle(String value) {
+        if (value == null || value.isBlank()) {
+            return "社区动态";
+        }
+        return value.length() <= 24 ? value : value.substring(0, 24) + "...";
+    }
+
+    private String safeName(String value) {
+        if (value == null || value.isBlank()) {
+            return "社区业主";
+        }
+        return value;
+    }
+
+    private String relativeTime(LocalDateTime time, LocalDateTime now) {
+        if (time == null) {
+            return "--";
+        }
+        long minutes = Duration.between(time, now).toMinutes();
+        if (minutes < 1) {
+            return "刚刚";
+        }
+        if (minutes < 60) {
+            return minutes + "分钟前";
+        }
+        long hours = minutes / 60;
+        if (hours < 24) {
+            return hours + "小时前";
+        }
+        return time.format(NOTICE_TIME_FMT);
     }
 
     private String visitorReason(VisitorInvite invite, LocalDateTime now) {
