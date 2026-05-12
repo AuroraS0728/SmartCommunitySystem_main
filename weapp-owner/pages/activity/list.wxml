@@ -1,0 +1,42 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">活动专区</view>
+    <view class="hero-desc">社区活动、邻里互动与报名入口</view>
+  </view>
+
+  <scroll-view scroll-x class="tab-strip">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="*this"
+      class="tab-item {{activeTab === item ? 'active' : ''}}"
+      data-type="{{item}}"
+      bindtap="switchTab"
+    >
+      {{item}}
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{!list.length && !loading}}" class="item empty-card">
+    <view class="item-title">暂无活动</view>
+    <view class="item-desc">可以稍后再来查看报名中的社区活动</view>
+  </view>
+
+  <view
+    wx:for="{{list}}"
+    wx:key="id"
+    class="item activity-card"
+    data-id="{{item.id}}"
+    bindtap="openDetail"
+  >
+    <image class="activity-image" src="{{item.imageUrl || 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80'}}" mode="aspectFill" />
+    <view class="activity-body">
+      <view class="row-between">
+        <view class="item-title">{{item.title}}</view>
+        <view class="status-tag {{item.canRegister ? 'open' : 'closed'}}">{{item.statusText}}</view>
+      </view>
+      <view class="item-desc">{{item.type}} · {{item.location}}</view>
+      <view class="meta-line">{{item.startTime}} - {{item.endTime}}</view>
+      <view class="meta-line">已报名 {{item.currentParticipants}} / {{item.maxParticipants}} · 剩余 {{item.remainingSlots}}</view>
+    </view>
+  </view>
+</view>

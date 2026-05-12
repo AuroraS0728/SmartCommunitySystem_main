@@ -1,134 +1,146 @@
-﻿<view class="section member-page">
-  <view class="hero member-hero">
-    <view class="row-between">
-      <view>
-        <view class="hero-title">会员中心</view>
-        <view class="hero-desc">查看账单、月卡与收藏记录</view>
-      </view>
-      <view class="avatar-wrap" bindtap="goInfo">
-        <image wx:if="{{user && user.avatarUrl}}" class="avatar" src="{{user.avatarUrl}}" mode="aspectFill" />
-        <view wx:else class="avatar avatar-fallback">{{ (user && user.nickname) ? user.nickname.slice(0, 1) : "我" }}</view>
-      </view>
-    </view>
-    <view class="meta">当前积分：{{ points }}</view>
-  </view>
-
-  <view class="item member-grid">
-    <view class="metric" bindtap="goBills">
-      <view class="metric-value">{{ stats.billUnpaidCount }}</view>
-      <view class="metric-label">待缴账单</view>
-      <view class="metric-sub">已支付 {{ stats.billPaidCount }} / 共 {{ stats.billCount }}</view>
-    </view>
-    <view class="metric" bindtap="goParkingCards">
-      <view class="metric-value">{{ stats.monthCardVehicleCount }}</view>
-      <view class="metric-label">月卡车辆</view>
-      <view class="metric-sub" wx:if="{{stats.monthCardExpiringSoonCount > 0}}">3天内到期 {{ stats.monthCardExpiringSoonCount }}</view>
-      <view class="metric-sub" wx:else>暂无近期到期</view>
-    </view>
-    <view class="metric" bindtap="goInfo">
-      <view class="metric-value">{{ user && user.creditScore !== null && user.creditScore !== undefined ? user.creditScore : 100 }}</view>
-      <view class="metric-label">信用分</view>
-      <view class="metric-sub">家庭画像与信用记录</view>
+<view class="section member-page">
+  <view wx:if="{{guestMode}}" class="item guest-card">
+    <view class="item-title">当前为游客模式</view>
+    <view class="item-desc">可以浏览首页和服务目录，办理缴费、报修、活动报名等功能需要先登录。</view>
+    <view class="guest-actions">
+      <view class="btn guest-login-btn" bindtap="goOwnerLogin">业主登录</view>
+      <view class="mini-square" bindtap="goSecurityLogin">安防端</view>
+      <view class="mini-square" bindtap="goWorkerLogin">维修端</view>
     </view>
   </view>
 
-  <view class="item profile-editor">
-    <view class="profile-head">
-      <view>
-        <view class="item-title">家庭信息</view>
-        <view class="item-desc">用于物业服务、报修分级和关怀提醒</view>
+  <block wx:if="{{!guestMode}}">
+    <view class="hero member-hero">
+      <view class="row-between">
+        <view>
+          <view class="hero-title">会员中心</view>
+          <view class="hero-desc">查看账单、月卡与收藏记录</view>
+        </view>
+        <view class="avatar-wrap" bindtap="goInfo">
+          <image wx:if="{{user && user.avatarUrl}}" class="avatar" src="{{user.avatarUrl}}" mode="aspectFill" />
+          <view wx:else class="avatar avatar-fallback">{{ (user && user.nickname) ? user.nickname.slice(0, 1) : "我" }}</view>
+        </view>
+      </view>
+      <view class="meta">当前积分：{{ points }}</view>
+    </view>
+
+    <view class="item member-grid">
+      <view class="metric" bindtap="goBills">
+        <view class="metric-value">{{ stats.billUnpaidCount }}</view>
+        <view class="metric-label">待缴账单</view>
+        <view class="metric-sub">已支付 {{ stats.billPaidCount }} / 共 {{ stats.billCount }}</view>
+      </view>
+      <view class="metric" bindtap="goParkingCards">
+        <view class="metric-value">{{ stats.monthCardVehicleCount }}</view>
+        <view class="metric-label">月卡车辆</view>
+        <view class="metric-sub" wx:if="{{stats.monthCardExpiringSoonCount > 0}}">3天内到期 {{ stats.monthCardExpiringSoonCount }}</view>
+        <view class="metric-sub" wx:else>暂无近期到期</view>
+      </view>
+      <view class="metric" bindtap="goInfo">
+        <view class="metric-value">{{ user && user.creditScore !== null && user.creditScore !== undefined ? user.creditScore : 100 }}</view>
+        <view class="metric-label">信用分</view>
+        <view class="metric-sub">家庭画像与信用记录</view>
       </view>
     </view>
 
-    <view class="profile-row">
-      <text>家中有老人</text>
-      <switch checked="{{profileForm.hasElderly === 1}}" data-key="hasElderly" bindchange="onToggleProfile" />
-    </view>
-    <view class="profile-row">
-      <text>家中有儿童</text>
-      <switch checked="{{profileForm.hasChild === 1}}" data-key="hasChild" bindchange="onToggleProfile" />
-    </view>
-    <view class="profile-row">
-      <text>家中有宠物</text>
-      <switch checked="{{profileForm.hasPet === 1}}" data-key="hasPet" bindchange="onToggleProfile" />
-    </view>
-
-    <view class="profile-field">
-      <text>房屋面积</text>
-      <input class="profile-input" type="number" value="{{profileForm.houseArea}}" data-key="houseArea" placeholder="㎡" bindinput="onProfileNumberInput" />
-    </view>
-    <view class="profile-field">
-      <text>房间数</text>
-      <input class="profile-input" type="number" value="{{profileForm.roomCount}}" data-key="roomCount" placeholder="间" bindinput="onProfileNumberInput" />
-    </view>
-
-    <view class="btn profile-save" bindtap="saveProfile">{{savingProfile ? "保存中..." : "保存家庭信息"}}</view>
-  </view>
-
-  <view class="item nav-item" bindtap="goMessages">
-    <view class="nav-leading">
-      <image class="nav-icon" src="/assets/icons/info.png" mode="aspectFit" />
-      <view class="nav-body">
-        <view class="item-title">消息中心</view>
-        <view class="item-desc">催缴提醒、工单催办和系统通知</view>
+    <view class="item profile-editor">
+      <view class="profile-head">
+        <view>
+          <view class="item-title">家庭信息</view>
+          <view class="item-desc">用于物业服务、报修分级和关怀提醒</view>
+        </view>
       </view>
-    </view>
-    <view wx:if="{{unreadMessageCount > 0}}" class="badge">{{ unreadMessageCount }}</view>
-    <view class="nav-arrow">></view>
-  </view>
 
-  <view class="item nav-item" bindtap="goBills">
-    <view class="nav-leading">
-      <image class="nav-icon" src="/assets/icons/ticket-percent.png" mode="aspectFit" />
-      <view class="nav-body">
-        <view class="item-title">我的账单</view>
-        <view class="item-desc">物业费、停车费、维修费已缴/待缴</view>
+      <view class="profile-row">
+        <text>家中有老人</text>
+        <switch checked="{{profileForm.hasElderly === 1}}" data-key="hasElderly" bindchange="onToggleProfile" />
       </view>
-    </view>
-    <view class="nav-arrow">></view>
-  </view>
+      <view class="profile-row">
+        <text>家中有儿童</text>
+        <switch checked="{{profileForm.hasChild === 1}}" data-key="hasChild" bindchange="onToggleProfile" />
+      </view>
+      <view class="profile-row">
+        <text>家中有宠物</text>
+        <switch checked="{{profileForm.hasPet === 1}}" data-key="hasPet" bindchange="onToggleProfile" />
+      </view>
 
-  <view class="item nav-item" bindtap="goParkingCards">
-    <view class="nav-leading">
-      <image class="nav-icon" src="/assets/icons/circle-parking.png" mode="aspectFit" />
-      <view class="nav-body">
-        <view class="item-title">停车月卡</view>
-        <view class="item-desc">多车牌月卡有效期、代缴费用与续费提醒</view>
+      <view class="profile-field">
+        <text>房屋面积</text>
+        <input class="profile-input" type="number" value="{{profileForm.houseArea}}" data-key="houseArea" placeholder="㎡" bindinput="onProfileNumberInput" />
       </view>
-    </view>
-    <view class="nav-arrow">></view>
-  </view>
+      <view class="profile-field">
+        <text>房间数</text>
+        <input class="profile-input" type="number" value="{{profileForm.roomCount}}" data-key="roomCount" placeholder="间" bindinput="onProfileNumberInput" />
+      </view>
 
-  <view class="item nav-item" bindtap="goFavorites">
-    <view class="nav-leading">
-      <image class="nav-icon" src="/assets/icons/star.png" mode="aspectFit" />
-      <view class="nav-body">
-        <view class="item-title">我的收藏</view>
-        <view class="item-desc">闲置交易收藏</view>
-      </view>
+      <view class="btn profile-save" bindtap="saveProfile">{{savingProfile ? "保存中..." : "保存家庭信息"}}</view>
     </view>
-    <view class="nav-arrow">></view>
-  </view>
 
-  <view class="item nav-item" bindtap="goComplaint">
-    <view class="nav-leading">
-      <image class="nav-icon" src="/assets/icons/info.png" mode="aspectFit" />
-      <view class="nav-body">
-        <view class="item-title">投诉建议</view>
-        <view class="item-desc">提交意见反馈与服务建议</view>
+    <view class="item nav-item" bindtap="goMessages">
+      <view class="nav-leading">
+        <image class="nav-icon" src="/assets/icons/info.png" mode="aspectFit" />
+        <view class="nav-body">
+          <view class="item-title">消息中心</view>
+          <view class="item-desc">催缴提醒、工单催办和系统通知</view>
+        </view>
       </view>
+      <view wx:if="{{unreadMessageCount > 0}}" class="badge">{{ unreadMessageCount }}</view>
+      <view class="nav-arrow">></view>
     </view>
-    <view class="nav-arrow">></view>
-  </view>
 
-  <view class="item nav-item" bindtap="goSettings">
-    <view class="nav-leading">
-      <image class="nav-icon" src="/assets/icons/settings.png" mode="aspectFit" />
-      <view class="nav-body">
-        <view class="item-title">设置</view>
-        <view class="item-desc">账号与安全、退出登录等</view>
+    <view class="item nav-item" bindtap="goBills">
+      <view class="nav-leading">
+        <image class="nav-icon" src="/assets/icons/ticket-percent.png" mode="aspectFit" />
+        <view class="nav-body">
+          <view class="item-title">我的账单</view>
+          <view class="item-desc">物业费、停车费、维修费已缴/待缴</view>
+        </view>
       </view>
+      <view class="nav-arrow">></view>
     </view>
-    <view class="nav-arrow">></view>
-  </view>
+
+    <view class="item nav-item" bindtap="goParkingCards">
+      <view class="nav-leading">
+        <image class="nav-icon" src="/assets/icons/circle-parking.png" mode="aspectFit" />
+        <view class="nav-body">
+          <view class="item-title">停车月卡</view>
+          <view class="item-desc">多车牌月卡有效期、代缴费用与续费提醒</view>
+        </view>
+      </view>
+      <view class="nav-arrow">></view>
+    </view>
+
+    <view class="item nav-item" bindtap="goFavorites">
+      <view class="nav-leading">
+        <image class="nav-icon" src="/assets/icons/star.png" mode="aspectFit" />
+        <view class="nav-body">
+          <view class="item-title">我的收藏</view>
+          <view class="item-desc">闲置交易收藏</view>
+        </view>
+      </view>
+      <view class="nav-arrow">></view>
+    </view>
+
+    <view class="item nav-item" bindtap="goComplaint">
+      <view class="nav-leading">
+        <image class="nav-icon" src="/assets/icons/info.png" mode="aspectFit" />
+        <view class="nav-body">
+          <view class="item-title">投诉建议</view>
+          <view class="item-desc">提交意见反馈与服务建议</view>
+        </view>
+      </view>
+      <view class="nav-arrow">></view>
+    </view>
+
+    <view class="item nav-item" bindtap="goSettings">
+      <view class="nav-leading">
+        <image class="nav-icon" src="/assets/icons/settings.png" mode="aspectFit" />
+        <view class="nav-body">
+          <view class="item-title">设置</view>
+          <view class="item-desc">账号与安全、退出登录等</view>
+        </view>
+      </view>
+      <view class="nav-arrow">></view>
+    </view>
+  </block>
 </view>

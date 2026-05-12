@@ -1,0 +1,22 @@
+<view class="section">
+  <view wx:if="{{!list.length && !loading}}" class="item empty-card">
+    <view class="item-title">暂无报名记录</view>
+    <view class="item-desc">参与社区活动后会在这里显示</view>
+  </view>
+
+  <view
+    wx:for="{{list}}"
+    wx:key="registration.id"
+    class="item activity-card"
+    data-id="{{item.activity.id}}"
+    bindtap="openDetail"
+  >
+    <view class="row-between">
+      <view class="item-title">{{item.activity.title}}</view>
+      <view class="status-tag">{{Number(item.registration.status) === 1 ? '已确认' : (Number(item.registration.status) === 2 ? '已取消' : '待审核')}}</view>
+    </view>
+    <view class="item-desc">{{item.activity.type}} · {{item.activity.location}}</view>
+    <view class="meta-line">报名时间：{{item.registration.createTime}}</view>
+    <view class="meta-line">活动时间：{{item.activity.startTime}} - {{item.activity.endTime}}</view>
+  </view>
+</view>

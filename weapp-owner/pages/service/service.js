@@ -3,10 +3,18 @@ const { request } = require("../../api/request")
 Page({
   data: {
     points: 0,
-    loadingPoints: false
+    loadingPoints: false,
+    guestMode: false
   },
 
   onShow() {
+    const app = getApp()
+    const guestMode = !!app.globalData.guestMode
+    this.setData({ guestMode })
+    if (guestMode) {
+      this.setData({ points: 0, loadingPoints: false })
+      return
+    }
     this.loadPoints()
   },
 
@@ -20,5 +28,11 @@ Page({
     } finally {
       this.setData({ loadingPoints: false })
     }
+  },
+
+  ensureLoginAndNavigate(event) {
+    const url = event.currentTarget.dataset.url
+    if (!getApp().requireFeatureLogin()) return
+    wx.navigateTo({ url })
   }
 })

@@ -1,0 +1,24 @@
+.activity-card {
+  padding: 26rpx;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.status-tag {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(42, 109, 255, 0.12);
+  color: #2a6dff;
+  font-size: 22rpx;
+}
+
+.meta-line {
+  margin-top: 12rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}

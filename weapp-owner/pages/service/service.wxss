@@ -73,7 +73,8 @@
 }
 
 .service-cell:nth-child(5) .service-icon,
-.service-cell:nth-child(6) .service-icon {
+.service-cell:nth-child(6) .service-icon,
+.service-cell:nth-child(7) .service-icon {
   background: rgba(255, 152, 0, 0.16);
   color: #ff9800;
 }

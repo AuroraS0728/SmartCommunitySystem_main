@@ -2,6 +2,36 @@
   padding-bottom: 40rpx;
 }
 
+.guest-card {
+  padding: 28rpx;
+}
+
+.guest-actions {
+  margin-top: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  flex-wrap: wrap;
+}
+
+.guest-login-btn {
+  padding: 0 28rpx;
+}
+
+.mini-square {
+  min-width: 124rpx;
+  height: 72rpx;
+  padding: 0 16rpx;
+  border-radius: 16rpx;
+  background: #eef2ff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
 .member-hero {
   margin-bottom: 28rpx;
   background: linear-gradient(135deg, #fde8d3, #fce1c1);

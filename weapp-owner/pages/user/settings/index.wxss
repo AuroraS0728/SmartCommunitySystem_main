@@ -1,3 +1,28 @@
+.switch-card {
+  padding: 28rpx;
+}
+
+.switch-actions {
+  margin-top: 18rpx;
+  display: flex;
+  gap: 14rpx;
+  flex-wrap: wrap;
+}
+
+.tiny-square {
+  min-width: 132rpx;
+  height: 72rpx;
+  padding: 0 16rpx;
+  border-radius: 16rpx;
+  background: #eef2ff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
 .logout-btn {
   margin-top: 24rpx;
   background: #bfa5a5;

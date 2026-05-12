@@ -7,5 +7,15 @@
     <view class="nav-arrow">></view>
   </view>
 
+  <view class="item switch-card">
+    <view class="item-title">多端快捷登录</view>
+    <view class="item-desc">点击小方块快速切换到对应端登录页</view>
+    <view class="switch-actions">
+      <view class="tiny-square" bindtap="goOwnerLogin">业主端</view>
+      <view class="tiny-square" bindtap="goSecurityLogin">安防端</view>
+      <view class="tiny-square" bindtap="goWorkerLogin">维修端</view>
+    </view>
+  </view>
+
   <view class="btn logout-btn" bindtap="onLogout">退出登录</view>
 </view>

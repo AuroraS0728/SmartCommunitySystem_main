@@ -44,6 +44,7 @@ Page({
   data: {
     points: 0,
     user: null,
+    guestMode: false,
     unreadMessageCount: 0,
     savingProfile: false,
     profileForm: {
@@ -64,6 +65,12 @@ Page({
   },
 
   onShow() {
+    const app = getApp()
+    const guestMode = !!app.globalData.guestMode
+    this.setData({ guestMode })
+    if (guestMode) {
+      return
+    }
     this.loadAll()
   },
 
@@ -197,30 +204,48 @@ Page({
   },
 
   goInfo() {
+    if (!getApp().requireFeatureLogin()) return
     wx.navigateTo({ url: "/pages/user/info" })
   },
 
   goBills() {
+    if (!getApp().requireFeatureLogin()) return
     wx.navigateTo({ url: "/pages/points/bills/index" })
   },
 
   goParkingCards() {
+    if (!getApp().requireFeatureLogin()) return
     wx.navigateTo({ url: "/pages/user/parking-cards/index" })
   },
 
   goFavorites() {
+    if (!getApp().requireFeatureLogin()) return
     wx.navigateTo({ url: "/pages/user/favorites" })
   },
 
   goComplaint() {
+    if (!getApp().requireFeatureLogin()) return
     wx.navigateTo({ url: "/pages/complaint/submit" })
   },
 
   goMessages() {
+    if (!getApp().requireFeatureLogin()) return
     wx.navigateTo({ url: "/pages/message/list" })
   },
 
   goSettings() {
     wx.navigateTo({ url: "/pages/user/settings/index" })
+  },
+
+  goOwnerLogin() {
+    getApp().gotoLogin(1)
+  },
+
+  goSecurityLogin() {
+    getApp().gotoLogin(2)
+  },
+
+  goWorkerLogin() {
+    getApp().gotoLogin(3)
   }
 })

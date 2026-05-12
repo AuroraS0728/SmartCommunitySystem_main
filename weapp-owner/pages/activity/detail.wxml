@@ -1,0 +1,28 @@
+<view class="section" wx:if="{{detail}}">
+  <image class="cover" src="{{detail.imageUrl || 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80'}}" mode="aspectFill" />
+
+  <view class="item detail-card">
+    <view class="row-between">
+      <view class="item-title">{{detail.title}}</view>
+      <view class="tag">{{detail.type}}</view>
+    </view>
+    <view class="item-desc">{{detail.description}}</view>
+
+    <view class="info-line">时间：{{detail.startTime}} - {{detail.endTime}}</view>
+    <view class="info-line">地点：{{detail.location}}</view>
+    <view class="info-line">人数：{{detail.currentParticipants}} / {{detail.maxParticipants}}，剩余 {{detail.remainingSlots}}</view>
+    <view class="info-line">年龄限制：{{detail.ageLimit || '不限'}}</view>
+    <view class="info-line">携带儿童：{{Number(detail.withChildRequired) === 1 ? '需要' : '可选'}}</view>
+    <view class="info-line">携带宠物：{{Number(detail.withPetRequired) === 1 ? '需要' : '可选，宠物不计入人数'}}</view>
+
+    <view wx:if="{{detail.myRegistration}}" class="my-status">
+      您的报名状态：{{Number(detail.myRegistration.status) === 1 ? '已确认' : (Number(detail.myRegistration.status) === 2 ? '已取消' : '待审核')}}
+    </view>
+  </view>
+
+  <view class="bottom-action">
+    <button class="primary-btn" disabled="{{!detail.canRegister || detail.myRegistration}}" bindtap="goRegister">
+      {{ detail.myRegistration ? '已报名' : (detail.canRegister ? '立即报名' : '暂不可报名') }}
+    </button>
+  </view>
+</view>

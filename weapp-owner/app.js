@@ -19,11 +19,16 @@ App({
     token: wx.getStorageSync('token') || '',
     userInfo: wx.getStorageSync('userInfo') || null,
     role: toRole(wx.getStorageSync('role') || wx.getStorageSync('userInfo')?.role),
-    mustChangePassword: !!wx.getStorageSync('mustChangePassword')
+    mustChangePassword: !!wx.getStorageSync('mustChangePassword'),
+    guestMode: !!wx.getStorageSync('guestMode')
   },
 
   onLaunch() {
     if (this.globalData.token) {
+      this.goHome()
+      return
+    }
+    if (this.globalData.guestMode) {
       this.goHome()
     }
   },
@@ -50,6 +55,7 @@ App({
             return
           }
           const userInfo = body.data.userInfo || null
+          this.clearGuestMode()
           this.globalData.token = body.data.token
           this.globalData.userInfo = userInfo
           this.globalData.role = toRole(userInfo?.role || targetRole)
@@ -67,15 +73,35 @@ App({
     })
   },
 
+  enterGuestMode() {
+    this.globalData.token = ''
+    this.globalData.userInfo = null
+    this.globalData.role = 1
+    this.globalData.mustChangePassword = false
+    this.globalData.guestMode = true
+    wx.removeStorageSync('token')
+    wx.removeStorageSync('userInfo')
+    wx.removeStorageSync('role')
+    wx.removeStorageSync('mustChangePassword')
+    wx.setStorageSync('guestMode', true)
+  },
+
+  clearGuestMode() {
+    this.globalData.guestMode = false
+    wx.removeStorageSync('guestMode')
+  },
+
   logout({ redirect = true } = {}) {
     this.globalData.token = ''
     this.globalData.userInfo = null
     this.globalData.role = 1
     this.globalData.mustChangePassword = false
+    this.globalData.guestMode = false
     wx.removeStorageSync('token')
     wx.removeStorageSync('userInfo')
     wx.removeStorageSync('role')
     wx.removeStorageSync('mustChangePassword')
+    wx.removeStorageSync('guestMode')
     if (redirect) {
       this.gotoLogin()
     }
@@ -86,16 +112,27 @@ App({
     wx.setStorageSync('mustChangePassword', this.globalData.mustChangePassword)
   },
 
-  gotoLogin() {
+  gotoLogin(role) {
     const pages = getCurrentPages()
     const current = pages[pages.length - 1]
     if (current && `/${current.route}` === LOGIN_PAGE) {
       return
     }
-    wx.reLaunch({ url: LOGIN_PAGE })
+    const suffix = role ? `?role=${role}` : ''
+    wx.reLaunch({ url: `${LOGIN_PAGE}${suffix}` })
   },
 
   goHome() {
+    if (this.globalData.guestMode) {
+      const pages = getCurrentPages()
+      const current = pages[pages.length - 1]
+      if (current && `/${current.route}` === OWNER_HOME_PAGE) {
+        return
+      }
+      wx.reLaunch({ url: OWNER_HOME_PAGE })
+      return
+    }
+
     if (this.globalData.role === 1 && this.globalData.mustChangePassword) {
       const pages = getCurrentPages()
       const current = pages[pages.length - 1]
@@ -117,5 +154,25 @@ App({
       return
     }
     wx.reLaunch({ url: homePage })
+  },
+
+  requireFeatureLogin(options = {}) {
+    if (this.globalData.token) {
+      return true
+    }
+    const title = options.title || '需要登录'
+    const content = options.content || '游客模式下仅可浏览页面，使用该功能需要先登录。'
+    const role = options.role
+    wx.showModal({
+      title,
+      content,
+      confirmText: '去登录',
+      success: ({ confirm }) => {
+        if (confirm) {
+          this.gotoLogin(role)
+        }
+      }
+    })
+    return false
   }
 })

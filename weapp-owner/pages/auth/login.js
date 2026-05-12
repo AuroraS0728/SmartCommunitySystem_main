@@ -41,8 +41,11 @@ Page({
     tip: ''
   },
 
-  onLoad() {
-    this.syncRoleMeta()
+  onLoad(options) {
+    const role = Number(options?.role || ROLE_OWNER)
+    this.setData({
+      role: role === ROLE_SECURITY || role === ROLE_WORKER ? role : ROLE_OWNER
+    }, () => this.syncRoleMeta())
   },
 
   onShow() {
@@ -126,5 +129,11 @@ Page({
       .finally(() => {
         this.setData({ loading: false })
       })
+  },
+
+  enterGuestMode() {
+    app.enterGuestMode()
+    wx.showToast({ title: '已进入游客模式', icon: 'none' })
+    app.goHome()
   }
 })

@@ -1,0 +1,54 @@
+.form-card {
+  padding: 28rpx;
+}
+
+.form-item {
+  margin-top: 20rpx;
+}
+
+.form-label {
+  margin-bottom: 10rpx;
+  color: #334155;
+  font-size: 26rpx;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  min-height: 84rpx;
+  padding: 18rpx 22rpx;
+  box-sizing: border-box;
+  border-radius: 16rpx;
+  background: #f8fafc;
+}
+
+.form-textarea {
+  min-height: 180rpx;
+}
+
+.switch-row {
+  display: grid;
+  gap: 14rpx;
+  margin-top: 22rpx;
+}
+
+.switch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 20rpx;
+  border-radius: 16rpx;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 26rpx;
+}
+
+.submit-btn {
+  margin-top: 28rpx;
+  height: 84rpx;
+  border-radius: 18rpx;
+  background: #2a6dff;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+}

@@ -2,6 +2,7 @@ const app = getApp()
 
 Page({
   goAccountSecurity() {
+    if (!app.requireFeatureLogin()) return
     wx.navigateTo({ url: "/pages/user/settings/account-security" })
   },
 
@@ -14,5 +15,17 @@ Page({
         app.logout()
       }
     })
+  },
+
+  goOwnerLogin() {
+    app.gotoLogin(1)
+  },
+
+  goSecurityLogin() {
+    app.gotoLogin(2)
+  },
+
+  goWorkerLogin() {
+    app.gotoLogin(3)
   }
 })

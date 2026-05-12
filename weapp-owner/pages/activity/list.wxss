@@ -1,0 +1,69 @@
+.tab-strip {
+  white-space: nowrap;
+  margin-bottom: 20rpx;
+}
+
+.tab-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120rpx;
+  height: 64rpx;
+  padding: 0 24rpx;
+  margin-right: 14rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #64748b;
+  border: 1rpx solid #e2e8f0;
+  font-size: 24rpx;
+}
+
+.tab-item.active {
+  background: #2a6dff;
+  color: #ffffff;
+  border-color: #2a6dff;
+}
+
+.activity-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.activity-image {
+  width: 100%;
+  height: 260rpx;
+}
+
+.activity-body {
+  padding: 24rpx;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.status-tag {
+  flex-shrink: 0;
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+}
+
+.status-tag.open {
+  background: rgba(34, 197, 94, 0.14);
+  color: #16a34a;
+}
+
+.status-tag.closed {
+  background: rgba(100, 116, 139, 0.14);
+  color: #64748b;
+}
+
+.meta-line {
+  margin-top: 10rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}

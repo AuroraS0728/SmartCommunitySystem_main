@@ -36,5 +36,6 @@
 
     <view class="register-link" wx:if="{{role===1}}" bindtap="goOwnerRegister">没有账号？业主注册</view>
     <button class="btn login-btn" loading="{{loading}}" bindtap="submit">登录</button>
+    <view class="guest-entry" bindtap="enterGuestMode">先逛逛，进入游客模式</view>
   </view>
 </view>
