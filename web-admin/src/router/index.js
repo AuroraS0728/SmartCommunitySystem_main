@@ -14,13 +14,18 @@ const routes = [
       },
       {
         path: 'house/building',
-        component: () => import('@/views/house/Building.vue'),
-        meta: { title: '楼栋管理', subtitle: '按楼栋维度查看房屋与入住情况' }
+        component: () => import('@/views/house/RealEstateArchive.vue'),
+        meta: { title: '房产档案', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
       },
       {
         path: 'house/property',
-        component: () => import('@/views/house/Property.vue'),
-        meta: { title: '房屋管理', subtitle: '维护房屋档案与业主绑定关系' }
+        component: () => import('@/views/house/RealEstateArchive.vue'),
+        meta: { title: '房产档案', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
+      },
+      {
+        path: 'house/archive',
+        component: () => import('@/views/house/RealEstateArchive.vue'),
+        meta: { title: '房产档案', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
       },
       {
         path: 'house/owner',
@@ -29,13 +34,18 @@ const routes = [
       },
       {
         path: 'repair/list',
-        component: () => import('@/views/repair/RepairList.vue'),
-        meta: { title: '工单管理', subtitle: '跟踪报修工单处理进度' }
+        component: () => import('@/views/repair/SmartWorkOrder.vue'),
+        meta: { title: '智能工单管控', subtitle: '统一处理优先级、派单建议、状态流转与 SLA 超时监控' }
       },
       {
         path: 'repair/work-order',
-        component: () => import('@/views/repair/WorkOrder.vue'),
-        meta: { title: '工单管理', subtitle: '查看工单优先级、推荐维修员与一键派单' }
+        component: () => import('@/views/repair/SmartWorkOrder.vue'),
+        meta: { title: '智能工单管控', subtitle: '统一处理优先级、派单建议、状态流转与 SLA 超时监控' }
+      },
+      {
+        path: 'repair/smart',
+        component: () => import('@/views/repair/SmartWorkOrder.vue'),
+        meta: { title: '智能工单管控', subtitle: '统一处理优先级、派单建议、状态流转与 SLA 超时监控' }
       },
       {
         path: 'operation/tasks',
@@ -51,6 +61,11 @@ const routes = [
         path: 'recommend/rules',
         component: () => import('@/views/recommend/RuleConfig.vue'),
         meta: { title: '推荐规则配置', subtitle: '维护小程序首页个性化推荐规则' }
+      },
+      {
+        path: 'activity/manage',
+        component: () => import('@/views/activity/ActivityManage.vue'),
+        meta: { title: '活动专区', subtitle: '发布活动、查看报名记录并审核参与资格' }
       },
       {
         path: 'fee/manage',
