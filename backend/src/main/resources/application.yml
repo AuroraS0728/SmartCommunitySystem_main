@@ -25,6 +25,10 @@ wechat:
   api-v3-key: mock_api_v3_key
   notify-url: https://example.com/pay/notify
 
+blog:
+  admin-password-sha256: ${BLOG_ADMIN_PASSWORD_SHA256:}
+  asset-dir: ${BLOG_ASSET_DIR:./blog-assets}
+
 seetaface:
   enabled: ${SEETAFACE_ENABLED:true}
   detector-model-path: ${SEETAFACE_DETECTOR_MODEL:D:/Face/sf3.0_models/sf3.0_models/face_detector.csta}

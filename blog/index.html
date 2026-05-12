@@ -6,16 +6,17 @@
   <title>Sqh的灵感仓库</title>
   <style>
     :root {
-      --ink: #2f271f;
-      --brown: #5d3c24;
-      --sun: #ffd36a;
-      --gold: #f0ad35;
-      --cream: #fff8dc;
-      --paper: rgba(255, 252, 231, 0.92);
-      --leaf: #6f9d45;
-      --sky: #79c8e8;
-      --coral: #c85f35;
+      --ink: #30251d;
+      --brown: #5d3b24;
+      --sun: #ffd569;
+      --gold: #f0aa31;
+      --paper: rgba(255, 251, 228, 0.94);
+      --cream: #fff6d6;
+      --grass: #6f9c44;
+      --sky: #7cc9e8;
+      --coral: #c75d34;
       --blue: #263f4b;
+      --line: #8b6236;
     }
 
     * {
@@ -35,12 +36,12 @@
       font-family: "Courier New", "Microsoft YaHei", monospace;
       line-height: 1.7;
       background:
-        linear-gradient(180deg, rgba(255, 232, 138, 0.45) 0 1px, transparent 1px 100%) 0 0 / 100% 28px,
+        linear-gradient(180deg, rgba(255, 232, 138, 0.42) 0 1px, transparent 1px 100%) 0 0 / 100% 28px,
         radial-gradient(circle at 16% 13%, #fff4bb 0 16px, transparent 17px),
         radial-gradient(circle at 22% 13%, #fff4bb 0 12px, transparent 13px),
         radial-gradient(circle at 82% 18%, #fff4bb 0 18px, transparent 19px),
         radial-gradient(circle at 89% 18%, #fff4bb 0 13px, transparent 14px),
-        linear-gradient(180deg, #79c8e8 0%, #aee6f2 58%, #98c86f 58%, #98c86f 100%);
+        linear-gradient(180deg, #7cc9e8 0%, #aee6f2 58%, #9ccc70 58%, #9ccc70 100%);
       overflow-x: hidden;
     }
 
@@ -49,9 +50,7 @@
       position: fixed;
       inset: auto 0 0;
       height: 92px;
-      background:
-        repeating-linear-gradient(90deg, #56782e 0 24px, #6a8e3f 24px 48px),
-        linear-gradient(#416020, #416020);
+      background: repeating-linear-gradient(90deg, #56782e 0 24px, #6a8e3f 24px 48px);
       border-top: 6px solid #38531d;
       z-index: 0;
       pointer-events: none;
@@ -67,9 +66,19 @@
       pointer-events: none;
     }
 
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
     .wrap {
-      width: min(1040px, calc(100% - 28px));
-      margin: 30px auto 120px;
+      width: min(1080px, calc(100% - 28px));
+      margin: 30px auto 122px;
       position: relative;
       z-index: 1;
     }
@@ -93,25 +102,33 @@
     .brand-badge {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
       padding: 10px 14px;
       background: var(--sun);
       border: 4px solid var(--brown);
       box-shadow: 4px 4px 0 #b97a25;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .owner-dot {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border: 4px solid var(--brown);
       background: #fff2a8;
       box-shadow: 3px 3px 0 #bb7a24;
-      cursor: pointer;
       color: transparent;
       font-size: 0;
+    }
+
+    .owner-dot::before {
+      content: "";
+      display: block;
+      width: 12px;
+      height: 12px;
+      margin: 8px auto;
+      background: var(--coral);
+      box-shadow: 8px 0 0 var(--blue), 0 8px 0 var(--grass), 8px 8px 0 var(--gold);
     }
 
     h1,
@@ -122,16 +139,17 @@
     }
 
     h1 {
-      font-size: clamp(28px, 6vw, 58px);
+      font-size: clamp(30px, 6vw, 60px);
       line-height: 1.08;
       letter-spacing: 0;
       text-shadow: 4px 4px 0 #f0d49c;
+      overflow-wrap: anywhere;
     }
 
     .tagline {
       margin-top: 12px;
       font-size: clamp(15px, 2.4vw, 20px);
-      font-weight: 700;
+      font-weight: 800;
       color: #56412d;
     }
 
@@ -155,7 +173,10 @@
       background: #f8c763;
       border: 4px solid var(--brown);
       box-shadow: 6px 6px 0 rgba(84, 54, 31, 0.25);
-      font-size: 74px;
+      font-size: 42px;
+      font-weight: 900;
+      text-align: center;
+      overflow-wrap: anywhere;
     }
 
     .bio {
@@ -165,20 +186,30 @@
       font-weight: 700;
     }
 
-    .skills {
+    .chips,
+    .tech {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 4px;
     }
 
-    .chip {
+    .chip,
+    .tech span {
       padding: 5px 10px;
-      background: #e9d7a9;
       border: 2px solid #9a6d39;
       box-shadow: 2px 2px 0 rgba(93, 60, 36, 0.22);
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 900;
+    }
+
+    .chip {
+      background: #e9d7a9;
+    }
+
+    .tech span {
+      background: var(--blue);
+      color: #fff2a8;
+      border-color: #0e2530;
     }
 
     .section-title {
@@ -187,51 +218,74 @@
       text-shadow: 2px 2px 0 #f0d49c;
     }
 
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
     .project-card {
-      display: block;
-      padding: 22px;
+      display: grid;
+      grid-template-rows: auto 1fr;
       color: inherit;
       text-decoration: none;
       background: #fffef2;
       border: 5px solid var(--brown);
       box-shadow: 7px 7px 0 rgba(192, 139, 64, 0.8);
       border-radius: 8px;
+      overflow: hidden;
       transition: transform 120ms ease, box-shadow 120ms ease;
     }
 
-    .project-card:hover,
-    .project-card:focus-visible {
+    .project-card[href]:hover,
+    .project-card[href]:focus-visible {
       transform: translate(-3px, -5px);
       box-shadow: 10px 12px 0 rgba(192, 139, 64, 0.9);
       outline: none;
     }
 
-    .project-card h2 {
+    .project-media {
+      aspect-ratio: 16 / 9;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.22) 25%, transparent 25% 50%, rgba(255,255,255,0.22) 50% 75%, transparent 75%) 0 0 / 18px 18px,
+        linear-gradient(135deg, #f5c461, #78b96d);
+      border-bottom: 4px solid var(--brown);
+      display: grid;
+      place-items: center;
+      color: #654120;
+      font-size: 24px;
+      font-weight: 900;
+      min-height: 180px;
+    }
+
+    .project-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .project-body {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+    }
+
+    .project-body h3 {
       color: var(--coral);
-      font-size: clamp(20px, 3vw, 28px);
-      margin-bottom: 10px;
+      font-size: clamp(19px, 2.4vw, 25px);
+      line-height: 1.3;
+      overflow-wrap: anywhere;
     }
 
-    .tech {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 14px 0;
-    }
-
-    .tech span {
-      background: var(--blue);
-      color: #fff2a8;
-      padding: 4px 10px;
-      border: 2px solid #0e2530;
-      font-size: 13px;
-      font-weight: 800;
+    .project-body p {
+      font-weight: 700;
     }
 
     .button-like {
-      display: inline-block;
-      margin-top: 16px;
-      padding: 9px 16px;
+      justify-self: start;
+      margin-top: 2px;
+      padding: 8px 14px;
       background: var(--gold);
       border: 3px solid var(--brown);
       box-shadow: 3px 3px 0 #a26218;
@@ -249,7 +303,7 @@
       border: 4px solid #9c6d31;
       padding: 18px;
       border-radius: 8px;
-      min-height: 180px;
+      min-height: 178px;
     }
 
     .mini-card h3 {
@@ -284,14 +338,20 @@
       color: #5c442d;
     }
 
-    .admin-bar {
+    .admin-on [data-editable] {
+      outline: 3px dashed rgba(199, 93, 52, 0.7);
+      outline-offset: 5px;
+      background: rgba(255, 255, 255, 0.34);
+    }
+
+    .admin-dock {
       display: none;
       position: fixed;
       left: 16px;
       right: 16px;
       bottom: 16px;
       z-index: 10;
-      max-width: 760px;
+      max-width: 920px;
       margin: 0 auto;
       padding: 12px;
       background: #fff8dc;
@@ -302,33 +362,112 @@
       flex-wrap: wrap;
     }
 
-    .admin-on .admin-bar {
+    .admin-on .admin-dock,
+    .admin-on .editor-panel {
       display: flex;
     }
 
-    .admin-btn,
-    .modal button {
+    .pixel-btn {
       padding: 9px 12px;
       border: 3px solid var(--brown);
       background: var(--sun);
       box-shadow: 3px 3px 0 #a26218;
-      font: inherit;
+      color: var(--ink);
       font-weight: 900;
-      cursor: pointer;
     }
 
-    .admin-btn.secondary {
+    .pixel-btn.secondary {
       background: #e7d6ab;
     }
 
-    [data-editable] {
-      outline: 0 solid transparent;
+    .pixel-btn.danger {
+      background: #f19976;
     }
 
-    .admin-on [data-editable] {
-      outline: 3px dashed rgba(200, 95, 53, 0.65);
-      outline-offset: 5px;
-      background: rgba(255, 255, 255, 0.28);
+    .status-text {
+      align-self: center;
+      min-width: 160px;
+      font-weight: 800;
+      color: #6b4a2a;
+    }
+
+    .editor-panel {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 28px;
+      padding: 18px;
+      background: #fff6d6;
+      border: 4px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .editor-panel h2 {
+      font-size: 22px;
+    }
+
+    .editor-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      font-weight: 900;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 3px solid var(--brown);
+      background: #fffef2;
+      color: var(--ink);
+      padding: 9px;
+      min-width: 0;
+    }
+
+    .field textarea {
+      min-height: 108px;
+      resize: vertical;
+    }
+
+    .project-editor-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .project-editor {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px;
+      border: 3px solid var(--line);
+      background: #fffaf0;
+    }
+
+    .editor-thumb {
+      aspect-ratio: 16 / 10;
+      border: 3px solid var(--brown);
+      background: #f5c461;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      font-weight: 900;
+    }
+
+    .editor-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
     }
 
     .modal-backdrop {
@@ -336,7 +475,7 @@
       position: fixed;
       inset: 0;
       z-index: 20;
-      background: rgba(36, 28, 20, 0.45);
+      background: rgba(36, 28, 20, 0.48);
       padding: 22px;
       place-items: center;
     }
@@ -346,7 +485,7 @@
     }
 
     .modal {
-      width: min(520px, 100%);
+      width: min(420px, 100%);
       background: var(--cream);
       border: 5px solid var(--brown);
       box-shadow: 8px 8px 0 rgba(47, 39, 31, 0.35);
@@ -359,17 +498,11 @@
       font-size: 22px;
     }
 
-    .modal p {
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
     .modal input {
       width: 100%;
       padding: 12px;
       border: 3px solid var(--brown);
       background: #fffef2;
-      font: inherit;
       margin-bottom: 12px;
     }
 
@@ -380,14 +513,16 @@
       flex-wrap: wrap;
     }
 
-    .hint {
-      font-size: 13px;
-      color: #714f2d;
+    .message {
+      min-height: 24px;
+      margin-top: 10px;
+      color: #764525;
+      font-weight: 800;
     }
 
-    @media (max-width: 720px) {
+    @media (max-width: 820px) {
       .wrap {
-        width: min(100% - 18px, 1040px);
+        width: min(100% - 18px, 1080px);
         margin-top: 12px;
       }
 
@@ -407,20 +542,27 @@
       }
 
       .intro,
-      .grid {
+      .grid,
+      .project-grid,
+      .editor-grid,
+      .project-editor {
         grid-template-columns: 1fr;
       }
 
       .avatar {
         min-height: 116px;
-        font-size: 58px;
+        font-size: 34px;
       }
 
       .bio {
         font-size: 15px;
       }
 
-      .admin-bar {
+      .project-media {
+        min-height: 150px;
+      }
+
+      .admin-dock {
         bottom: 10px;
         left: 10px;
         right: 10px;
@@ -430,234 +572,422 @@
 </head>
 <body>
   <main class="wrap">
-    <section class="panel" aria-label="Sqh的灵感仓库主页">
+    <section class="panel" aria-label="个人主页">
       <header class="brand">
-        <div class="brand-badge">Sqh's Pixel Lab</div>
-        <button class="owner-dot" id="ownerEntry" type="button" aria-label="站长编辑入口">编辑入口</button>
+        <div class="brand-badge" data-editable="brand"></div>
+        <button class="owner-dot" id="ownerEntry" type="button" aria-label="编辑入口">编辑</button>
       </header>
 
-      <h1 data-editable="text" data-key="heroTitle">Sqh的灵感仓库</h1>
-      <p class="tagline" data-editable="text" data-key="heroTagline">把毕设、灵感和正在生长的代码收进一个阳光像素世界。</p>
+      <h1 data-editable="heroTitle"></h1>
+      <p class="tagline" data-editable="heroTagline"></p>
 
       <section class="intro">
-        <div class="avatar" data-editable="text" data-key="avatar">🧑‍💻🎮</div>
+        <div class="avatar" data-editable="avatar"></div>
         <div class="bio">
-          <h2 data-editable="text" data-key="profileName">宋庆涵 · 智慧社区探险家</h2>
-          <p data-editable="text" data-key="profileLine1">辽宁工程技术大学 软件学院 22级，正在把物业管理场景做成可运行、可演示、可部署的毕业设计。</p>
-          <p data-editable="text" data-key="profileLine2">热衷构建“代码 + 玩法”的实用工具，擅长 Spring Boot、Vue、微信小程序和 MyBatis-Plus 生态。</p>
-          <p data-editable="text" data-key="profileLine3">正在探索智能派单、信用积分、投诉情感分析和隐式画像推荐在智慧社区里的落地方式。</p>
-          <div class="skills" data-list="skills"></div>
+          <h2 data-editable="profileName"></h2>
+          <p data-editable="profileLine1"></p>
+          <p data-editable="profileLine2"></p>
+          <p data-editable="profileLine3"></p>
+          <div class="chips" id="skills"></div>
         </div>
       </section>
 
-      <a href="/bs" class="project-card" target="_blank" rel="noopener noreferrer">
-        <h2 data-editable="text" data-key="projectTitle">智慧社区物业管理系统 ｜ 毕设核心作品</h2>
-        <p data-editable="text" data-key="projectDesc">业主、物业、维修三端闭环，包含智能派单、信用积分、投诉情感分析、SLA 监控、催缴提醒和实时消息。</p>
-        <div class="tech" data-list="tech"></div>
-        <span class="button-like">▶ 点击进入 /bs</span>
-      </a>
+      <h2 class="section-title">项目展示</h2>
+      <section class="project-grid" id="projects"></section>
 
       <h2 class="section-title">仓库动态</h2>
       <section class="grid">
         <article class="mini-card">
           <h3>近期动态</h3>
-          <ul data-list="updates"></ul>
+          <ul id="updates"></ul>
         </article>
         <article class="mini-card">
           <h3>联系方式</h3>
-          <div class="contact-list" data-list="contacts"></div>
+          <div class="contact-list" id="contacts"></div>
         </article>
       </section>
 
+      <section class="editor-panel" id="editorPanel">
+        <h2>主页内容</h2>
+        <div class="editor-grid">
+          <label class="field">技能
+            <textarea id="skillsInput"></textarea>
+          </label>
+          <label class="field">近期动态
+            <textarea id="updatesInput"></textarea>
+          </label>
+          <label class="field">联系方式
+            <textarea id="contactsInput"></textarea>
+          </label>
+        </div>
+
+        <h2>项目</h2>
+        <div class="project-editor-list" id="projectEditors"></div>
+      </section>
+
       <footer class="footer">
-        <span data-editable="text" data-key="footerText">像素风格个人工坊 · 智慧社区毕设项目 © 2026</span>
+        <span data-editable="footerText"></span>
       </footer>
     </section>
   </main>
 
-  <div class="admin-bar" aria-live="polite">
-    <button class="admin-btn" id="saveBtn" type="button">保存本机</button>
-    <button class="admin-btn secondary" id="resetBtn" type="button">恢复默认</button>
-    <button class="admin-btn secondary" id="exportBtn" type="button">导出内容</button>
-    <button class="admin-btn secondary" id="lockBtn" type="button">退出编辑</button>
+  <div class="admin-dock">
+    <button class="pixel-btn" id="saveBtn" type="button">保存到服务器</button>
+    <button class="pixel-btn" id="addProjectBtn" type="button">添加项目</button>
+    <button class="pixel-btn secondary" id="refreshBtn" type="button">重新加载</button>
+    <button class="pixel-btn secondary" id="logoutBtn" type="button">退出编辑</button>
+    <span class="status-text" id="statusText"></span>
   </div>
 
   <div class="modal-backdrop" id="loginModal">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
-      <h2 id="loginTitle">站长编辑入口</h2>
-      <p>输入编辑口令后，本浏览器会进入简介编辑模式。</p>
-      <p class="hint">安全说明：纯静态 index.html 只能隐藏编辑入口并做本地保存。要做到服务器级“只有你能改并同步给所有访客”，需要后端保存接口或 Nginx Basic Auth。</p>
+      <h2 id="loginTitle">站长编辑</h2>
       <input id="passInput" type="password" autocomplete="current-password" placeholder="编辑口令">
       <div class="modal-actions">
-        <button type="button" id="cancelLogin">取消</button>
-        <button type="button" id="confirmLogin">进入编辑</button>
+        <button class="pixel-btn secondary" type="button" id="cancelLogin">取消</button>
+        <button class="pixel-btn" type="button" id="confirmLogin">进入</button>
       </div>
-      <p class="hint" id="loginMessage"></p>
+      <p class="message" id="loginMessage"></p>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "sqh-blog-profile-v1";
-    const ADMIN_SESSION_KEY = "sqh-blog-admin-session";
+    const API_PROFILE = "/api/blog/profile";
+    const API_LOGIN = "/api/blog/admin/login";
+    const API_SAVE = "/api/blog/admin/profile";
+    const API_UPLOAD = "/api/blog/admin/assets";
+    const TOKEN_KEY = "sqh-blog-admin-token";
 
-    // 部署前请替换成你的编辑口令 SHA-256。
-    // 生成方式示例：
-    // PowerShell: [BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes("你的口令"))).Replace("-","").ToLower()
-    // Linux: printf '你的口令' | sha256sum
-    const ADMIN_PASS_SHA256 = "45acb8a092b1649b0fb97d83747bee4c8778f67b522a4a913b90767228ad5969";
-
-    const defaultData = {
+    const defaultProfile = {
+      siteName: "Sqh的灵感仓库",
+      brand: "Sqh's Pixel Lab",
       heroTitle: "Sqh的灵感仓库",
       heroTagline: "把毕设、灵感和正在生长的代码收进一个阳光像素世界。",
-      avatar: "🧑‍💻🎮",
+      avatar: "SQH",
       profileName: "宋庆涵 · 智慧社区探险家",
       profileLine1: "辽宁工程技术大学 软件学院 22级，正在把物业管理场景做成可运行、可演示、可部署的毕业设计。",
       profileLine2: "热衷构建“代码 + 玩法”的实用工具，擅长 Spring Boot、Vue、微信小程序和 MyBatis-Plus 生态。",
       profileLine3: "正在探索智能派单、信用积分、投诉情感分析和隐式画像推荐在智慧社区里的落地方式。",
       skills: ["Spring Boot", "Vue 3", "微信小程序", "MyBatis-Plus", "Redis", "规则引擎"],
-      projectTitle: "智慧社区物业管理系统 ｜ 毕设核心作品",
-      projectDesc: "业主、物业、维修三端闭环，包含智能派单、信用积分、投诉情感分析、SLA 监控、催缴提醒和实时消息。",
-      tech: ["Spring Boot", "Vue 3", "微信小程序", "MyBatis-Plus", "Redis"],
-      updates: [
-        "完成阿里云轻量部署与域名备案接入",
-        "完成智慧社区三端联调与部署路径整理",
-        "投诉情感分析、信用积分、SLA 监控模块持续完善",
-        "隐式画像融合推荐进行中"
-      ],
+      updates: ["完成阿里云轻量部署与域名备案接入", "完成智慧社区三端联调与部署路径整理", "投诉情感分析、信用积分、SLA 监控模块持续完善", "隐式画像融合推荐进行中"],
       contacts: ["邮箱：shan.han@edu.cn", "GitHub：github.com/auroras0728", "站点：wiseprop.online"],
+      projects: [{
+        title: "智慧社区物业管理系统 ｜ 毕设核心作品",
+        description: "业主、物业、维修三端闭环，包含智能派单、信用积分、投诉情感分析、SLA 监控、催缴提醒和实时消息。",
+        href: "/bs/",
+        imageUrl: "",
+        tags: ["Spring Boot", "Vue 3", "微信小程序", "MyBatis-Plus", "Redis"]
+      }],
       footerText: "像素风格个人工坊 · 智慧社区毕设项目 © 2026"
     };
 
-    let currentData = loadData();
+    let profile = structuredClone(defaultProfile);
+    let adminMode = false;
 
-    function loadData() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-        return { ...defaultData, ...saved };
-      } catch (error) {
-        return { ...defaultData };
+    function token() {
+      return localStorage.getItem(TOKEN_KEY) || "";
+    }
+
+    function setStatus(text) {
+      document.getElementById("statusText").textContent = text || "";
+    }
+
+    function textLines(value) {
+      return String(value || "").split("\n").map((item) => item.trim()).filter(Boolean);
+    }
+
+    function safeList(list) {
+      return Array.isArray(list) ? list : [];
+    }
+
+    async function requestJson(url, options = {}) {
+      const response = await fetch(url, {
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+        ...options
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || !payload || payload.code !== 200) {
+        throw new Error(payload && payload.message ? payload.message : "request failed");
       }
+      return payload.data;
+    }
+
+    async function loadProfile() {
+      try {
+        const data = await requestJson(API_PROFILE);
+        profile = { ...structuredClone(defaultProfile), ...data };
+      } catch (error) {
+        profile = structuredClone(defaultProfile);
+        setStatus("读取失败");
+      }
+      render();
     }
 
     function render() {
+      document.title = profile.siteName || profile.heroTitle || "Sqh的灵感仓库";
       document.querySelectorAll("[data-editable]").forEach((node) => {
-        const key = node.dataset.key;
-        node.textContent = currentData[key] || "";
+        const key = node.dataset.editable;
+        node.textContent = profile[key] || "";
+        node.contentEditable = adminMode ? "true" : "false";
       });
-      renderList("skills", "span", "chip");
-      renderList("tech", "span");
-      renderList("updates", "li");
-      renderList("contacts", "p");
+      renderList("skills", profile.skills, "span", "chip");
+      renderList("updates", profile.updates, "li");
+      renderList("contacts", profile.contacts, "p");
+      renderProjects();
+      renderEditor();
+      document.body.classList.toggle("admin-on", adminMode);
     }
 
-    function renderList(key, tagName, className = "") {
-      const host = document.querySelector(`[data-list="${key}"]`);
-      if (!host) return;
+    function renderList(hostId, list, tag, className = "") {
+      const host = document.getElementById(hostId);
       host.innerHTML = "";
-      (currentData[key] || []).forEach((text, index) => {
-        const item = document.createElement(tagName);
-        if (className) item.className = className;
-        item.textContent = text;
-        item.dataset.listItem = key;
-        item.dataset.index = String(index);
-        host.appendChild(item);
+      safeList(list).forEach((text) => {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        node.textContent = text;
+        host.appendChild(node);
       });
     }
 
-    function setAdminMode(enabled) {
-      document.body.classList.toggle("admin-on", enabled);
-      sessionStorage.setItem(ADMIN_SESSION_KEY, enabled ? "1" : "0");
+    function renderProjects() {
+      const host = document.getElementById("projects");
+      host.innerHTML = "";
+      safeList(profile.projects).forEach((project) => {
+        const card = document.createElement(project.href ? "a" : "article");
+        card.className = "project-card";
+        if (project.href) {
+          card.href = project.href;
+          card.target = project.href.startsWith("http") ? "_blank" : "_self";
+          card.rel = "noopener noreferrer";
+        }
+
+        const media = document.createElement("div");
+        media.className = "project-media";
+        if (project.imageUrl) {
+          const img = document.createElement("img");
+          img.src = project.imageUrl;
+          img.alt = project.title || "项目图片";
+          media.appendChild(img);
+        } else {
+          media.textContent = "PROJECT";
+        }
+
+        const body = document.createElement("div");
+        body.className = "project-body";
+        const title = document.createElement("h3");
+        title.textContent = project.title || "未命名项目";
+        const desc = document.createElement("p");
+        desc.textContent = project.description || "";
+        const tech = document.createElement("div");
+        tech.className = "tech";
+        safeList(project.tags).forEach((tag) => {
+          const item = document.createElement("span");
+          item.textContent = tag;
+          tech.appendChild(item);
+        });
+        const action = document.createElement("span");
+        action.className = "button-like";
+        action.textContent = project.href ? "进入项目" : "项目展示";
+        body.append(title, desc, tech, action);
+        card.append(media, body);
+        host.appendChild(card);
+      });
+    }
+
+    function renderEditor() {
+      if (!adminMode) return;
+      document.getElementById("skillsInput").value = safeList(profile.skills).join("\n");
+      document.getElementById("updatesInput").value = safeList(profile.updates).join("\n");
+      document.getElementById("contactsInput").value = safeList(profile.contacts).join("\n");
+      const host = document.getElementById("projectEditors");
+      host.innerHTML = "";
+      safeList(profile.projects).forEach((project, index) => {
+        const editor = document.createElement("article");
+        editor.className = "project-editor";
+        editor.innerHTML = `
+          <div>
+            <div class="editor-thumb">${project.imageUrl ? `<img src="${escapeHtml(project.imageUrl)}" alt="">` : "IMAGE"}</div>
+            <div class="editor-actions">
+              <label class="pixel-btn secondary">
+                上传图片
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload="${index}" hidden>
+              </label>
+              <button class="pixel-btn danger" type="button" data-delete-project="${index}">删除</button>
+            </div>
+          </div>
+          <div class="editor-grid">
+            <label class="field">项目名称
+              <input value="${escapeHtml(project.title || "")}" data-project="${index}" data-field="title">
+            </label>
+            <label class="field">跳转链接
+              <input value="${escapeHtml(project.href || "")}" data-project="${index}" data-field="href">
+            </label>
+            <label class="field">标签
+              <input value="${escapeHtml(safeList(project.tags).join(", "))}" data-project="${index}" data-field="tags">
+            </label>
+            <label class="field" style="grid-column: 1 / -1;">示例图片地址
+              <input value="${escapeHtml(project.imageUrl || "")}" data-project="${index}" data-field="imageUrl">
+            </label>
+            <label class="field" style="grid-column: 1 / -1;">项目描述
+              <textarea data-project="${index}" data-field="description">${escapeHtml(project.description || "")}</textarea>
+            </label>
+          </div>
+        `;
+        host.appendChild(editor);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function collectProfile() {
       document.querySelectorAll("[data-editable]").forEach((node) => {
-        node.contentEditable = enabled ? "true" : "false";
+        profile[node.dataset.editable] = node.textContent.trim();
       });
-      document.querySelectorAll("[data-list-item]").forEach((node) => {
-        node.contentEditable = enabled ? "true" : "false";
+      profile.skills = textLines(document.getElementById("skillsInput").value);
+      profile.updates = textLines(document.getElementById("updatesInput").value);
+      profile.contacts = textLines(document.getElementById("contactsInput").value);
+      document.querySelectorAll("[data-project]").forEach((node) => {
+        const index = Number(node.dataset.project);
+        const field = node.dataset.field;
+        if (!profile.projects[index]) return;
+        profile.projects[index][field] = field === "tags"
+          ? String(node.value || "").split(",").map((item) => item.trim()).filter(Boolean)
+          : String(node.value || "").trim();
       });
     }
 
-    function collectData() {
-      const next = { ...currentData };
-      document.querySelectorAll("[data-editable]").forEach((node) => {
-        next[node.dataset.key] = node.textContent.trim();
-      });
-      ["skills", "tech", "updates", "contacts"].forEach((key) => {
-        next[key] = Array.from(document.querySelectorAll(`[data-list-item="${key}"]`))
-          .map((node) => node.textContent.trim())
-          .filter(Boolean);
-      });
-      currentData = next;
+    async function saveProfile() {
+      collectProfile();
+      setStatus("保存中");
+      try {
+        const data = await requestJson(API_SAVE, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token()}` },
+          body: JSON.stringify(profile)
+        });
+        profile = { ...structuredClone(defaultProfile), ...data };
+        setStatus("已保存");
+        render();
+      } catch (error) {
+        setStatus(error.message || "保存失败");
+        if (/401|403|forbidden|unauthorized/i.test(error.message)) {
+          localStorage.removeItem(TOKEN_KEY);
+        }
+      }
     }
 
-    async function sha256(text) {
-      const bytes = new TextEncoder().encode(text);
-      const hash = await crypto.subtle.digest("SHA-256", bytes);
-      return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    async function uploadImage(index, file) {
+      if (!file) return;
+      setStatus("上传中");
+      const form = new FormData();
+      form.append("file", file);
+      try {
+        const response = await fetch(API_UPLOAD, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token()}` },
+          body: form
+        });
+        const payload = await response.json();
+        if (!response.ok || payload.code !== 200) {
+          throw new Error(payload.message || "上传失败");
+        }
+        profile.projects[index].imageUrl = payload.data.url;
+        setStatus("已上传");
+        render();
+      } catch (error) {
+        setStatus(error.message || "上传失败");
+      }
+    }
+
+    async function login() {
+      const password = document.getElementById("passInput").value;
+      const message = document.getElementById("loginMessage");
+      message.textContent = "";
+      try {
+        const data = await requestJson(API_LOGIN, {
+          method: "POST",
+          body: JSON.stringify({ password })
+        });
+        localStorage.setItem(TOKEN_KEY, data.token);
+        closeModal();
+        adminMode = true;
+        setStatus("编辑中");
+        render();
+      } catch (error) {
+        message.textContent = error.message || "登录失败";
+      }
     }
 
     function openModal() {
+      if (token()) {
+        adminMode = true;
+        setStatus("编辑中");
+        render();
+        return;
+      }
       document.getElementById("loginModal").classList.add("open");
       document.getElementById("passInput").focus();
-      document.getElementById("loginMessage").textContent =
-        ADMIN_PASS_SHA256 === "CHANGE_ME_SHA256" ? "部署前请先替换 ADMIN_PASS_SHA256，否则无法安全启用编辑。" : "";
     }
 
     function closeModal() {
       document.getElementById("loginModal").classList.remove("open");
       document.getElementById("passInput").value = "";
-    }
-
-    function downloadContentJson() {
-      collectData();
-      const blob = new Blob([JSON.stringify(currentData, null, 2)], { type: "application/json;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "sqh-blog-profile.json";
-      a.click();
-      URL.revokeObjectURL(url);
+      document.getElementById("loginMessage").textContent = "";
     }
 
     document.getElementById("ownerEntry").addEventListener("click", openModal);
     document.getElementById("cancelLogin").addEventListener("click", closeModal);
-    document.getElementById("lockBtn").addEventListener("click", () => setAdminMode(false));
-    document.getElementById("saveBtn").addEventListener("click", () => {
-      collectData();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
-      alert("已保存到本浏览器。若要让所有访客看到，请导出内容并同步到服务器版本。");
+    document.getElementById("confirmLogin").addEventListener("click", login);
+    document.getElementById("passInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") login();
     });
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      if (!confirm("确认恢复默认内容？")) return;
-      localStorage.removeItem(STORAGE_KEY);
-      currentData = { ...defaultData };
+    document.getElementById("saveBtn").addEventListener("click", saveProfile);
+    document.getElementById("refreshBtn").addEventListener("click", loadProfile);
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      adminMode = false;
+      localStorage.removeItem(TOKEN_KEY);
+      setStatus("");
       render();
-      setAdminMode(true);
     });
-    document.getElementById("exportBtn").addEventListener("click", downloadContentJson);
-    document.getElementById("confirmLogin").addEventListener("click", async () => {
-      const msg = document.getElementById("loginMessage");
-      if (ADMIN_PASS_SHA256 === "CHANGE_ME_SHA256") {
-        msg.textContent = "请先在 HTML 中替换 ADMIN_PASS_SHA256。";
-        return;
-      }
-      const input = document.getElementById("passInput").value;
-      if (await sha256(input) === ADMIN_PASS_SHA256) {
-        closeModal();
-        setAdminMode(true);
-      } else {
-        msg.textContent = "口令不正确。";
+    document.getElementById("addProjectBtn").addEventListener("click", () => {
+      collectProfile();
+      profile.projects.push({
+        title: "新项目",
+        description: "项目描述",
+        imageUrl: "",
+        href: "",
+        tags: ["Demo"]
+      });
+      render();
+      setStatus("已添加");
+    });
+    document.addEventListener("input", (event) => {
+      if (event.target.matches("[data-project]")) {
+        collectProfile();
+        renderProjects();
       }
     });
-    document.addEventListener("keydown", (event) => {
-      if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "e") {
-        event.preventDefault();
-        openModal();
+    document.addEventListener("change", (event) => {
+      if (event.target.matches("[data-upload]")) {
+        uploadImage(Number(event.target.dataset.upload), event.target.files[0]);
       }
+    });
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-delete-project]");
+      if (!button) return;
+      collectProfile();
+      profile.projects.splice(Number(button.dataset.deleteProject), 1);
+      render();
+      setStatus("已删除");
     });
 
-    render();
-    if (sessionStorage.getItem(ADMIN_SESSION_KEY) === "1") {
-      setAdminMode(true);
-    }
+    loadProfile();
   </script>
 </body>
 </html>
