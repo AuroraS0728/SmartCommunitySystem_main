@@ -1,7 +1,7 @@
 <view class="section">
   <view class="hero security-hero">
     <view class="hero-title">门禁扫码核验</view>
-    <view class="hero-desc">先模拟扫码流程，后续可切换真实摄像头扫码</view>
+    <view class="hero-desc">当前先支持模拟扫码核验，后续可切换到真实扫码流程</view>
   </view>
 
   <view class="item">
@@ -11,7 +11,7 @@
         {{cameraAuthorized ? '已授权' : '未授权'}}
       </view>
     </view>
-    <view class="item-desc">安防端需申请手机相机权限，用于门禁二维码扫描核验。</view>
+    <view class="item-desc">安防端需要申请手机相机权限，用于门禁二维码扫描与核验。</view>
     <view class="action-row">
       <view class="mini-btn" bindtap="requestCameraPermission">申请相机权限</view>
       <view class="mini-btn mini-btn-plain" bindtap="checkCameraPermission">刷新权限状态</view>
@@ -20,23 +20,23 @@
 
   <view class="item" wx:if="{{cameraAuthorized}}">
     <view class="item-title">相机预览（模拟扫码阶段）</view>
-    <view class="item-desc">当前阶段使用“模拟扫码核验”，相机仅用于权限与预览。</view>
+    <view class="item-desc">当前阶段使用“模拟扫码核验”，相机仅用于权限确认与预览。</view>
     <camera class="camera-preview" device-position="back" flash="off"></camera>
   </view>
 
   <view class="item">
     <view class="item-title">模拟扫码核验</view>
-    <view class="item-desc">粘贴扫码结果（如 smartcommunity://visitor/dynamic?token=xxx）或直接粘贴 token。</view>
+    <view class="item-desc">粘贴扫码结果，例如 smartcommunity://visitor/dynamic?token=xxx，也可以直接粘贴 token。</view>
     <textarea
       class="input textarea"
-      placeholder="请输入扫码内容或token"
+      placeholder="请输入扫码内容或 token"
       value="{{scanText}}"
       bindinput="onScanTextInput"
     />
-    <view class="meta">识别 token：{{token || '--'}}</view>
+    <view class="meta">识别结果：{{token || '--'}}</view>
     <view class="action-row">
       <view class="mini-btn mini-btn-plain" bindtap="readFromClipboard">从剪贴板读取</view>
-      <view class="mini-btn" bindtap="simulateScanVerify">{{verifying ? '核验中...' : '模拟扫码核验'}}</view>
+      <view class="mini-btn" bindtap="simulateScanVerify">{{verifying ? '核验中...' : '开始核验'}}</view>
     </view>
   </view>
 

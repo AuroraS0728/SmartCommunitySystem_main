@@ -31,10 +31,14 @@
     <image class="activity-image" src="{{item.imageUrl || 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80'}}" mode="aspectFill" />
     <view class="activity-body">
       <view class="row-between">
-        <view class="item-title">{{item.title}}</view>
+        <view class="title-wrap">
+          <view class="item-title">{{item.title}}</view>
+          <view wx:if="{{item.recommended && activeTab === '全部'}}" class="recommend-badge">为您推荐</view>
+        </view>
         <view class="status-tag {{item.canRegister ? 'open' : 'closed'}}">{{item.statusText}}</view>
       </view>
       <view class="item-desc">{{item.type}} · {{item.location}}</view>
+      <view wx:if="{{item.recommended && item.recommendReason && activeTab === '全部'}}" class="recommend-reason">{{item.recommendReason}}</view>
       <view class="meta-line">{{item.startTime}} - {{item.endTime}}</view>
       <view class="meta-line">已报名 {{item.currentParticipants}} / {{item.maxParticipants}} · 剩余 {{item.remainingSlots}}</view>
     </view>

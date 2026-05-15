@@ -23,6 +23,7 @@ DROP TABLE IF EXISTS second_hand_report;
 DROP TABLE IF EXISTS second_hand_favorite;
 DROP TABLE IF EXISTS second_hand;
 DROP TABLE IF EXISTS notice;
+DROP TABLE IF EXISTS additional_service_order;
 DROP TABLE IF EXISTS repair_fee_objection;
 DROP TABLE IF EXISTS repair_fee_detail;
 DROP TABLE IF EXISTS repair_order_worker;
@@ -380,6 +381,30 @@ CREATE TABLE `notice` (
   `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `idx_top_publish` (`top`,`publish_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `additional_service_order` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `service_id` VARCHAR(100) NOT NULL,
+  `service_name` VARCHAR(100) NOT NULL,
+  `price` INT NOT NULL DEFAULT 0,
+  `points_cost` INT NOT NULL DEFAULT 0,
+  `appointment_date` DATE NOT NULL,
+  `appointment_time_slot` VARCHAR(20) NOT NULL,
+  `contact_name` VARCHAR(50) DEFAULT NULL,
+  `contact_phone` VARCHAR(32) DEFAULT NULL,
+  `remark` VARCHAR(200) DEFAULT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
+  `paid_time` DATETIME DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_additional_service_user` (`user_id`),
+  KEY `idx_additional_service_status` (`status`),
+  KEY `idx_additional_service_service` (`service_id`),
+  KEY `idx_additional_service_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `second_hand` (

@@ -75,10 +75,12 @@ public class SmartWorkOrderService {
         if (Integer.valueOf(STATUS_COMPLETED).equals(order.getStatus()) || Integer.valueOf(STATUS_CANCELED).equals(order.getStatus())) {
             throw new IllegalArgumentException("closed order cannot be dispatched");
         }
+
         List<Long> assigneeIds = normalizeAssigneeIds(order, req);
         if (assigneeIds.isEmpty()) {
             throw new IllegalArgumentException("no available worker");
         }
+
         Map<Long, User> workerMap = userMapper.selectList(new LambdaQueryWrapper<User>()
                         .in(User::getId, assigneeIds)
                         .eq(User::getRole, 3)
@@ -86,21 +88,22 @@ public class SmartWorkOrderService {
                 .stream()
                 .collect(Collectors.toMap(User::getId, item -> item, (a, b) -> a));
         for (Long workerId : assigneeIds) {
-            User worker = workerMap.get(workerId);
-            if (worker == null) {
+            if (workerMap.get(workerId) == null) {
                 throw new IllegalArgumentException("worker not found: " + workerId);
             }
         }
+
         LocalDateTime now = LocalDateTime.now();
         order.setAssignee(assigneeIds.get(0));
         order.setSuggestedWorkerId(assigneeIds.get(0));
         order.setAssignedTime(now);
         order.setStatus(STATUS_IN_SERVICE);
-        order.setSlaDeadline(now.plusHours(24));
+        order.setSlaDeadline(now.plusHours(2));
         order.setRemark(StringUtils.hasText(req == null ? null : req.getRemark()) ? req.getRemark().trim() : "smart dispatch");
         order.setServiceStartTime(now);
         order.setUpdateTime(now);
         repairOrderMapper.updateById(order);
+
         resetParticipants(orderId, assigneeIds, now);
 
         Map<String, Object> result = new LinkedHashMap<>();
@@ -116,6 +119,7 @@ public class SmartWorkOrderService {
         if (req == null || req.getStatus() == null) {
             throw new IllegalArgumentException("status is empty");
         }
+
         Integer targetStatus = req.getStatus();
         LocalDateTime now = LocalDateTime.now();
         order.setStatus(targetStatus);
@@ -204,7 +208,7 @@ public class SmartWorkOrderService {
     }
 
     private Map<String, Object> enrichRow(RepairOrder order) {
-        Map<Long, User> users = userMap(List.of(order.getUserId(), order.getAssignee(), order.getSuggestedWorkerId()));
+        Map<Long, User> users = userMap(collectRelatedUserIds(order));
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("id", order.getId());
         row.put("userId", order.getUserId());
@@ -228,6 +232,20 @@ public class SmartWorkOrderService {
         row.put("createTime", order.getCreateTime());
         row.put("remark", order.getRemark());
         return row;
+    }
+
+    private List<Long> collectRelatedUserIds(RepairOrder order) {
+        List<Long> ids = new ArrayList<>(3);
+        if (order.getUserId() != null) {
+            ids.add(order.getUserId());
+        }
+        if (order.getAssignee() != null) {
+            ids.add(order.getAssignee());
+        }
+        if (order.getSuggestedWorkerId() != null) {
+            ids.add(order.getSuggestedWorkerId());
+        }
+        return ids;
     }
 
     private Map<Long, User> userMap(Collection<Long> ids) {
@@ -280,29 +298,24 @@ public class SmartWorkOrderService {
     }
 
     private List<Map<String, Object>> activeParticipants(Long orderId) {
-        Map<Long, User> workerMap = userMap(repairOrderWorkerMapper.selectList(new LambdaQueryWrapper<RepairOrderWorker>()
-                        .eq(RepairOrderWorker::getOrderId, orderId)
-                        .eq(RepairOrderWorker::getIsDeleted, 0))
-                .stream()
+        List<RepairOrderWorker> participants = repairOrderWorkerMapper.selectList(new LambdaQueryWrapper<RepairOrderWorker>()
+                .eq(RepairOrderWorker::getOrderId, orderId)
+                .eq(RepairOrderWorker::getIsDeleted, 0)
+                .orderByAsc(RepairOrderWorker::getRoleType));
+        Map<Long, User> workerMap = userMap(participants.stream()
                 .map(RepairOrderWorker::getWorkerId)
                 .filter(Objects::nonNull)
                 .toList());
-        return repairOrderWorkerMapper.selectList(new LambdaQueryWrapper<RepairOrderWorker>()
-                        .eq(RepairOrderWorker::getOrderId, orderId)
-                        .eq(RepairOrderWorker::getIsDeleted, 0)
-                        .orderByAsc(RepairOrderWorker::getRoleType))
-                .stream()
-                .map(item -> {
-                    Map<String, Object> row = new HashMap<>();
-                    row.put("workerId", item.getWorkerId());
-                    row.put("workerName", displayName(workerMap.get(item.getWorkerId()), "维修员", item.getWorkerId()));
-                    row.put("roleType", item.getRoleType());
-                    row.put("verifyPassed", item.getVerifyPassed());
-                    row.put("finishConfirmed", item.getFinishConfirmed());
-                    row.put("finishTime", item.getFinishTime());
-                    return row;
-                })
-                .toList();
+        return participants.stream().map(item -> {
+            Map<String, Object> row = new HashMap<>();
+            row.put("workerId", item.getWorkerId());
+            row.put("workerName", displayName(workerMap.get(item.getWorkerId()), "维修员", item.getWorkerId()));
+            row.put("roleType", item.getRoleType());
+            row.put("verifyPassed", item.getVerifyPassed());
+            row.put("finishConfirmed", item.getFinishConfirmed());
+            row.put("finishTime", item.getFinishTime());
+            return row;
+        }).toList();
     }
 
     private List<Map<String, Object>> nextStatuses(Integer status) {

@@ -2,22 +2,30 @@
   <div class="page-grid">
     <section class="toolbar-card card">
       <div class="toolbar">
-        <el-input v-model="keyword" placeholder="搜索工单ID/类型/描述" clearable style="width: 280px" @keyup.enter="loadData" />
-        <el-select v-model="statusFilter" clearable placeholder="状态" style="width: 130px" @change="loadData">
+        <el-input
+          v-model="keyword"
+          placeholder="搜索工单ID/类型/描述"
+          clearable
+          style="width: 280px"
+          @keyup.enter="searchData"
+          @clear="searchData"
+        />
+        <el-select v-model="statusFilter" clearable placeholder="全部状态" style="width: 130px" @change="searchData">
           <el-option label="待派单" :value="1" />
           <el-option label="处理中" :value="2" />
           <el-option label="待评价" :value="3" />
           <el-option label="已完成" :value="4" />
           <el-option label="已取消" :value="5" />
         </el-select>
-        <el-select v-model="priorityFilter" clearable placeholder="优先级" style="width: 130px" @change="loadData">
+        <el-select v-model="priorityFilter" clearable placeholder="全部优先级" style="width: 130px" @change="searchData">
           <el-option label="紧急" :value="1" />
           <el-option label="普通" :value="2" />
           <el-option label="低" :value="3" />
         </el-select>
-        <el-checkbox v-model="overdueOnly" @change="loadData">仅看超时</el-checkbox>
+        <el-checkbox v-model="overdueOnly" @change="searchData">仅看超时</el-checkbox>
         <el-button @click="loadData">刷新</el-button>
-        <el-button type="warning" :loading="scanLoading" @click="handleScanSla">SLA 扫描</el-button>
+        <el-button @click="resetFilters">重置筛选</el-button>
+        <el-button type="warning" :loading="scanLoading" @click="handleScanSla">SLA扫描</el-button>
       </div>
     </section>
 
@@ -30,6 +38,7 @@
       </div>
 
       <el-skeleton v-if="loading && !rows.length" :rows="5" animated />
+
       <div v-else-if="rows.length" class="work-order-preview">
         <article
           v-for="(row, index) in rows.slice(0, 4)"
@@ -52,7 +61,12 @@
         </article>
       </div>
 
-      <el-table :data="rows" stripe v-loading="loading && rows.length > 0" empty-text="">
+      <el-table
+        :data="rows"
+        stripe
+        v-loading="loading && rows.length > 0"
+        empty-text="暂无匹配工单，请检查筛选条件或稍后重试"
+      >
         <el-table-column prop="id" label="工单ID" width="88" />
         <el-table-column prop="ownerName" label="业主" min-width="120" />
         <el-table-column prop="category" label="类型" min-width="110" />
@@ -81,7 +95,14 @@
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link @click="openDetail(row.id)">详情</el-button>
-            <el-button type="primary" link :disabled="Number(row.status) === 4 || Number(row.status) === 5" @click="openDispatch(row)">派单</el-button>
+            <el-button
+              type="primary"
+              link
+              :disabled="Number(row.status) === 4 || Number(row.status) === 5"
+              @click="openDispatch(row)"
+            >
+              派单
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -106,7 +127,12 @@
         </el-form-item>
         <el-form-item label="选择维修员">
           <el-select v-model="dispatchForm.assigneeIds" multiple collapse-tags style="width: 100%">
-            <el-option v-for="worker in workers" :key="worker.id" :label="worker.nickname || worker.account" :value="worker.id" />
+            <el-option
+              v-for="worker in workers"
+              :key="worker.id"
+              :label="worker.nickname || worker.account"
+              :value="worker.id"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="备注">
@@ -226,8 +252,12 @@ function formatTime(value) {
 }
 
 async function loadWorkers() {
-  const res = await getWorkerList()
-  workers.value = Array.isArray(res.data) ? res.data.filter((item) => Number(item.role) === 3) : []
+  try {
+    const res = await getWorkerList()
+    workers.value = Array.isArray(res.data) ? res.data.filter((item) => Number(item.role) === 3) : []
+  } catch (error) {
+    ElMessage.error(error?.message || '维修员列表加载失败')
+  }
 }
 
 async function loadData() {
@@ -243,24 +273,45 @@ async function loadData() {
     })
     rows.value = Array.isArray(res.data?.records) ? res.data.records : []
     total.value = Number(res.data?.total || 0)
+  } catch (error) {
+    rows.value = []
+    total.value = 0
+    ElMessage.error(error?.message || '工单列表加载失败')
   } finally {
     loading.value = false
   }
 }
 
+function searchData() {
+  pageNum.value = 1
+  loadData()
+}
+
+function resetFilters() {
+  keyword.value = ''
+  statusFilter.value = null
+  priorityFilter.value = null
+  overdueOnly.value = false
+  searchData()
+}
+
 async function openDetail(id) {
-  const res = await getSmartWorkOrderDetail(id)
-  detail.value = {
-    ...(res.data?.order || {}),
-    ownerName: res.data?.ownerName,
-    assigneeName: res.data?.assigneeName,
-    suggestedWorkerName: res.data?.suggestedWorkerName,
-    statusText: res.data?.statusText,
-    priorityText: res.data?.priorityText,
-    participants: res.data?.participants || [],
-    nextStatuses: res.data?.nextStatuses || []
+  try {
+    const res = await getSmartWorkOrderDetail(id)
+    detail.value = {
+      ...(res.data?.order || {}),
+      ownerName: res.data?.ownerName,
+      assigneeName: res.data?.assigneeName,
+      suggestedWorkerName: res.data?.suggestedWorkerName,
+      statusText: res.data?.statusText,
+      priorityText: res.data?.priorityText,
+      participants: res.data?.participants || [],
+      nextStatuses: res.data?.nextStatuses || []
+    }
+    detailVisible.value = true
+  } catch (error) {
+    ElMessage.error(error?.message || '工单详情加载失败')
   }
-  detailVisible.value = true
 }
 
 function openDispatch(row) {
@@ -281,6 +332,8 @@ async function submitDispatch() {
     dispatchVisible.value = false
     await loadData()
     await openDetail(currentRow.value.id)
+  } catch (error) {
+    ElMessage.error(error?.message || '派单失败')
   } finally {
     dispatchLoading.value = false
   }
@@ -294,6 +347,8 @@ async function changeStatus(status) {
     ElMessage.success('状态已更新')
     await loadData()
     await openDetail(detail.value.id)
+  } catch (error) {
+    ElMessage.error(error?.message || '状态更新失败')
   } finally {
     statusLoading.value = false
   }
@@ -305,6 +360,8 @@ async function handleScanSla() {
     const res = await scanSmartWorkOrderSla()
     ElMessage.success(`已扫描，触发 ${res.data?.delayCount || 0} 条超时催办`)
     await loadData()
+  } catch (error) {
+    ElMessage.error(error?.message || 'SLA扫描失败')
   } finally {
     scanLoading.value = false
   }
@@ -375,6 +432,7 @@ onMounted(async () => {
   padding: 14px;
   background: #f8fafc;
   animation: listFadeIn 0.25s ease both;
+  cursor: pointer;
 }
 
 .work-order-top,

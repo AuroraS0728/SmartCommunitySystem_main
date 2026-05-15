@@ -55,7 +55,7 @@
   },
   "permission": {
     "scope.camera": {
-      "desc": "用于门禁扫码核验与维修员上门人脸验证拍照"
+      "desc": "用于门禁扫码核验及维修人员上门核验拍照"
     }
   },
   "tabBar": {
@@ -78,7 +78,7 @@
       },
       {
         "pagePath": "pages/user/profile",
-        "text": "会员",
+        "text": "我的",
         "iconPath": "assets/icons/tab-member.png",
         "selectedIconPath": "assets/icons/tab-member-active.png"
       }

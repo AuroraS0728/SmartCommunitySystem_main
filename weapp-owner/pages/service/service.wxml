@@ -1,7 +1,9 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">服务中心</view>
-    <view class="hero-desc">{{ guestMode ? '游客可浏览服务目录，办理业务需登录' : '物业服务统一办理入口' }}</view>
+    <view class="hero-title">附加服务</view>
+    <view class="hero-desc">
+      {{ guestMode ? "登录后可根据您的家庭画像查看推荐附加服务" : "基于家庭画像，为您推荐可直接预约的附加服务" }}
+    </view>
   </view>
 
   <view class="item points-card">
@@ -9,83 +11,138 @@
       <view class="item-title">当前可用积分</view>
       <view class="points-value">{{ points }}</view>
     </view>
-    <view class="item-desc">1 积分 = 1 元，可用于物业费和停车费支付</view>
-    <view class="link" data-url="/pages/points/detail/index" bindtap="ensureLoginAndNavigate">查看积分明细 ></view>
+    <view class="item-desc">附加服务支持积分直接购买，提交预约后由物业跟进安排。</view>
+    <view class="link" bindtap="openPointsDetail">查看积分明细 ></view>
   </view>
 
-  <view class="group-title">核心服务</view>
+  <view class="group-title">常用入口</view>
   <view class="item service-grid-card">
-    <view class="service-cell" data-url="/pages/repair/submit" bindtap="ensureLoginAndNavigate">
+    <view class="service-cell" data-url="/pages/repair/submit" bindtap="goPage">
       <view class="service-icon">
         <image class="service-icon-image" src="/assets/icons/repair.png" mode="aspectFit" />
       </view>
       <view class="service-name">报事报修</view>
     </view>
-    <view class="service-cell" data-url="/pages/points/bills/index" bindtap="ensureLoginAndNavigate">
+    <view class="service-cell" data-url="/pages/points/bills/index" bindtap="goPage">
       <view class="service-icon">
         <image class="service-icon-image" src="/assets/icons/fee.png" mode="aspectFit" />
       </view>
       <view class="service-name">物业缴费</view>
     </view>
-    <view class="service-cell" data-url="/pages/door/invite" bindtap="ensureLoginAndNavigate">
+    <view class="service-cell" data-url="/pages/door/invite" bindtap="goPage">
       <view class="service-icon">
         <image class="service-icon-image" src="/assets/icons/invite.png" mode="aspectFit" />
       </view>
-      <view class="service-name">访客邀请</view>
+      <view class="service-name">访客邀约</view>
     </view>
-    <view class="service-cell" data-url="/pages/points/parking/index" bindtap="ensureLoginAndNavigate">
+    <view class="service-cell" data-url="/pages/points/parking/index" bindtap="goPage">
       <view class="service-icon">
         <image class="service-icon-image" src="/assets/icons/parking.png" mode="aspectFit" />
       </view>
-      <view class="service-name">车牌车位管理</view>
+      <view class="service-name">车位管理</view>
     </view>
-    <view class="service-cell" data-url="/pages/neighbor/secondhand/list" bindtap="ensureLoginAndNavigate">
+    <view class="service-cell service-cell-active" bindtap="focusAdditionalServiceSection">
       <view class="service-icon">
-        <image class="service-icon-image" src="/assets/icons/house.png" mode="aspectFit" />
+        <image class="service-icon-image" src="/assets/icons/star.png" mode="aspectFit" />
       </view>
-      <view class="service-name">租售管理</view>
+      <view class="service-name">推荐附加服务</view>
     </view>
-    <view class="service-cell" data-url="/pages/neighbor/secondhand/list" bindtap="ensureLoginAndNavigate">
+    <view class="service-cell" data-url="/pages/neighbor/secondhand/list" bindtap="goPage">
       <view class="service-icon">
         <image class="service-icon-image" src="/assets/icons/rent-sale.png" mode="aspectFit" />
       </view>
       <view class="service-name">闲置交易</view>
     </view>
-    <view class="service-cell" data-url="/pages/activity/list" bindtap="ensureLoginAndNavigate">
-      <view class="service-icon">
-        <image class="service-icon-image" src="/assets/icons/star.png" mode="aspectFit" />
-      </view>
-      <view class="service-name">活动专区</view>
-    </view>
   </view>
 
-  <view class="group-title">其他服务</view>
-  <view class="item nav-item" data-url="/pages/repair/list" bindtap="ensureLoginAndNavigate">
-    <view class="nav-body">
-      <view class="item-title">报修列表</view>
-      <view class="item-desc">查看工单状态与处理进度</view>
-    </view>
-    <view class="nav-arrow">></view>
+  <view id="additional-service-section" class="group-title">可预约附加服务</view>
+  <view wx:if="{{guestMode}}" class="item empty-card">
+    <view class="item-title">请先登录</view>
+    <view class="item-desc">登录后可按家庭画像查看推荐服务，并使用积分预约购买。</view>
   </view>
-  <view class="item nav-item" data-url="/pages/notice/list" bindtap="ensureLoginAndNavigate">
-    <view class="nav-body">
-      <view class="item-title">社区公告</view>
-      <view class="item-desc">查看最新通知和提醒</view>
+
+  <block wx:elif="{{services.length > 0}}">
+    <view
+      wx:for="{{services}}"
+      wx:key="serviceId"
+      class="item add-on-card {{item.serviceId === selectedServiceId ? 'is-active' : ''}}"
+      data-service-id="{{item.serviceId}}"
+      bindtap="onSelectService"
+    >
+      <image wx:if="{{item.imageUrl}}" class="add-on-image" src="{{item.imageUrl}}" mode="aspectFill" />
+      <view class="add-on-body">
+        <view class="row-between row-start">
+          <view class="add-on-title-wrap">
+            <view class="item-title">{{item.serviceName}}</view>
+            <view wx:if="{{item.recommended}}" class="badge">为您推荐</view>
+          </view>
+          <view class="price">￥{{item.price}}</view>
+        </view>
+        <view class="item-desc">{{item.reason}}</view>
+      </view>
     </view>
-    <view class="nav-arrow">></view>
+
+    <view wx:if="{{selectedService}}" class="item booking-card">
+      <view class="booking-head">
+        <view>
+          <view class="item-title">{{selectedService.serviceName}}</view>
+          <view class="item-desc">{{selectedService.reason}}</view>
+        </view>
+        <view class="booking-price">{{selectedService.price}} 积分</view>
+      </view>
+
+      <view class="form-row">
+        <view class="label">预约日期</view>
+        <picker mode="date" start="{{today}}" value="{{appointmentDate}}" bindchange="onDateChange">
+          <view class="picker-value">{{appointmentDate || "请选择日期"}}</view>
+        </picker>
+      </view>
+
+      <view class="label">预约时段</view>
+      <view class="slot-list">
+        <view
+          wx:for="{{timeSlots}}"
+          wx:key="*this"
+          class="slot {{item === appointmentTimeSlot ? 'slot-active' : ''}}"
+          data-slot="{{item}}"
+          bindtap="onSlotTap"
+        >
+          {{item}}
+        </view>
+      </view>
+
+      <view class="label">备注说明</view>
+      <textarea
+        class="remark-box"
+        maxlength="200"
+        placeholder="可填写上门需求、家庭情况或其他说明"
+        value="{{remark}}"
+        bindinput="onRemarkInput"
+      />
+
+      <view class="submit-btn" bindtap="submitAdditionalService">
+        {{ submitting ? "提交中..." : "积分预约并购买" }}
+      </view>
+    </view>
+  </block>
+
+  <view wx:else class="item empty-card">
+    <view class="item-title">暂无可推荐服务</view>
+    <view class="item-desc">当前还没有命中您的画像服务，后续会根据活动、报修和家庭画像持续更新。</view>
   </view>
-  <view class="item nav-item" data-url="/pages/neighbor/lostfound/list" bindtap="ensureLoginAndNavigate">
-    <view class="nav-body">
-      <view class="item-title">失物招领</view>
-      <view class="item-desc">失物/招领发布与认领流程</view>
+
+  <view class="group-title">最近预约</view>
+  <view wx:if="{{recentOrders.length > 0}}" class="order-list">
+    <view wx:for="{{recentOrders}}" wx:key="id" class="item order-card">
+      <view class="row-between row-start">
+        <view class="item-title">{{item.serviceName}}</view>
+        <view class="order-status">{{item.statusText}}</view>
+      </view>
+      <view class="item-desc">预约时间：{{item.appointmentDate}} {{item.appointmentTimeSlot}}</view>
+      <view wx:if="{{item.remark}}" class="item-desc">备注：{{item.remark}}</view>
     </view>
-    <view class="nav-arrow">></view>
   </view>
-  <view class="item nav-item" data-url="/pages/activity/my" bindtap="ensureLoginAndNavigate">
-    <view class="nav-body">
-      <view class="item-title">我的活动</view>
-      <view class="item-desc">查看活动报名记录和审核状态</view>
-    </view>
-    <view class="nav-arrow">></view>
+  <view wx:else class="item empty-card compact-empty">
+    <view class="item-desc">暂时还没有附加服务预约记录。</view>
   </view>
 </view>

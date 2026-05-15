@@ -1,10 +1,10 @@
 const { request } = require("../../../api/request")
 
 const STATUS_OPTIONS = [
-  { label: "All", value: "" },
-  { label: "Pending", value: "0" },
-  { label: "Rejected", value: "1" },
-  { label: "Accepted", value: "2" }
+  { label: "全部", value: "" },
+  { label: "待审核", value: "0" },
+  { label: "已驳回", value: "1" },
+  { label: "已通过", value: "2" }
 ]
 
 function toNumber(value) {
@@ -52,7 +52,7 @@ Page({
       })
       this.setData({ list, forms })
     } catch (error) {
-      wx.showToast({ title: error?.message || "Load failed", icon: "none" })
+      wx.showToast({ title: error?.message || "加载失败", icon: "none" })
       this.setData({ list: [] })
     } finally {
       this.setData({ loading: false })
@@ -86,11 +86,11 @@ Page({
     const adjustedAmount = toNumber(form.adjustedAmount)
     const refundPoints = toNumber(form.refundPoints)
     if (form.adjustedAmount && adjustedAmount === null) {
-      wx.showToast({ title: "Invalid adjusted amount", icon: "none" })
+      wx.showToast({ title: "调整金额格式不正确", icon: "none" })
       return
     }
     if (form.refundPoints && (refundPoints === null || refundPoints < 0)) {
-      wx.showToast({ title: "Invalid refund points", icon: "none" })
+      wx.showToast({ title: "退还积分格式不正确", icon: "none" })
       return
     }
 
@@ -112,10 +112,10 @@ Page({
         method: "POST",
         data: payload
       })
-      wx.showToast({ title: "Reviewed", icon: "success" })
+      wx.showToast({ title: "审核完成", icon: "success" })
       await this.loadList()
     } catch (error) {
-      wx.showToast({ title: error?.message || "Review failed", icon: "none" })
+      wx.showToast({ title: error?.message || "审核失败", icon: "none" })
     } finally {
       this.setData({ reviewing: false })
     }

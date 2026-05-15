@@ -10,6 +10,7 @@ public class ServiceRecommendation {
     private String reason;
     private String imageUrl;
     private String actionPath;
+    private Boolean recommended;
 
     public static ServiceRecommendation of(String serviceId, String serviceName, Integer price, String reason) {
         return of(serviceId, serviceName, price, reason, "", "");
@@ -28,6 +29,7 @@ public class ServiceRecommendation {
         item.setReason(reason);
         item.setImageUrl(imageUrl);
         item.setActionPath(actionPath);
+        item.setRecommended(Boolean.FALSE);
         return item;
     }
 }

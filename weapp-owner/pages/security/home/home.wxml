@@ -1,21 +1,21 @@
 <view class="section">
   <view class="hero security-hero">
-    <view class="hero-title">物业工作台</view>
-    <view class="hero-desc">欢迎，{{user && user.nickname ? user.nickname : "物业管理员"}}</view>
+    <view class="hero-title">安防工作台</view>
+    <view class="hero-desc">欢迎，{{user && user.nickname ? user.nickname : "安防人员"}}</view>
   </view>
 
   <navigator class="item nav-item" url="/pages/security/verify/scan">
     <view class="nav-body">
       <view class="item-title">门禁扫码核验</view>
-      <view class="item-desc">用于门禁访客二维码核验</view>
+      <view class="item-desc">用于核验访客门禁二维码或动态通行码</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
 
   <navigator class="item nav-item" url="/pages/security/objection/list">
     <view class="nav-body">
-      <view class="item-title">维修费用异议审核</view>
-      <view class="item-desc">审核业主发起的费用异议，支持驳回或同意退款</view>
+      <view class="item-title">费用异议审核</view>
+      <view class="item-desc">审核业主提交的费用异议，支持驳回或同意处理</view>
     </view>
     <view class="nav-arrow">></view>
   </navigator>
@@ -30,4 +30,3 @@
 
   <view class="btn security-btn" bindtap="logout">退出登录</view>
 </view>
-

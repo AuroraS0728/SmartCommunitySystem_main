@@ -5,6 +5,7 @@ import com.smartcommunity.common.Result;
 import com.smartcommunity.common.RoleUtils;
 import com.smartcommunity.common.StatusCode;
 import com.smartcommunity.dto.request.BlogAdminLoginReq;
+import com.smartcommunity.dto.request.BlogNoteReq;
 import com.smartcommunity.dto.request.BlogProfileReq;
 import com.smartcommunity.dto.response.BlogAdminLoginResp;
 import com.smartcommunity.dto.response.BlogAssetUploadResp;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/api/blog", produces = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
 @RequiredArgsConstructor
@@ -37,6 +40,11 @@ public class BlogController {
     @GetMapping("/profile")
     public Result<BlogProfileReq> profile() {
         return Result.success(blogProfileService.getProfile());
+    }
+
+    @GetMapping("/notes")
+    public Result<List<BlogNoteReq>> notes() {
+        return Result.success(blogProfileService.getNotes());
     }
 
     @PostMapping("/admin/login")
@@ -57,6 +65,14 @@ public class BlogController {
             return Result.fail(StatusCode.FORBIDDEN, "forbidden");
         }
         return Result.success(blogProfileService.saveProfile(req));
+    }
+
+    @PutMapping("/admin/notes")
+    public Result<List<BlogNoteReq>> saveNotes(@RequestBody List<BlogNoteReq> req) {
+        if (!isBlogAdmin()) {
+            return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+        }
+        return Result.success(blogProfileService.saveNotes(req));
     }
 
     @PostMapping("/admin/assets")
