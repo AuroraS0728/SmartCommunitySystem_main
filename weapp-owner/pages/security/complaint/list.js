@@ -1,18 +1,18 @@
 const { request } = require("../../../api/request")
 
 const STATUS_OPTIONS = [
-  { label: "All", value: "" },
-  { label: "Pending", value: "1" },
-  { label: "Replied", value: "3" }
+  { label: "全部", value: "" },
+  { label: "待回复", value: "1" },
+  { label: "已回复", value: "3" }
 ]
 
 function statusText(status) {
   const map = {
-    1: "Pending",
-    2: "Processing",
-    3: "Replied"
+    1: "待回复",
+    2: "处理中",
+    3: "已回复"
   }
-  return map[Number(status)] || "Unknown"
+  return map[Number(status)] || "未知"
 }
 
 Page({
@@ -53,7 +53,7 @@ Page({
       })
       this.setData({ list, replyDrafts })
     } catch (error) {
-      wx.showToast({ title: error?.message || "Load failed", icon: "none" })
+      wx.showToast({ title: error?.message || "加载失败", icon: "none" })
       this.setData({ list: [] })
     } finally {
       this.setData({ loading: false })
@@ -81,7 +81,7 @@ Page({
     if (!id) return
     const reply = (this.data.replyDrafts?.[id] || "").trim()
     if (!reply) {
-      wx.showToast({ title: "Please input reply", icon: "none" })
+      wx.showToast({ title: "请输入回复内容", icon: "none" })
       return
     }
 
@@ -92,14 +92,13 @@ Page({
         method: "POST",
         data: { reply }
       })
-      wx.showToast({ title: "Reply sent", icon: "success" })
+      wx.showToast({ title: "回复成功", icon: "success" })
       this.setData({ [`replyDrafts.${id}`]: "" })
       await this.loadList()
     } catch (error) {
-      wx.showToast({ title: error?.message || "Reply failed", icon: "none" })
+      wx.showToast({ title: error?.message || "回复失败", icon: "none" })
     } finally {
       this.setData({ replying: false })
     }
   }
 })
-

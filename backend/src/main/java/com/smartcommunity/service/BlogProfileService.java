@@ -2,7 +2,9 @@ package com.smartcommunity.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.smartcommunity.dto.request.BlogProfileReq;
+import com.smartcommunity.dto.request.BlogNoteReq;
 import com.smartcommunity.dto.response.BlogAssetUploadResp;
 import com.smartcommunity.entity.SystemConfig;
 import com.smartcommunity.mapper.SystemConfigMapper;
@@ -35,10 +37,13 @@ import java.util.UUID;
 public class BlogProfileService {
 
     private static final String CONFIG_KEY = "blog.profile";
+    private static final String NOTES_CONFIG_KEY = "blog.notes";
     private static final int MAX_TEXT = 500;
     private static final int MAX_LINE = 180;
     private static final int MAX_LIST_ITEMS = 30;
     private static final int MAX_PROJECTS = 24;
+    private static final int MAX_NOTES = 100;
+    private static final int MAX_MARKDOWN = 20000;
     private static final long MAX_IMAGE_BYTES = 8L * 1024L * 1024L;
     private static final DateTimeFormatter ASSET_DATE = DateTimeFormatter.BASIC_ISO_DATE;
 
@@ -49,7 +54,7 @@ public class BlogProfileService {
     private String assetDir;
 
     public BlogProfileReq getProfile() {
-        SystemConfig config = selectConfig();
+        SystemConfig config = selectConfig(CONFIG_KEY);
         if (config == null || !StringUtils.hasText(config.getConfigValue())) {
             return defaultProfile();
         }
@@ -57,6 +62,19 @@ public class BlogProfileService {
             return sanitize(objectMapper.readValue(config.getConfigValue(), BlogProfileReq.class));
         } catch (Exception ignored) {
             return defaultProfile();
+        }
+    }
+
+    public List<BlogNoteReq> getNotes() {
+        SystemConfig config = selectConfig(NOTES_CONFIG_KEY);
+        if (config == null || !StringUtils.hasText(config.getConfigValue())) {
+            return defaultNotes();
+        }
+        try {
+            return cleanNotes(objectMapper.readValue(config.getConfigValue(), new TypeReference<List<BlogNoteReq>>() {
+            }));
+        } catch (Exception ignored) {
+            return defaultNotes();
         }
     }
 
@@ -71,23 +89,21 @@ public class BlogProfileService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        SystemConfig config = selectConfig();
-        if (config == null) {
-            config = new SystemConfig();
-            config.setConfigKey(CONFIG_KEY);
-            config.setDescription("Blog profile content");
-            config.setConfigValue(json);
-            config.setCreateTime(now);
-            config.setUpdateTime(now);
-            config.setIsDeleted(0);
-            systemConfigMapper.insert(config);
-        } else {
-            config.setConfigValue(json);
-            config.setUpdateTime(now);
-            config.setIsDeleted(0);
-            systemConfigMapper.updateById(config);
-        }
+        upsertConfig(CONFIG_KEY, "Blog profile content", json, now);
         return profile;
+    }
+
+    @Transactional
+    public List<BlogNoteReq> saveNotes(List<BlogNoteReq> req) {
+        List<BlogNoteReq> notes = cleanNotes(req);
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(notes);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("notes json is invalid", ex);
+        }
+        upsertConfig(NOTES_CONFIG_KEY, "Blog note content", json, LocalDateTime.now());
+        return notes;
     }
 
     public BlogAssetUploadResp saveImage(MultipartFile file) {
@@ -205,6 +221,26 @@ public class BlogProfileService {
         return result;
     }
 
+    private List<BlogNoteReq> cleanNotes(List<BlogNoteReq> notes) {
+        List<BlogNoteReq> result = new ArrayList<>();
+        if (notes == null) {
+            return defaultNotes();
+        }
+        for (BlogNoteReq item : notes) {
+            if (item == null || result.size() >= MAX_NOTES) {
+                continue;
+            }
+            BlogNoteReq note = new BlogNoteReq();
+            note.setId(clean(item.getId(), 80, "note-" + UUID.randomUUID()));
+            note.setTitle(clean(item.getTitle(), 120, "未命名笔记"));
+            note.setSummary(clean(item.getSummary(), MAX_TEXT, ""));
+            note.setTags(cleanList(item.getTags(), 20, 40));
+            note.setMarkdown(clean(item.getMarkdown(), MAX_MARKDOWN, ""));
+            result.add(note);
+        }
+        return result.isEmpty() ? defaultNotes() : result;
+    }
+
     private String clean(String value, int maxLength, String fallback) {
         String text = value == null ? "" : value.trim();
         if (!StringUtils.hasText(text)) {
@@ -242,9 +278,78 @@ public class BlogProfileService {
         return profile;
     }
 
-    private SystemConfig selectConfig() {
+    private List<BlogNoteReq> defaultNotes() {
+        BlogNoteReq setup = new BlogNoteReq();
+        setup.setId("note-spring-boot-setup");
+        setup.setTitle("Spring Boot 项目结构梳理");
+        setup.setSummary("把后端分层、配置、打包和部署路径整理成一张便于回看的笔记。");
+        setup.setTags(List.of("Spring Boot", "Java"));
+        setup.setMarkdown("""
+                # Spring Boot 项目结构梳理
+
+                ## 目标
+
+                - 统一 controller / service / mapper 的职责
+                - 明确 application.yml、application-prod.yml 的覆盖关系
+                - 记录打包、部署、Nginx 代理的关键点
+                """);
+
+        BlogNoteReq vue = new BlogNoteReq();
+        vue.setId("note-vue-admin-structure");
+        vue.setTitle("Vue 后台路由与接口前缀");
+        vue.setSummary("记录 /bs/ 子路径部署时，Vite base、Router history 和 /api/ 代理如何配合。");
+        vue.setTags(List.of("Vue 3", "前端部署"));
+        vue.setMarkdown("""
+                # Vue 后台路由与接口前缀
+
+                部署到 wiseprop.online/bs/ 时，前端需要同时满足两件事：
+
+                1. base 是 /bs/
+                2. 接口前缀仍然走 /api/
+                """);
+
+        BlogNoteReq miniapp = new BlogNoteReq();
+        miniapp.setId("note-miniapp-repair-flow");
+        miniapp.setTitle("小程序报修闭环拆解");
+        miniapp.setSummary("从业主提交、物业分派、维修签到到评价，梳理完整状态机。");
+        miniapp.setTags(List.of("微信小程序", "业务流程"));
+        miniapp.setMarkdown("""
+                # 小程序报修闭环拆解
+
+                ## 流程
+
+                1. 业主提交报修
+                2. 物业审核并派单
+                3. 维修人员接单、签到、完工
+                4. 业主验收并评价
+                """);
+
+        return List.of(setup, vue, miniapp);
+    }
+
+    private void upsertConfig(String key, String description, String value, LocalDateTime now) {
+        SystemConfig config = selectConfig(key);
+        if (config == null) {
+            config = new SystemConfig();
+            config.setConfigKey(key);
+            config.setDescription(description);
+            config.setConfigValue(value);
+            config.setCreateTime(now);
+            config.setUpdateTime(now);
+            config.setIsDeleted(0);
+            systemConfigMapper.insert(config);
+        } else {
+            config.setConfigValue(value);
+            config.setDescription(description);
+            config.setUpdateTime(now);
+            config.setIsDeleted(0);
+            systemConfigMapper.updateById(config);
+        }
+    }
+
+    private SystemConfig selectConfig(String key) {
         return systemConfigMapper.selectOne(new LambdaQueryWrapper<SystemConfig>()
-                .eq(SystemConfig::getConfigKey, CONFIG_KEY)
+                .eq(SystemConfig::getConfigKey, key)
                 .eq(SystemConfig::getIsDeleted, 0)
                 .last("LIMIT 1"));
     }

@@ -28,7 +28,7 @@ public class ActivityController {
     @GetMapping("/list")
     public Result<List<Map<String, Object>>> ownerList(@RequestParam(required = false) String keyword,
                                                        @RequestParam(required = false) String type) {
-        return Result.success(activityService.ownerList(keyword, type));
+        return Result.success(activityService.ownerList(keyword, type, AuthContext.getUserId()));
     }
 
     @GetMapping("/my/registrations")

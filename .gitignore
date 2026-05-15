@@ -108,3 +108,6 @@ pnpm-debug.log*
 backend/online_smart_community_backup_*.sql
 backend/seetaface-jni-full/
 backend/seetaface-native/
+
+# Personal site is maintained separately from this project.
+blog/

@@ -1,36 +1,36 @@
 <view class="section">
   <view class="hero security-hero">
-    <view class="hero-title">Fee Objection Review</view>
-    <view class="hero-desc">Review owner objections and decide accept/reject.</view>
+    <view class="hero-title">费用异议审核</view>
+    <view class="hero-desc">查看业主提交的费用异议，并进行审核处理。</view>
   </view>
 
   <view class="item">
-    <view class="field-label">Status</view>
+    <view class="field-label">状态筛选</view>
     <picker class="picker" mode="selector" range="{{statusOptions}}" range-key="label" bindchange="onStatusChange">
       <view class="picker-trigger input">
-        {{statusValue === '' ? 'All' : (statusValue === '0' ? 'Pending' : (statusValue === '1' ? 'Rejected' : 'Accepted'))}}
+        {{statusValue === '' ? '全部' : (statusValue === '0' ? '待审核' : (statusValue === '1' ? '已驳回' : '已通过'))}}
       </view>
     </picker>
   </view>
 
-  <view wx:if="{{loading}}" class="empty">Loading...</view>
+  <view wx:if="{{loading}}" class="empty">加载中...</view>
 
   <block wx:elif="{{list.length}}">
     <view wx:for="{{list}}" wx:key="id" class="item">
       <view class="row-between">
-        <view class="item-title">Objection #{{item.id}}</view>
+        <view class="item-title">异议单 #{{item.id}}</view>
         <view class="status-tag">{{item.statusText || item.status}}</view>
       </view>
-      <view class="meta">Order: {{item.orderId}} ({{item.orderCategory || '--'}})</view>
-      <view class="meta">Owner: {{item.ownerName || item.ownerId}}</view>
-      <view class="meta">Bill amount: {{item.billAmount || 0}}</view>
-      <view class="meta">Deposit points: {{item.depositPoints || 0}}</view>
-      <view class="meta">Reason: {{item.reason || '--'}}</view>
-      <view class="meta" wx:if="{{item.status != 0}}">Review note: {{item.resolutionRemark || '--'}}</view>
-      <view class="meta" wx:if="{{item.status != 0}}">Refund points: {{item.refundPoints || 0}}</view>
+      <view class="meta">工单：{{item.orderId}}（{{item.orderCategory || '--'}}）</view>
+      <view class="meta">业主：{{item.ownerName || item.ownerId}}</view>
+      <view class="meta">账单金额：{{item.billAmount || 0}}</view>
+      <view class="meta">保证金积分：{{item.depositPoints || 0}}</view>
+      <view class="meta">异议原因：{{item.reason || '--'}}</view>
+      <view class="meta" wx:if="{{item.status != 0}}">审核备注：{{item.resolutionRemark || '--'}}</view>
+      <view class="meta" wx:if="{{item.status != 0}}">退还积分：{{item.refundPoints || 0}}</view>
 
       <block wx:if="{{item.status == 0}}">
-        <view class="field-label">Adjusted amount (optional)</view>
+        <view class="field-label">调整金额（可选）</view>
         <input
           class="input"
           type="digit"
@@ -38,10 +38,10 @@
           data-field="adjustedAmount"
           value="{{forms[item.id].adjustedAmount || ''}}"
           bindinput="onFormInput"
-          placeholder="e.g. 128.00"
+          placeholder="例如 128.00"
         />
 
-        <view class="field-label">Extra refund points (optional)</view>
+        <view class="field-label">额外退还积分（可选）</view>
         <input
           class="input"
           type="number"
@@ -49,31 +49,30 @@
           data-field="refundPoints"
           value="{{forms[item.id].refundPoints || ''}}"
           bindinput="onFormInput"
-          placeholder="e.g. 20"
+          placeholder="例如 20"
         />
 
-        <view class="field-label">Review note (optional)</view>
+        <view class="field-label">审核备注（可选）</view>
         <input
           class="input"
           data-id="{{item.id}}"
           data-field="remark"
           value="{{forms[item.id].remark || ''}}"
           bindinput="onFormInput"
-          placeholder="Write handling note"
+          placeholder="请输入处理说明"
         />
 
         <view class="action-row">
           <view class="mini-btn reject-btn" data-id="{{item.id}}" data-status="1" bindtap="review">
-            {{reviewing ? "Processing..." : "Reject"}}
+            {{reviewing ? "处理中..." : "驳回"}}
           </view>
           <view class="mini-btn accept-btn" data-id="{{item.id}}" data-status="2" bindtap="review">
-            {{reviewing ? "Processing..." : "Accept"}}
+            {{reviewing ? "处理中..." : "通过"}}
           </view>
         </view>
       </block>
     </view>
   </block>
 
-  <view wx:else class="empty">No objection records.</view>
+  <view wx:else class="empty">暂无费用异议记录</view>
 </view>
-

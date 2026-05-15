@@ -87,7 +87,7 @@ Page({
     if (this.data.verifying) return
     const token = extractToken(this.data.scanText || this.data.token)
     if (!token) {
-      wx.showToast({ title: '请先输入扫码内容或token', icon: 'none' })
+      wx.showToast({ title: '请先输入扫码内容或 token', icon: 'none' })
       return
     }
 
@@ -99,7 +99,7 @@ Page({
         data: { token }
       })
       this.setData({
-        result: data?.message || '核验通过，访客可入场',
+        result: data?.message || '核验通过，访客可正常通行',
         resultType: 'success'
       })
       wx.showToast({ title: '核验成功' })

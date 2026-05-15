@@ -35,6 +35,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/parking/pay/callback",
                         "/api/realtime/stream",
                         "/api/blog/profile",
+                        "/api/blog/notes",
                         "/api/blog/admin/login",
                         "/api/blog/assets/**",
                         "/api/activity/assets/**",

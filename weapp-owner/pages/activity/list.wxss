@@ -38,11 +38,27 @@
   padding: 24rpx;
 }
 
+.title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+}
+
 .row-between {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16rpx;
+}
+
+.recommend-badge {
+  flex-shrink: 0;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+  font-size: 20rpx;
 }
 
 .status-tag {
@@ -60,6 +76,12 @@
 .status-tag.closed {
   background: rgba(100, 116, 139, 0.14);
   color: #64748b;
+}
+
+.recommend-reason {
+  margin-top: 10rpx;
+  color: #d97706;
+  font-size: 24rpx;
 }
 
 .meta-line {

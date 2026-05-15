@@ -1,53 +1,52 @@
 <view class="section">
   <view class="hero security-hero">
-    <view class="hero-title">Complaint Feedback</view>
-    <view class="hero-desc">View owner complaints and submit replies.</view>
+    <view class="hero-title">投诉建议反馈</view>
+    <view class="hero-desc">查看业主投诉建议，并提交处理回复。</view>
   </view>
 
   <view class="item">
-    <view class="field-label">Status</view>
+    <view class="field-label">状态筛选</view>
     <picker class="picker" mode="selector" range="{{statusOptions}}" range-key="label" bindchange="onStatusChange">
       <view class="picker-trigger input">
-        {{statusValue === '' ? 'All' : (statusValue === '1' ? 'Pending' : 'Replied')}}
+        {{statusValue === '' ? '全部' : (statusValue === '1' ? '待回复' : '已回复')}}
       </view>
     </picker>
   </view>
 
-  <view wx:if="{{loading}}" class="empty">Loading...</view>
+  <view wx:if="{{loading}}" class="empty">加载中...</view>
 
   <block wx:elif="{{list.length}}">
     <view wx:for="{{list}}" wx:key="id" class="item">
       <view class="row-between">
-        <view class="item-title">#{{item.id}} {{item.title || "Complaint"}}</view>
+        <view class="item-title">#{{item.id}} {{item.title || "投诉单"}}</view>
         <view class="status-tag">{{item.statusText}}</view>
       </view>
-      <view class="meta">User: {{item.userId}}</view>
-      <view class="meta">Type: {{item.type}}</view>
-      <view class="meta">Created: {{item.createTime || "--"}}</view>
+      <view class="meta">业主ID：{{item.userId}}</view>
+      <view class="meta">类型：{{item.type || "--"}}</view>
+      <view class="meta">提交时间：{{item.createTime || "--"}}</view>
       <view class="item-desc">{{item.content || "--"}}</view>
 
       <block wx:if="{{item.reply}}">
-        <view class="field-label">Reply</view>
+        <view class="field-label">回复内容</view>
         <view class="item-desc">{{item.reply}}</view>
-        <view class="meta">Replied at: {{item.replyTime || "--"}}</view>
+        <view class="meta">回复时间：{{item.replyTime || "--"}}</view>
       </block>
 
       <block wx:else>
-        <view class="field-label">Reply content</view>
+        <view class="field-label">填写回复</view>
         <textarea
           class="input textarea"
           data-id="{{item.id}}"
           bindinput="onReplyInput"
           value="{{replyDrafts[item.id] || ''}}"
-          placeholder="Input reply text"
+          placeholder="请输入回复内容"
         ></textarea>
         <view class="btn feedback-btn" data-id="{{item.id}}" bindtap="submitReply">
-          {{replying ? "Submitting..." : "Submit reply"}}
+          {{replying ? "提交中..." : "提交回复"}}
         </view>
       </block>
     </view>
   </block>
 
-  <view wx:else class="empty">No complaints.</view>
+  <view wx:else class="empty">暂无投诉记录</view>
 </view>
-
