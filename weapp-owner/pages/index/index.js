@@ -93,10 +93,14 @@ Page({
   },
 
   openRecommendation(event) {
-    const item = event?.currentTarget?.dataset?.item || {}
-    const path = item.actionPath || '/pages/service/service'
+    const serviceId = event?.currentTarget?.dataset?.serviceId || ""
+    const item = [...(this.data.recommendations || []), ...(this.data.popupRecommendations || [])]
+      .find((current) => current.serviceId === serviceId) || null
+    if (item?.serviceId) {
+      wx.setStorageSync("pendingAdditionalService", item)
+    }
     this.closePopup()
-    this.openPath(path)
+    this.openPath('/pages/service/service', 'switchTab')
   },
 
   closePopup() {

@@ -120,6 +120,45 @@ public class PointsService {
         return new ConsumeResult(userId, businessType, businessId, target.getNeedPoints(), before, after);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ConsumeResult consumeCustomBusiness(Long userId, Integer businessType, Long businessId, Integer needPoints) {
+        if (userId == null || userId <= 0) {
+            throw new IllegalArgumentException("userId invalid");
+        }
+        if (businessType == null || businessType <= 0) {
+            throw new IllegalArgumentException("businessType invalid");
+        }
+        if (businessId == null || businessId <= 0) {
+            throw new IllegalArgumentException("businessId invalid");
+        }
+        if (needPoints == null || needPoints <= 0) {
+            throw new IllegalArgumentException("needPoints must be greater than 0");
+        }
+
+        User user = lockUser(userId);
+        int before = safePoints(user.getPoints());
+        if (before < needPoints) {
+            throw new IllegalArgumentException("积分不足，请先充值");
+        }
+        int after = before - needPoints;
+        user.setPoints(after);
+        user.setUpdateTime(LocalDateTime.now());
+        userMapper.updateById(user);
+
+        PointsConsumptionRecord record = new PointsConsumptionRecord();
+        record.setUserId(userId);
+        record.setBusinessType(businessType);
+        record.setBusinessId(businessId);
+        record.setPoints(needPoints);
+        record.setBeforePoints(before);
+        record.setAfterPoints(after);
+        record.setCreateTime(LocalDateTime.now());
+        pointsConsumptionRecordMapper.insert(record);
+        log.info("Points consume custom success. userId={}, businessType={}, businessId={}, points={}, before={}, after={}",
+                userId, businessType, businessId, needPoints, before, after);
+        return new ConsumeResult(userId, businessType, businessId, needPoints, before, after);
+    }
+
     public Integer getBalance(Long userId) {
         User user = userMapper.selectById(userId);
         if (user == null) {
@@ -368,6 +407,7 @@ public class PointsService {
             case 1 -> "物业费缴纳";
             case 2 -> "停车费缴纳";
             case 3 -> "维修费用缴纳";
+            case 4 -> "附加服务预约";
             default -> "积分消费";
         };
     }
@@ -403,3 +443,4 @@ public class PointsService {
         private Integer afterPoints;
     }
 }
+
