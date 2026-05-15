@@ -111,3 +111,9 @@ backend/seetaface-native/
 
 # Personal site is maintained separately from this project.
 blog/
+
+# Local project documents and thesis artifacts.
+docs/**
+!docs/
+!docs/git-workflow.md
+!docs/git-usage-checklist.md
