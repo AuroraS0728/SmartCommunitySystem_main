@@ -613,6 +613,7 @@ CREATE TABLE `visitor_invite` (
   `host_user_id` BIGINT NOT NULL,
   `visitor_name` VARCHAR(20) NOT NULL,
   `visitor_phone` VARCHAR(20) NOT NULL,
+  `visit_reason` VARCHAR(255) DEFAULT NULL,
   `code` VARCHAR(64) NOT NULL,
   `validity_type` VARCHAR(20) NOT NULL DEFAULT 'SINGLE_2H',
   `visit_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -88,8 +88,8 @@ public class AccessController {
 
     @PostMapping("/invite")
     public Result<VisitorInviteResp> invite(@RequestBody InviteVisitorReq req) {
-        if (isBlank(req.getVisitorName()) || isBlank(req.getVisitorPhone())) {
-            return Result.fail("visitorName and visitorPhone are required");
+        if (isBlank(req.getVisitorName()) || isBlank(req.getVisitorPhone()) || isBlank(req.getVisitReason())) {
+            return Result.fail("visitorName, visitorPhone and visitReason are required");
         }
 
         String phone = normalizePhone(req.getVisitorPhone());
@@ -109,6 +109,7 @@ public class AccessController {
         invite.setHostUserId(AuthContext.getUserId());
         invite.setVisitorName(req.getVisitorName().trim());
         invite.setVisitorPhone(phone);
+        invite.setVisitReason(cleanText(req.getVisitReason()));
         invite.setCode(generateUniqueCode());
         invite.setValidityType(validityType);
         invite.setVisitTime(visitTime);
@@ -251,12 +252,16 @@ public class AccessController {
                 item = new VisitorHistoryResp();
                 item.setVisitorName(invite.getVisitorName());
                 item.setVisitorPhone(normalizePhone(invite.getVisitorPhone()));
+                item.setVisitReason(invite.getVisitReason());
                 item.setLastInviteTime(invite.getCreateTime());
                 item.setLastVisitTime(invite.getUsedTime());
                 item.setTotalInviteCount(0);
                 grouped.put(phone, item);
             }
             item.setTotalInviteCount(item.getTotalInviteCount() + 1);
+            if (isBlank(item.getVisitReason()) && !isBlank(invite.getVisitReason())) {
+                item.setVisitReason(invite.getVisitReason());
+            }
             if (item.getLastVisitTime() == null && invite.getUsedTime() != null) {
                 item.setLastVisitTime(invite.getUsedTime());
             }
@@ -293,6 +298,7 @@ public class AccessController {
         invite.setCode(generateUniqueCode());
         invite.setValidityType(validityType);
         invite.setVisitTime(visitTime);
+        invite.setVisitReason(isBlank(req.getVisitReason()) ? invite.getVisitReason() : cleanText(req.getVisitReason()));
         invite.setExpireTime(expireTime);
         invite.setMaxUses(resolveMaxUses(validityType, req.getMaxUses() == null ? invite.getMaxUses() : req.getMaxUses()));
         invite.setUsedCount(0);
@@ -622,6 +628,7 @@ public class AccessController {
         resp.setHostUserId(invite.getHostUserId());
         resp.setVisitorName(invite.getVisitorName());
         resp.setVisitorPhone(invite.getVisitorPhone());
+        resp.setVisitReason(invite.getVisitReason());
         resp.setCode(invite.getCode());
         resp.setValidityType(invite.getValidityType());
         resp.setVisitTime(invite.getVisitTime());
@@ -675,6 +682,13 @@ public class AccessController {
 
     private String normalizePhone(String phone) {
         return phone == null ? null : phone.replaceAll("\\s+", "");
+    }
+
+    private String cleanText(String value) {
+        if (isBlank(value)) {
+            return null;
+        }
+        return value.trim();
     }
 
     private boolean isBlank(String val) {

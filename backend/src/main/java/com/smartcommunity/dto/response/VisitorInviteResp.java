@@ -10,6 +10,7 @@ public class VisitorInviteResp {
     private Long hostUserId;
     private String visitorName;
     private String visitorPhone;
+    private String visitReason;
     private String code;
     private String validityType;
     private LocalDateTime visitTime;

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class VisitorHistoryResp {
     private String visitorName;
     private String visitorPhone;
+    private String visitReason;
     private LocalDateTime lastVisitTime;
     private LocalDateTime lastInviteTime;
     private Integer totalInviteCount;
