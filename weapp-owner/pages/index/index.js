@@ -117,6 +117,8 @@ Page({
     const guardedPaths = [
       '/pages/complaint/submit',
       '/pages/door/invite',
+      '/pages/express/list',
+      '/pages/facility/list',
       '/pages/points/bills/index',
       '/pages/repair/submit'
     ]
@@ -165,5 +167,13 @@ Page({
 
   goActivity() {
     this.openPath('/pages/activity/list')
+  },
+
+  goExpress() {
+    this.openPath('/pages/express/list')
+  },
+
+  goFacility() {
+    this.openPath('/pages/facility/list')
   }
 })

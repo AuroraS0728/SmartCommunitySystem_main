@@ -2,7 +2,7 @@
   <div class="page-grid">
     <section class="panel">
       <div class="panel-header">
-        <h3>访客记录</h3>
+        <h3>访客管理</h3>
         <div class="header-actions">
           <el-input v-model="keyword" placeholder="搜索姓名/手机号/邀请码" clearable class="search-input" />
           <el-select v-model="statusFilter" placeholder="状态" clearable class="status-select">

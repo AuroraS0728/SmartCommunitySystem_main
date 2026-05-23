@@ -15,57 +15,62 @@ const routes = [
       {
         path: 'house/building',
         component: () => import('@/views/house/RealEstateArchive.vue'),
-        meta: { title: '房产档案', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
+        meta: { title: '房间管理', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
       },
       {
         path: 'house/property',
         component: () => import('@/views/house/RealEstateArchive.vue'),
-        meta: { title: '房产档案', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
+        meta: { title: '房间管理', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
       },
       {
         path: 'house/archive',
         component: () => import('@/views/house/RealEstateArchive.vue'),
-        meta: { title: '房产档案', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
+        meta: { title: '房间管理', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
       },
       {
         path: 'house/owner',
         component: () => import('@/views/house/Owner.vue'),
-        meta: { title: '积分与画像', subtitle: '统一管理业主积分余额、家庭画像与基础资料' }
+        meta: { title: '住户管理', subtitle: '统一管理业主基础资料、积分余额与住户画像' }
       },
       {
         path: 'repair/list',
         component: () => import('@/views/repair/SmartWorkOrder.vue'),
-        meta: { title: '智能工单管控', subtitle: '统一处理优先级、派单建议、状态流转与 SLA 超时监控' }
+        meta: { title: '报修管理', subtitle: '统一处理报修工单、派单建议、状态流转与 SLA 超时监控' }
       },
       {
         path: 'repair/work-order',
         component: () => import('@/views/repair/SmartWorkOrder.vue'),
-        meta: { title: '智能工单管控', subtitle: '统一处理优先级、派单建议、状态流转与 SLA 超时监控' }
+        meta: { title: '报修管理', subtitle: '统一处理报修工单、派单建议、状态流转与 SLA 超时监控' }
       },
       {
         path: 'repair/smart',
         component: () => import('@/views/repair/SmartWorkOrder.vue'),
-        meta: { title: '智能工单管控', subtitle: '统一处理优先级、派单建议、状态流转与 SLA 超时监控' }
+        meta: { title: '报修管理', subtitle: '统一处理报修工单、派单建议、状态流转与 SLA 超时监控' }
+      },
+      {
+        path: 'parking/manage',
+        component: () => import('@/views/parking/ParkingManage.vue'),
+        meta: { title: '停车管理', subtitle: '查看车辆、停车订单与月卡缴费状态' }
       },
       {
         path: 'operation/tasks',
         component: () => import('@/views/operation/TaskList.vue'),
-        meta: { title: '催缴待办', subtitle: '处理物业费催缴生成的客服待办任务' }
+        meta: { title: '催缴任务管理', subtitle: '处理物业费催缴生成的客服待办任务' }
       },
       {
         path: 'credit/log',
         component: () => import('@/views/credit/CreditLog.vue'),
-        meta: { title: '信用分明细', subtitle: '查询业主信用分与变动记录' }
+        meta: { title: '信用记录管理', subtitle: '查询业主信用分与变动记录' }
       },
       {
         path: 'recommend/rules',
         component: () => import('@/views/recommend/RuleConfig.vue'),
-        meta: { title: '推荐规则配置', subtitle: '维护小程序首页个性化推荐规则' }
+        meta: { title: '推荐规则管理', subtitle: '维护小程序首页个性化推荐规则' }
       },
       {
         path: 'activity/manage',
         component: () => import('@/views/activity/ActivityManage.vue'),
-        meta: { title: '活动专区', subtitle: '发布活动、查看报名记录并审核参与资格' }
+        meta: { title: '活动管理', subtitle: '发布活动、查看报名记录并审核参与资格' }
       },
       {
         path: 'fee/manage',
@@ -75,7 +80,7 @@ const routes = [
       {
         path: 'innovation/ops',
         component: () => import('@/views/innovation/InnovationOps.vue'),
-        meta: { title: '智能运营', subtitle: '投诉分析、信用体系、智能催缴、任务与 SLA 监控' }
+        meta: { title: '运营管理', subtitle: '查看投诉分析、信用体系、催缴任务与 SLA 监控' }
       },
       {
         path: 'notice/manage',
@@ -90,22 +95,32 @@ const routes = [
       {
         path: 'worker/manage',
         component: () => import('@/views/worker/WorkerManage.vue'),
-        meta: { title: '家政维修管理', subtitle: '管理服务人员与绩效表现' }
+        meta: { title: '维修人员管理', subtitle: '管理服务人员、排班状态与绩效表现' }
+      },
+      {
+        path: 'express/manage',
+        component: () => import('@/views/express/ExpressManage.vue'),
+        meta: { title: '快递管理', subtitle: '预留快递收发、包裹入库与取件管理入口' }
+      },
+      {
+        path: 'facility/manage',
+        component: () => import('@/views/facility/FacilityManage.vue'),
+        meta: { title: '设施管理', subtitle: '预留社区设施台账、状态巡检与维护记录入口' }
       },
       {
         path: 'system/role',
         component: () => import('@/views/system/Role.vue'),
-        meta: { title: '角色权限', subtitle: '配置系统角色与资源访问范围' }
+        meta: { title: '角色权限管理', subtitle: '配置系统角色与资源访问范围' }
       },
       {
         path: 'system/log',
         component: () => import('@/views/system/Log.vue'),
-        meta: { title: '操作日志', subtitle: '审计后台关键操作行为' }
+        meta: { title: '系统日志管理', subtitle: '审计后台关键操作行为' }
       },
       {
         path: 'system/points-recharge',
         component: () => import('@/views/system/PointsRechargeRecord.vue'),
-        meta: { title: '积分充值记录', subtitle: '按业主与时间范围查询充值流水' }
+        meta: { title: '积分充值管理', subtitle: '按业主与时间范围查询充值流水' }
       }
     ]
   }

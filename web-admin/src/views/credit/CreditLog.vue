@@ -2,7 +2,7 @@
   <div class="page-grid">
     <section class="panel">
       <div class="panel-header">
-        <h3>信用分查询</h3>
+        <h3>信用记录管理</h3>
         <div class="filters">
           <el-input v-model="userKeyword" placeholder="输入业主姓名或手机号" clearable @keyup.enter="submitUserSearch" @clear="submitUserSearch" />
           <el-button type="primary" :loading="userLoading" @click="submitUserSearch">搜索用户</el-button>

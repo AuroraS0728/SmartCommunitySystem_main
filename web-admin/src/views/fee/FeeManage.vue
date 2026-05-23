@@ -21,7 +21,7 @@
 
     <section class="panel">
       <div class="panel-header">
-        <h3>缴费管理</h3>
+        <h3>费用管理</h3>
         <el-input
           v-model="keyword"
           placeholder="搜索房产号/房主/缴费类型/业务标识"

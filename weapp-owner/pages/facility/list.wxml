@@ -1,0 +1,32 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">设施管理</view>
+    <view class="hero-desc">查看社区公共设施开放状态，并可直接发起设施报修。</view>
+  </view>
+
+  <view wx:if="{{!facilities.length && !loading}}" class="empty">暂无设施信息</view>
+
+  <view wx:for="{{facilities}}" wx:key="id" class="item">
+    <view class="row-between">
+      <view class="item-title">{{ item.name }}</view>
+      <view class="status-tag {{ item.status === 1 ? 'status-success' : (item.status === 2 ? 'status-warning' : 'status-danger') }}">
+        {{ item.statusText }}
+      </view>
+    </view>
+    <view class="item-desc">设施分类：{{ item.category || '--' }}</view>
+    <view class="item-desc">所在位置：{{ item.location || '--' }}</view>
+    <view wx:if="{{item.openHours}}" class="item-desc">开放时间：{{ item.openHours }}</view>
+    <view wx:if="{{item.contactPhone}}" class="item-desc">联系电话：{{ item.contactPhone }}</view>
+    <view wx:if="{{item.lastInspectionTime}}" class="item-desc">最近巡检：{{ item.lastInspectionTime }}</view>
+    <view wx:if="{{item.description}}" class="item-desc">设施说明：{{ item.description }}</view>
+    <view
+      class="link facility-link"
+      data-id="{{item.id}}"
+      data-name="{{item.name}}"
+      data-location="{{item.location || ''}}"
+      bindtap="goRepair"
+    >
+      去报修
+    </view>
+  </view>
+</view>

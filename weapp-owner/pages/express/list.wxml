@@ -1,0 +1,33 @@
+<view class="section">
+  <view class="hero">
+    <view class="hero-title">快递管理</view>
+    <view class="hero-desc">查看物业代收快递，并在取件后完成确认。</view>
+  </view>
+
+  <view wx:if="{{!packages.length && !loading}}" class="empty">暂无快递记录</view>
+
+  <view wx:for="{{packages}}" wx:key="id" class="item">
+    <view class="row-between">
+      <view class="item-title">{{ item.courierCompany || '快递包裹' }}</view>
+      <view class="status-tag {{ item.status === 1 ? 'status-success' : 'status-warning' }}">
+        {{ item.statusText }}
+      </view>
+    </view>
+    <view class="item-desc">快递单号：{{ item.trackingNo || '--' }}</view>
+    <view class="item-desc">房产号：{{ item.propertyCode || '--' }}</view>
+    <view class="item-desc">收件人：{{ item.recipientName || '--' }} {{ item.recipientPhone || '' }}</view>
+    <view class="item-desc">取件码：{{ item.pickupCode || '--' }}</view>
+    <view class="item-desc">存放位置：{{ item.shelfLocation || '--' }}</view>
+    <view class="item-desc">入库时间：{{ item.arrivedTime || '--' }}</view>
+    <view wx:if="{{item.pickupTime}}" class="item-desc">取件时间：{{ item.pickupTime }}</view>
+    <view wx:if="{{item.remark}}" class="item-desc">备注：{{ item.remark }}</view>
+    <view
+      wx:if="{{item.status !== 1}}"
+      class="btn"
+      data-id="{{item.id}}"
+      bindtap="confirmPickup"
+    >
+      确认取件
+    </view>
+  </view>
+</view>

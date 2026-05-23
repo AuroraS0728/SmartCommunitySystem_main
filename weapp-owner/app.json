@@ -16,6 +16,8 @@
     "pages/activity/register",
     "pages/activity/my",
     "pages/notice/list",
+    "pages/express/list",
+    "pages/facility/list",
     "pages/message/list",
     "pages/neighbor/secondhand/list",
     "pages/neighbor/secondhand/detail",

@@ -2,7 +2,7 @@
   <div class="page-grid">
     <section class="panel">
       <div class="panel-header">
-        <h3>人员定编管理</h3>
+        <h3>维修人员管理</h3>
         <div class="actions">
           <el-input v-model="keyword" placeholder="搜索姓名/电话/擅长类型" clearable style="width: 260px" />
           <el-button type="primary" @click="openCreate">新增人员</el-button>

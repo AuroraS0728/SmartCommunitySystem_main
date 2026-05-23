@@ -39,7 +39,19 @@
       <view class="service-icon">
         <image class="service-icon-image" src="/assets/icons/parking.png" mode="aspectFit" />
       </view>
-      <view class="service-name">车位管理</view>
+      <view class="service-name">停车管理</view>
+    </view>
+    <view class="service-cell" data-url="/pages/express/list" bindtap="goPage">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/info.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">快递管理</view>
+    </view>
+    <view class="service-cell" data-url="/pages/facility/list" bindtap="goPage">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/house.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">设施管理</view>
     </view>
     <view class="service-cell service-cell-active" bindtap="focusAdditionalServiceSection">
       <view class="service-icon">

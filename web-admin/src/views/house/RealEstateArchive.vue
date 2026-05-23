@@ -21,7 +21,7 @@
 
     <section class="panel">
       <div class="panel-header">
-        <h3>房产档案</h3>
+        <h3>房间管理</h3>
         <div class="actions">
           <el-input
             v-model="keyword"

@@ -19,9 +19,12 @@ DROP TABLE IF EXISTS forum_post;
 DROP TABLE IF EXISTS forum_post_like;
 DROP TABLE IF EXISTS lost_found_claim;
 DROP TABLE IF EXISTS lost_found;
+DROP TABLE IF EXISTS image_audit_result;
 DROP TABLE IF EXISTS second_hand_report;
 DROP TABLE IF EXISTS second_hand_favorite;
 DROP TABLE IF EXISTS second_hand;
+DROP TABLE IF EXISTS facility_info;
+DROP TABLE IF EXISTS express_package;
 DROP TABLE IF EXISTS notice;
 DROP TABLE IF EXISTS additional_service_order;
 DROP TABLE IF EXISTS repair_fee_objection;
@@ -239,6 +242,8 @@ CREATE TABLE `repair_order` (
   `service_type` TINYINT NOT NULL DEFAULT 1,
   `service_major` VARCHAR(50) DEFAULT NULL,
   `service_sub_type` VARCHAR(100) DEFAULT NULL,
+  `facility_id` BIGINT DEFAULT NULL,
+  `facility_name` VARCHAR(100) DEFAULT NULL,
   `appointment_date` DATE DEFAULT NULL,
   `appointment_time_slot` VARCHAR(20) DEFAULT NULL,
   `category` VARCHAR(100) NOT NULL,
@@ -383,6 +388,48 @@ CREATE TABLE `notice` (
   KEY `idx_top_publish` (`top`,`publish_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `express_package` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `property_id` BIGINT NOT NULL,
+  `courier_company` VARCHAR(50) NOT NULL,
+  `tracking_no` VARCHAR(64) NOT NULL,
+  `pickup_code` VARCHAR(32) DEFAULT NULL,
+  `recipient_name` VARCHAR(50) DEFAULT NULL,
+  `recipient_phone` VARCHAR(32) DEFAULT NULL,
+  `shelf_location` VARCHAR(100) DEFAULT NULL,
+  `status` TINYINT NOT NULL DEFAULT 0,
+  `arrived_time` DATETIME NOT NULL,
+  `pickup_time` DATETIME DEFAULT NULL,
+  `remark` VARCHAR(255) DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_express_property` (`property_id`),
+  KEY `idx_express_tracking` (`tracking_no`),
+  KEY `idx_express_status_arrived` (`status`,`arrived_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `facility_info` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  `category` VARCHAR(50) NOT NULL,
+  `location` VARCHAR(100) DEFAULT NULL,
+  `open_hours` VARCHAR(100) DEFAULT NULL,
+  `contact_phone` VARCHAR(32) DEFAULT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `description` VARCHAR(1000) DEFAULT NULL,
+  `image_urls` VARCHAR(2000) DEFAULT NULL,
+  `last_inspection_time` DATETIME DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_facility_status_sort` (`status`,`sort_order`),
+  KEY `idx_facility_category` (`category`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `additional_service_order` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
@@ -426,6 +473,23 @@ CREATE TABLE `second_hand` (
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `image_audit_result` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `trade_id` BIGINT NOT NULL,
+  `image_url` VARCHAR(500) NOT NULL,
+  `detect_label` VARCHAR(32) DEFAULT NULL,
+  `real_probability` DECIMAL(10,6) DEFAULT NULL,
+  `fake_probability` DECIMAL(10,6) DEFAULT NULL,
+  `threshold_value` DECIMAL(10,6) DEFAULT NULL,
+  `risk_level` VARCHAR(32) DEFAULT NULL,
+  `audit_status` VARCHAR(32) DEFAULT NULL,
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_image_audit_trade` (`trade_id`),
+  KEY `idx_image_audit_status` (`audit_status`),
+  KEY `idx_image_audit_risk` (`risk_level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `second_hand_favorite` (

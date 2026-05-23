@@ -17,7 +17,7 @@
 
     <section class="panel">
       <div class="panel-header">
-        <h3>积分与画像</h3>
+        <h3>住户管理</h3>
         <el-input
           v-model="keyword"
           placeholder="按昵称、房产号、手机号搜索"

@@ -2,7 +2,7 @@
   <div class="page-grid">
     <section class="panel">
       <div class="panel-header">
-        <h3>角色权限矩阵</h3>
+        <h3>角色权限管理</h3>
       </div>
       <el-table :data="roles" stripe>
         <el-table-column prop="name" label="角色名称" min-width="140" />

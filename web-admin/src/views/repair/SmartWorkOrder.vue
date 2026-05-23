@@ -32,7 +32,7 @@
     <section class="panel card">
       <div class="panel-header">
         <div>
-          <h3>智能工单管控</h3>
+          <h3>报修管理</h3>
           <span class="hint">工单列表、智能优先级、推荐维修员、派单和状态流转统一在此处理</span>
         </div>
       </div>

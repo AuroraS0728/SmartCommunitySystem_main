@@ -56,6 +56,20 @@
       <view class="item-title">活动专区</view>
       <view class="item-desc">查看社区活动与报名</view>
     </view>
+    <view class="quick" bindtap="goExpress">
+      <view class="quick-icon-wrap">
+        <image class="quick-icon" src="/assets/icons/info.png" mode="aspectFit" />
+      </view>
+      <view class="item-title">快递管理</view>
+      <view class="item-desc">查看待取件快递</view>
+    </view>
+    <view class="quick" bindtap="goFacility">
+      <view class="quick-icon-wrap">
+        <image class="quick-icon" src="/assets/icons/house.png" mode="aspectFit" />
+      </view>
+      <view class="item-title">设施管理</view>
+      <view class="item-desc">查看社区设施状态</view>
+    </view>
   </view>
 
   <view wx:if="{{recommendations.length > 0}}" class="recommend-section">
