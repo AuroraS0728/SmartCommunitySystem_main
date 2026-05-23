@@ -12,6 +12,7 @@ import com.smartcommunity.dto.response.PageData;
 import com.smartcommunity.entity.ForumComment;
 import com.smartcommunity.entity.ForumPost;
 import com.smartcommunity.entity.ForumPostLike;
+import com.smartcommunity.entity.ImageAuditResult;
 import com.smartcommunity.entity.LostFound;
 import com.smartcommunity.entity.LostFoundClaim;
 import com.smartcommunity.entity.SecondHand;
@@ -27,6 +28,7 @@ import com.smartcommunity.mapper.SecondHandMapper;
 import com.smartcommunity.mapper.SecondHandReportMapper;
 import com.smartcommunity.service.ContentSafetyService;
 import com.smartcommunity.service.CreditService;
+import com.smartcommunity.service.ImageAuditService;
 import com.smartcommunity.service.NeighborService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,9 +52,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NeighborServiceImpl implements NeighborService {
 
+    private static final int SECOND_HAND_STATUS_PENDING_REVIEW = 0;
+    private static final int SECOND_HAND_STATUS_PUBLISHED = 1;
+    private static final int SECOND_HAND_STATUS_SOLD = 2;
+    private static final int SECOND_HAND_STATUS_OFFLINE = 3;
+
     private final NeighborModuleConfig neighborModuleConfig;
     private final ContentSafetyService contentSafetyService;
     private final CreditService creditService;
+    private final ImageAuditService imageAuditService;
     private final SecondHandMapper secondHandMapper;
     private final SecondHandFavoriteMapper secondHandFavoriteMapper;
     private final SecondHandReportMapper secondHandReportMapper;
@@ -70,12 +78,12 @@ public class NeighborServiceImpl implements NeighborService {
             wrapper.eq(SecondHand::getUserId, userId);
         }
         if (status != null) {
-            if (!Boolean.TRUE.equals(mine) && !isAdmin(role) && status != 1) {
+            if (!Boolean.TRUE.equals(mine) && !isAdmin(role) && status != SECOND_HAND_STATUS_PUBLISHED) {
                 throw new IllegalArgumentException("仅可查看在售商品");
             }
             wrapper.eq(SecondHand::getStatus, status);
         } else if (!Boolean.TRUE.equals(mine) && !isAdmin(role)) {
-            wrapper.eq(SecondHand::getStatus, 1);
+            wrapper.eq(SecondHand::getStatus, SECOND_HAND_STATUS_PUBLISHED);
         }
         if (category != null && !category.isBlank()) {
             wrapper.eq(SecondHand::getCategory, category.trim());
@@ -94,7 +102,9 @@ public class NeighborServiceImpl implements NeighborService {
         } else {
             wrapper.orderByDesc(SecondHand::getUpdateTime).orderByDesc(SecondHand::getId);
         }
-        return pageData(secondHandMapper.selectList(wrapper), page, size);
+        PageData<SecondHand> data = pageData(secondHandMapper.selectList(wrapper), page, size);
+        enrichImageAudits(data.getItems());
+        return data;
     }
 
     @Override
@@ -111,14 +121,20 @@ public class NeighborServiceImpl implements NeighborService {
         boolean favorited = userId != null && secondHandFavoriteMapper.selectCount(new LambdaQueryWrapper<SecondHandFavorite>()
                 .eq(SecondHandFavorite::getUserId, userId)
                 .eq(SecondHandFavorite::getSecondHandId, id)) > 0;
+        enrichImageAudits(List.of(item));
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("item", item);
+        result.put("imageAuditResults", item.getImageAuditResults());
+        result.put("imageAuditStatus", item.getImageAuditStatus());
+        result.put("maxFakeProbability", item.getMaxFakeProbability());
+        result.put("imageRiskLevel", item.getImageRiskLevel());
         result.put("favorited", favorited);
         result.put("isOwner", userId != null && userId.equals(item.getUserId()));
         return result;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SecondHand publishSecondHand(Long userId, PublishSecondHandReq req) {
         validateSecondHandReq(req);
         contentSafetyService.validateText(req.getTitle(), req.getDescription());
@@ -131,17 +147,25 @@ public class NeighborServiceImpl implements NeighborService {
         item.setPrice(req.getPrice() == null ? BigDecimal.ZERO : req.getPrice());
         item.setImages(req.getImages());
         item.setContact(req.getContact());
-        item.setStatus(1);
+        item.setStatus(SECOND_HAND_STATUS_PUBLISHED);
         item.setViewCount(0);
         item.setReportCount(0);
         item.setCreateTime(LocalDateTime.now());
         item.setUpdateTime(LocalDateTime.now());
         item.setIsDeleted(0);
         secondHandMapper.insert(item);
+        ImageAuditService.AuditSummary auditSummary = imageAuditService.auditSecondHandImages(item.getId(), item.getImages());
+        if (auditSummary.needManualReview()) {
+            item.setStatus(SECOND_HAND_STATUS_PENDING_REVIEW);
+            item.setUpdateTime(LocalDateTime.now());
+            secondHandMapper.updateById(item);
+        }
+        applyAuditSummary(item, auditSummary.results());
         return item;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SecondHand updateSecondHand(Long id, Long userId, Integer role, PublishSecondHandReq req) {
         SecondHand item = secondHandMapper.selectById(id);
         if (item == null) {
@@ -150,6 +174,8 @@ public class NeighborServiceImpl implements NeighborService {
         requireOwnerOrAdmin(item.getUserId(), userId, role);
         validateSecondHandReq(req);
         contentSafetyService.validateText(req.getTitle(), req.getDescription());
+        Integer oldStatus = item.getStatus();
+        boolean imagesChanged = !Objects.equals(item.getImages(), req.getImages());
         item.setCommunity(blankAsDefault(req.getCommunity(), item.getCommunity()));
         item.setTitle(req.getTitle().trim());
         item.setCategory(blankAsDefault(req.getCategory(), item.getCategory()));
@@ -159,6 +185,19 @@ public class NeighborServiceImpl implements NeighborService {
         item.setContact(req.getContact());
         item.setUpdateTime(LocalDateTime.now());
         secondHandMapper.updateById(item);
+        if (imagesChanged) {
+            ImageAuditService.AuditSummary auditSummary = imageAuditService.auditSecondHandImages(item.getId(), item.getImages());
+            if (auditSummary.needManualReview()) {
+                item.setStatus(SECOND_HAND_STATUS_PENDING_REVIEW);
+            } else if (Integer.valueOf(SECOND_HAND_STATUS_PENDING_REVIEW).equals(oldStatus)) {
+                item.setStatus(SECOND_HAND_STATUS_PUBLISHED);
+            }
+            item.setUpdateTime(LocalDateTime.now());
+            secondHandMapper.updateById(item);
+            applyAuditSummary(item, auditSummary.results());
+        } else {
+            enrichImageAudits(List.of(item));
+        }
         return item;
     }
 
@@ -175,7 +214,7 @@ public class NeighborServiceImpl implements NeighborService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SecondHand updateSecondHandStatus(Long id, Long userId, Integer role, Integer status) {
-        if (status == null || status < 1 || status > 3) {
+        if (status == null || status < SECOND_HAND_STATUS_PUBLISHED || status > SECOND_HAND_STATUS_OFFLINE) {
             throw new IllegalArgumentException("status仅支持1-在售 2-已售 3-下架");
         }
         SecondHand item = secondHandMapper.selectById(id);
@@ -187,9 +226,10 @@ public class NeighborServiceImpl implements NeighborService {
         item.setStatus(status);
         item.setUpdateTime(LocalDateTime.now());
         secondHandMapper.updateById(item);
-        if (Integer.valueOf(1).equals(oldStatus) && Integer.valueOf(2).equals(status)) {
+        if (Integer.valueOf(SECOND_HAND_STATUS_PUBLISHED).equals(oldStatus) && Integer.valueOf(SECOND_HAND_STATUS_SOLD).equals(status)) {
             afterCommit(() -> creditService.changeCredit(item.getUserId(), 5, "二手交易成功"));
         }
+        enrichImageAudits(List.of(item));
         return item;
     }
 
@@ -250,7 +290,9 @@ public class NeighborServiceImpl implements NeighborService {
                 ordered.add(itemMap.get(sid));
             }
         }
-        return new PageData<>(ordered, (long) allFav.size(), p, s);
+        PageData<SecondHand> data = new PageData<>(ordered, (long) allFav.size(), p, s);
+        enrichImageAudits(data.getItems());
+        return data;
     }
 
     @Override
@@ -795,6 +837,88 @@ public class NeighborServiceImpl implements NeighborService {
             return new PageData<>(List.of(), (long) rows.size(), p, s);
         }
         return new PageData<>(rows.subList(from, to), (long) rows.size(), p, s);
+    }
+
+    private void enrichImageAudits(List<SecondHand> items) {
+        if (items == null || items.isEmpty()) {
+            return;
+        }
+        List<Long> tradeIds = items.stream()
+                .map(SecondHand::getId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        if (tradeIds.isEmpty()) {
+            return;
+        }
+        Map<Long, List<ImageAuditResult>> auditMap = imageAuditService.listByTradeIds(tradeIds).stream()
+                .collect(Collectors.groupingBy(ImageAuditResult::getTradeId));
+        for (SecondHand item : items) {
+            List<ImageAuditResult> results = auditMap.getOrDefault(item.getId(), List.of());
+            applyAuditSummary(item, results);
+        }
+    }
+
+    private void applyAuditSummary(SecondHand item, List<ImageAuditResult> results) {
+        List<ImageAuditResult> safeResults = results == null ? List.of() : results;
+        item.setStatusName(resolveSecondHandStatusName(item.getStatus()));
+        item.setImageAuditResults(safeResults);
+        item.setMaxFakeProbability(maxFakeProbability(safeResults));
+        item.setImageAuditStatus(resolveOverallAuditStatus(safeResults));
+        item.setImageRiskLevel(resolveOverallRiskLevel(safeResults));
+    }
+
+    private String resolveSecondHandStatusName(Integer status) {
+        if (Integer.valueOf(SECOND_HAND_STATUS_PENDING_REVIEW).equals(status)) {
+            return "PENDING_REVIEW";
+        }
+        if (Integer.valueOf(SECOND_HAND_STATUS_PUBLISHED).equals(status)) {
+            return "PUBLISHED";
+        }
+        if (Integer.valueOf(SECOND_HAND_STATUS_SOLD).equals(status)) {
+            return "SOLD";
+        }
+        if (Integer.valueOf(SECOND_HAND_STATUS_OFFLINE).equals(status)) {
+            return "OFFLINE";
+        }
+        return null;
+    }
+
+    private BigDecimal maxFakeProbability(List<ImageAuditResult> results) {
+        if (results == null || results.isEmpty()) {
+            return null;
+        }
+        return results.stream()
+                .map(ImageAuditResult::getFakeProbability)
+                .filter(Objects::nonNull)
+                .max(BigDecimal::compareTo)
+                .orElse(null);
+    }
+
+    private String resolveOverallAuditStatus(List<ImageAuditResult> results) {
+        if (results == null || results.isEmpty()) {
+            return null;
+        }
+        if (results.stream().anyMatch(row -> ImageAuditService.AUDIT_MANUAL_REVIEW.equals(row.getAuditStatus()))) {
+            return ImageAuditService.AUDIT_MANUAL_REVIEW;
+        }
+        if (results.stream().anyMatch(row -> ImageAuditService.AUDIT_SUSPICIOUS.equals(row.getAuditStatus()))) {
+            return ImageAuditService.AUDIT_SUSPICIOUS;
+        }
+        return ImageAuditService.AUDIT_PASS;
+    }
+
+    private String resolveOverallRiskLevel(List<ImageAuditResult> results) {
+        if (results == null || results.isEmpty()) {
+            return null;
+        }
+        if (results.stream().anyMatch(row -> ImageAuditService.RISK_HIGH.equals(row.getRiskLevel()))) {
+            return ImageAuditService.RISK_HIGH;
+        }
+        if (results.stream().anyMatch(row -> ImageAuditService.RISK_MEDIUM.equals(row.getRiskLevel()))) {
+            return ImageAuditService.RISK_MEDIUM;
+        }
+        return ImageAuditService.RISK_LOW;
     }
 
     private void afterCommit(Runnable action) {

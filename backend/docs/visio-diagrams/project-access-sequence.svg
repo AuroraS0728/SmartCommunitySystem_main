@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1000" viewBox="0 0 1900 1000">
+  <rect x="0" y="0" width="1900" height="1000" fill="#FFFFFF" />
+  <text x="950" y="58" text-anchor="middle" font-family="SimSun" font-size="34" fill="#000000">系统访问处理顺序图</text>
+  <rect x="50" y="120" width="240" height="56" rx="8" ry="8" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="170" y="154" text-anchor="middle" font-family="SimSun" font-size="17" fill="#000000">微信小程序/管理后台</text>
+  <line x1="170" y1="176" x2="170" y2="930" stroke="#000000" stroke-width="2" stroke-dasharray="10 8" />
+  <rect x="380" y="120" width="240" height="56" rx="8" ry="8" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="500" y="154" text-anchor="middle" font-family="SimSun" font-size="17" fill="#000000">JwtAuthInterceptor</text>
+  <line x1="500" y1="176" x2="500" y2="930" stroke="#000000" stroke-width="2" stroke-dasharray="10 8" />
+  <rect x="730" y="120" width="240" height="56" rx="8" ry="8" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="850" y="154" text-anchor="middle" font-family="SimSun" font-size="17" fill="#000000">业务Controller</text>
+  <line x1="850" y1="176" x2="850" y2="930" stroke="#000000" stroke-width="2" stroke-dasharray="10 8" />
+  <rect x="1080" y="120" width="240" height="56" rx="8" ry="8" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1200" y="154" text-anchor="middle" font-family="SimSun" font-size="17" fill="#000000">业务Service</text>
+  <line x1="1200" y1="176" x2="1200" y2="930" stroke="#000000" stroke-width="2" stroke-dasharray="10 8" />
+  <rect x="1440" y="120" width="240" height="56" rx="8" ry="8" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1560" y="154" text-anchor="middle" font-family="SimSun" font-size="17" fill="#000000">Mapper/Repository</text>
+  <line x1="1560" y1="176" x2="1560" y2="930" stroke="#000000" stroke-width="2" stroke-dasharray="10 8" />
+  <line x1="170" y1="180" x2="500" y2="180" stroke="#000000" stroke-width="2" />
+  <polygon points="500,180 490,175 490,185" fill="#000000" />
+  <rect x="271" y="152" width="128" height="20" rx="0" ry="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0" />
+  <text x="335" y="167" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000">1  请求业务接口</text>
+  <polyline points="500,260 590,260 590,320 500,320" fill="none" stroke="#000000" stroke-width="2" />
+  <polygon points="500,320 510,315 510,325" fill="#000000" />
+  <rect x="572" y="269" width="96" height="38" rx="0" ry="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0" />
+  <text x="620" y="283.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="620" dy="0">2  解析令牌</tspan><tspan x="620" dy="20">校验身份</tspan></text>
+  <line x1="500" y1="360" x2="850" y2="360" stroke="#000000" stroke-width="2" />
+  <polygon points="850,360 840,355 840,365" fill="#000000" />
+  <rect x="611" y="332" width="128" height="20" rx="0" ry="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0" />
+  <text x="675" y="347" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000">3  放行业务请求</text>
+  <line x1="850" y1="460" x2="1200" y2="460" stroke="#000000" stroke-width="2" />
+  <polygon points="1200,460 1190,455 1190,465" fill="#000000" />
+  <rect x="961" y="432" width="128" height="20" rx="0" ry="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0" />
+  <text x="1025" y="447" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000">4  调用业务逻辑</text>
+  <line x1="1200" y1="560" x2="1560" y2="560" stroke="#000000" stroke-width="2" />
+  <polygon points="1560,560 1550,555 1550,565" fill="#000000" />
+  <rect x="1312" y="532" width="136" height="20" rx="0" ry="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0" />
+  <text x="1380" y="547" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000">5  查询/写入数据</text>
+  <line x1="1560" y1="640" x2="1200" y2="640" stroke="#000000" stroke-width="2" stroke-dasharray="10 8" />
+  <polygon points="1200,640 1210,635 1210,645" fill="#000000" />
+  <rect x="1316" y="612" width="128" height="20" rx="0" ry="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0" />
+  <text x="1380" y="627" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000">6  返回数据结果</text>
+  <line x1="1200" y1="730" x2="850" y2="730" stroke="#000000" stroke-width="2" stroke-dasharray="10 8" />
+  <polygon points="850,730 860,725 860,735" fill="#000000" />
+  <rect x="977" y="702" width="96" height="20" rx="0" ry="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0" />
+  <text x="1025" y="717" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000">7  组装响应</text>
+  <line x1="850" y1="840" x2="170" y2="840" stroke="#000000" stroke-width="2" stroke-dasharray="10 8" />
+  <polygon points="170,840 180,835 180,845" fill="#000000" />
+  <rect x="446" y="812" width="128" height="20" rx="0" ry="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0" />
+  <text x="510" y="827" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000">8  返回接口结果</text>
+</svg>

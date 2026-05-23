@@ -32,6 +32,14 @@ blog:
 activity:
   asset-dir: ${ACTIVITY_ASSET_DIR:./activity-assets}
 
+image-audit:
+  enabled: ${IMAGE_AUDIT_ENABLED:true}
+  model-url: ${IMAGE_AUDIT_MODEL_URL:http://127.0.0.1:8000/predict}
+  fake-threshold: ${IMAGE_AUDIT_FAKE_THRESHOLD:0.5}
+  review-threshold: ${IMAGE_AUDIT_REVIEW_THRESHOLD:0.7}
+  connect-timeout-ms: ${IMAGE_AUDIT_CONNECT_TIMEOUT_MS:3000}
+  read-timeout-ms: ${IMAGE_AUDIT_READ_TIMEOUT_MS:10000}
+
 seetaface:
   enabled: ${SEETAFACE_ENABLED:true}
   detector-model-path: ${SEETAFACE_DETECTOR_MODEL:D:/Face/sf3.0_models/sf3.0_models/face_detector.csta}

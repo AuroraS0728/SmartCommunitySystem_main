@@ -1,0 +1,307 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3400" height="1280" viewBox="0 0 3400 1280">
+  <rect x="0" y="0" width="3400" height="1280" fill="#FFFFFF" />
+  <text x="1700" y="60" text-anchor="middle" font-family="SimSun" font-size="34" fill="#000000">智慧社区物业服务管理系统功能结构图</text>
+  <rect x="1350" y="110" width="700" height="72" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1700" y="152" text-anchor="middle" font-family="SimSun" font-size="20" fill="#000000">智慧社区物业服务管理系统</text>
+  <line x1="600" y1="270" x2="2890" y2="270" stroke="#000000" stroke-width="2" />
+  <line x1="1700" y1="182" x2="1700" y2="270" stroke="#000000" stroke-width="2" />
+  <line x1="600" y1="270" x2="600" y2="319" stroke="#000000" stroke-width="2" />
+  <line x1="1460" y1="270" x2="1460" y2="319" stroke="#000000" stroke-width="2" />
+  <line x1="2140" y1="270" x2="2140" y2="319" stroke="#000000" stroke-width="2" />
+  <line x1="2890" y1="270" x2="2890" y2="319" stroke="#000000" stroke-width="2" />
+  <rect x="495" y="319" width="210" height="62" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="600" y="344.0" text-anchor="middle" font-family="SimSun" font-size="18" fill="#000000"><tspan x="600" dy="0">业主侧</tspan><tspan x="600" dy="24">小程序</tspan></text>
+  <line x1="140" y1="449" x2="1060" y2="449" stroke="#000000" stroke-width="2" />
+  <line x1="600" y1="381" x2="600" y2="449" stroke="#000000" stroke-width="2" />
+  <line x1="140" y1="449" x2="140" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="120" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="140" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="140" dy="0">实</tspan><tspan x="140" dy="21">现</tspan><tspan x="140" dy="21">住</tspan><tspan x="140" dy="21">户</tspan><tspan x="140" dy="21">身</tspan><tspan x="140" dy="21">份</tspan><tspan x="140" dy="21">接</tspan><tspan x="140" dy="21">入</tspan><tspan x="140" dy="21">与</tspan><tspan x="140" dy="21">账</tspan><tspan x="140" dy="21">户</tspan><tspan x="140" dy="21">维</tspan><tspan x="140" dy="21">护</tspan></text>
+  <line x1="140" y1="723" x2="140" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="90" y1="765" x2="190" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="90" y1="765" x2="90" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="73" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="90" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="90" dy="0">账</tspan><tspan x="90" dy="18">号</tspan><tspan x="90" dy="18">登</tspan><tspan x="90" dy="18">录</tspan></text>
+  <line x1="140" y1="765" x2="140" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="123" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="140" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="140" dy="0">业</tspan><tspan x="140" dy="18">主</tspan><tspan x="140" dy="18">注</tspan><tspan x="140" dy="18">册</tspan></text>
+  <line x1="190" y1="765" x2="190" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="173" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="190" y="824.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="190" dy="0">改</tspan><tspan x="190" dy="18">密</tspan><tspan x="190" dy="18">绑</tspan><tspan x="190" dy="18">手</tspan><tspan x="190" dy="18">机</tspan></text>
+  <line x1="293" y1="449" x2="293" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="273" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="293" y="508.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="293" dy="0">实</tspan><tspan x="293" dy="21">现</tspan><tspan x="293" dy="21">报</tspan><tspan x="293" dy="21">修</tspan><tspan x="293" dy="21">申</tspan><tspan x="293" dy="21">请</tspan><tspan x="293" dy="21">与</tspan><tspan x="293" dy="21">进</tspan><tspan x="293" dy="21">度</tspan><tspan x="293" dy="21">反</tspan><tspan x="293" dy="21">馈</tspan></text>
+  <line x1="293" y1="723" x2="293" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="243" y1="765" x2="343" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="243" y1="765" x2="243" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="226" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="243" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="243" dy="0">在</tspan><tspan x="243" dy="18">线</tspan><tspan x="243" dy="18">报</tspan><tspan x="243" dy="18">修</tspan></text>
+  <line x1="293" y1="765" x2="293" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="276" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="293" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="293" dy="0">工</tspan><tspan x="293" dy="18">单</tspan><tspan x="293" dy="18">查</tspan><tspan x="293" dy="18">询</tspan></text>
+  <line x1="343" y1="765" x2="343" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="326" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="343" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="343" dy="0">上</tspan><tspan x="343" dy="18">门</tspan><tspan x="343" dy="18">评</tspan><tspan x="343" dy="18">价</tspan></text>
+  <line x1="447" y1="449" x2="447" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="427" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="447" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="447" dy="0">实</tspan><tspan x="447" dy="21">现</tspan><tspan x="447" dy="21">附</tspan><tspan x="447" dy="21">加</tspan><tspan x="447" dy="21">服</tspan><tspan x="447" dy="21">务</tspan><tspan x="447" dy="21">预</tspan><tspan x="447" dy="21">约</tspan><tspan x="447" dy="21">与</tspan><tspan x="447" dy="21">结</tspan><tspan x="447" dy="21">果</tspan><tspan x="447" dy="21">通</tspan><tspan x="447" dy="21">知</tspan></text>
+  <line x1="447" y1="723" x2="447" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="397" y1="765" x2="497" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="397" y1="765" x2="397" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="380" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="397" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="397" dy="0">预</tspan><tspan x="397" dy="18">约</tspan><tspan x="397" dy="18">下</tspan><tspan x="397" dy="18">单</tspan></text>
+  <line x1="447" y1="765" x2="447" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="430" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="447" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="447" dy="0">积</tspan><tspan x="447" dy="18">分</tspan><tspan x="447" dy="18">支</tspan><tspan x="447" dy="18">付</tspan></text>
+  <line x1="497" y1="765" x2="497" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="480" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="497" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="497" dy="0">消</tspan><tspan x="497" dy="18">息</tspan><tspan x="497" dy="18">反</tspan><tspan x="497" dy="18">馈</tspan></text>
+  <line x1="600" y1="449" x2="600" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="580" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="600" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="600" dy="0">实</tspan><tspan x="600" dy="21">现</tspan><tspan x="600" dy="21">费</tspan><tspan x="600" dy="21">用</tspan><tspan x="600" dy="21">账</tspan><tspan x="600" dy="21">单</tspan><tspan x="600" dy="21">查</tspan><tspan x="600" dy="21">询</tspan><tspan x="600" dy="21">与</tspan><tspan x="600" dy="21">积</tspan><tspan x="600" dy="21">分</tspan><tspan x="600" dy="21">支</tspan><tspan x="600" dy="21">付</tspan></text>
+  <line x1="600" y1="723" x2="600" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="550" y1="765" x2="650" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="550" y1="765" x2="550" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="533" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="550" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="550" dy="0">物</tspan><tspan x="550" dy="18">业</tspan><tspan x="550" dy="18">缴</tspan><tspan x="550" dy="18">费</tspan></text>
+  <line x1="600" y1="765" x2="600" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="583" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="600" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="600" dy="0">停</tspan><tspan x="600" dy="18">车</tspan><tspan x="600" dy="18">缴</tspan><tspan x="600" dy="18">费</tspan></text>
+  <line x1="650" y1="765" x2="650" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="633" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="650" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="650" dy="0">积</tspan><tspan x="650" dy="18">分</tspan><tspan x="650" dy="18">明</tspan><tspan x="650" dy="18">细</tspan></text>
+  <line x1="753" y1="449" x2="753" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="733" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="753" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="753" dy="0">实</tspan><tspan x="753" dy="21">现</tspan><tspan x="753" dy="21">访</tspan><tspan x="753" dy="21">客</tspan><tspan x="753" dy="21">通</tspan><tspan x="753" dy="21">行</tspan><tspan x="753" dy="21">授</tspan><tspan x="753" dy="21">权</tspan><tspan x="753" dy="21">与</tspan><tspan x="753" dy="21">门</tspan><tspan x="753" dy="21">禁</tspan><tspan x="753" dy="21">交</tspan><tspan x="753" dy="21">互</tspan></text>
+  <line x1="753" y1="723" x2="753" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="703" y1="765" x2="803" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="703" y1="765" x2="703" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="686" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="703" y="824.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="703" dy="0">邀</tspan><tspan x="703" dy="18">请</tspan><tspan x="703" dy="18">码</tspan><tspan x="703" dy="18">管</tspan><tspan x="703" dy="18">理</tspan></text>
+  <line x1="753" y1="765" x2="753" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="736" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="753" y="824.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="753" dy="0">动</tspan><tspan x="753" dy="18">态</tspan><tspan x="753" dy="18">二</tspan><tspan x="753" dy="18">维</tspan><tspan x="753" dy="18">码</tspan></text>
+  <line x1="803" y1="765" x2="803" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="786" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="803" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="803" dy="0">入</tspan><tspan x="803" dy="18">场</tspan><tspan x="803" dy="18">通</tspan><tspan x="803" dy="18">知</tspan></text>
+  <line x1="907" y1="449" x2="907" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="887" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="907" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="907" dy="0">实</tspan><tspan x="907" dy="21">现</tspan><tspan x="907" dy="21">社</tspan><tspan x="907" dy="21">区</tspan><tspan x="907" dy="21">信</tspan><tspan x="907" dy="21">息</tspan><tspan x="907" dy="21">获</tspan><tspan x="907" dy="21">取</tspan><tspan x="907" dy="21">与</tspan><tspan x="907" dy="21">互</tspan><tspan x="907" dy="21">动</tspan><tspan x="907" dy="21">参</tspan><tspan x="907" dy="21">与</tspan></text>
+  <line x1="907" y1="723" x2="907" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="857" y1="765" x2="957" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="857" y1="765" x2="857" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="840" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="857" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="857" dy="0">公</tspan><tspan x="857" dy="18">告</tspan><tspan x="857" dy="18">活</tspan><tspan x="857" dy="18">动</tspan></text>
+  <line x1="907" y1="765" x2="907" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="890" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="907" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="907" dy="0">二</tspan><tspan x="907" dy="18">手</tspan><tspan x="907" dy="18">失</tspan><tspan x="907" dy="18">物</tspan></text>
+  <line x1="957" y1="765" x2="957" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="940" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="957" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="957" dy="0">投</tspan><tspan x="957" dy="18">诉</tspan><tspan x="957" dy="18">建</tspan><tspan x="957" dy="18">议</tspan></text>
+  <line x1="1060" y1="449" x2="1060" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="1040" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1060" y="466.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1060" dy="0">实</tspan><tspan x="1060" dy="21">现</tspan><tspan x="1060" dy="21">个</tspan><tspan x="1060" dy="21">人</tspan><tspan x="1060" dy="21">资</tspan><tspan x="1060" dy="21">料</tspan><tspan x="1060" dy="21">维</tspan><tspan x="1060" dy="21">护</tspan><tspan x="1060" dy="21">与</tspan><tspan x="1060" dy="21">便</tspan><tspan x="1060" dy="21">民</tspan><tspan x="1060" dy="21">入</tspan><tspan x="1060" dy="21">口</tspan><tspan x="1060" dy="21">聚</tspan><tspan x="1060" dy="21">合</tspan></text>
+  <line x1="1060" y1="723" x2="1060" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1010" y1="765" x2="1110" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1010" y1="765" x2="1010" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="993" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1010" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1010" dy="0">个</tspan><tspan x="1010" dy="18">人</tspan><tspan x="1010" dy="18">中</tspan><tspan x="1010" dy="18">心</tspan></text>
+  <line x1="1060" y1="765" x2="1060" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1043" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1060" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1060" dy="0">收</tspan><tspan x="1060" dy="18">藏</tspan><tspan x="1060" dy="18">消</tspan><tspan x="1060" dy="18">息</tspan></text>
+  <line x1="1110" y1="765" x2="1110" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1093" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1110" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1110" dy="0">停</tspan><tspan x="1110" dy="18">车</tspan><tspan x="1110" dy="18">月</tspan><tspan x="1110" dy="18">卡</tspan></text>
+  <rect x="1355" y="319" width="210" height="62" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1460" y="344.0" text-anchor="middle" font-family="SimSun" font-size="18" fill="#000000"><tspan x="1460" dy="0">安防侧</tspan><tspan x="1460" dy="24">小程序</tspan></text>
+  <line x1="1180" y1="449" x2="1740" y2="449" stroke="#000000" stroke-width="2" />
+  <line x1="1460" y1="381" x2="1460" y2="449" stroke="#000000" stroke-width="2" />
+  <line x1="1180" y1="449" x2="1180" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="1160" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1180" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1180" dy="0">实</tspan><tspan x="1180" dy="21">现</tspan><tspan x="1180" dy="21">门</tspan><tspan x="1180" dy="21">禁</tspan><tspan x="1180" dy="21">扫</tspan><tspan x="1180" dy="21">码</tspan><tspan x="1180" dy="21">核</tspan><tspan x="1180" dy="21">验</tspan><tspan x="1180" dy="21">与</tspan><tspan x="1180" dy="21">通</tspan><tspan x="1180" dy="21">行</tspan><tspan x="1180" dy="21">确</tspan><tspan x="1180" dy="21">认</tspan></text>
+  <line x1="1180" y1="723" x2="1180" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1155" y1="765" x2="1205" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1155" y1="765" x2="1155" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1138" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1155" y="824.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1155" dy="0">动</tspan><tspan x="1155" dy="18">态</tspan><tspan x="1155" dy="18">码</tspan><tspan x="1155" dy="18">核</tspan><tspan x="1155" dy="18">验</tspan></text>
+  <line x1="1205" y1="765" x2="1205" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1188" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1205" y="824.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1205" dy="0">邀</tspan><tspan x="1205" dy="18">请</tspan><tspan x="1205" dy="18">码</tspan><tspan x="1205" dy="18">核</tspan><tspan x="1205" dy="18">验</tspan></text>
+  <line x1="1460" y1="449" x2="1460" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="1440" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1460" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1460" dy="0">实</tspan><tspan x="1460" dy="21">现</tspan><tspan x="1460" dy="21">费</tspan><tspan x="1460" dy="21">用</tspan><tspan x="1460" dy="21">异</tspan><tspan x="1460" dy="21">议</tspan><tspan x="1460" dy="21">审</tspan><tspan x="1460" dy="21">核</tspan><tspan x="1460" dy="21">与</tspan><tspan x="1460" dy="21">结</tspan><tspan x="1460" dy="21">果</tspan><tspan x="1460" dy="21">回</tspan><tspan x="1460" dy="21">传</tspan></text>
+  <line x1="1460" y1="723" x2="1460" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1410" y1="765" x2="1510" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1410" y1="765" x2="1410" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1393" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1410" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1410" dy="0">异</tspan><tspan x="1410" dy="18">议</tspan><tspan x="1410" dy="18">列</tspan><tspan x="1410" dy="18">表</tspan></text>
+  <line x1="1460" y1="765" x2="1460" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1443" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1460" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1460" dy="0">驳</tspan><tspan x="1460" dy="18">回</tspan><tspan x="1460" dy="18">处</tspan><tspan x="1460" dy="18">理</tspan></text>
+  <line x1="1510" y1="765" x2="1510" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1493" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1510" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1510" dy="0">通</tspan><tspan x="1510" dy="18">过</tspan><tspan x="1510" dy="18">处</tspan><tspan x="1510" dy="18">理</tspan></text>
+  <line x1="1740" y1="449" x2="1740" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="1720" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1740" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1740" dy="0">实</tspan><tspan x="1740" dy="21">现</tspan><tspan x="1740" dy="21">投</tspan><tspan x="1740" dy="21">诉</tspan><tspan x="1740" dy="21">建</tspan><tspan x="1740" dy="21">议</tspan><tspan x="1740" dy="21">查</tspan><tspan x="1740" dy="21">看</tspan><tspan x="1740" dy="21">与</tspan><tspan x="1740" dy="21">在</tspan><tspan x="1740" dy="21">线</tspan><tspan x="1740" dy="21">回</tspan><tspan x="1740" dy="21">复</tspan></text>
+  <line x1="1740" y1="723" x2="1740" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1715" y1="765" x2="1765" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1715" y1="765" x2="1715" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1698" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1715" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1715" dy="0">投</tspan><tspan x="1715" dy="18">诉</tspan><tspan x="1715" dy="18">查</tspan><tspan x="1715" dy="18">看</tspan></text>
+  <line x1="1765" y1="765" x2="1765" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1748" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1765" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1765" dy="0">反</tspan><tspan x="1765" dy="18">馈</tspan><tspan x="1765" dy="18">回</tspan><tspan x="1765" dy="18">复</tspan></text>
+  <rect x="2035" y="319" width="210" height="62" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2140" y="344.0" text-anchor="middle" font-family="SimSun" font-size="18" fill="#000000"><tspan x="2140" dy="0">维修侧</tspan><tspan x="2140" dy="24">小程序</tspan></text>
+  <line x1="1860" y1="449" x2="2420" y2="449" stroke="#000000" stroke-width="2" />
+  <line x1="2140" y1="381" x2="2140" y2="449" stroke="#000000" stroke-width="2" />
+  <line x1="1860" y1="449" x2="1860" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="1840" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1860" y="508.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1860" dy="0">实</tspan><tspan x="1860" dy="21">现</tspan><tspan x="1860" dy="21">任</tspan><tspan x="1860" dy="21">务</tspan><tspan x="1860" dy="21">接</tspan><tspan x="1860" dy="21">收</tspan><tspan x="1860" dy="21">与</tspan><tspan x="1860" dy="21">工</tspan><tspan x="1860" dy="21">单</tspan><tspan x="1860" dy="21">查</tspan><tspan x="1860" dy="21">看</tspan></text>
+  <line x1="1860" y1="723" x2="1860" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1835" y1="765" x2="1885" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="1835" y1="765" x2="1835" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1818" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1835" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1835" dy="0">任</tspan><tspan x="1835" dy="18">务</tspan><tspan x="1835" dy="18">列</tspan><tspan x="1835" dy="18">表</tspan></text>
+  <line x1="1885" y1="765" x2="1885" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="1868" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1885" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="1885" dy="0">工</tspan><tspan x="1885" dy="18">单</tspan><tspan x="1885" dy="18">详</tspan><tspan x="1885" dy="18">情</tspan></text>
+  <line x1="2047" y1="449" x2="2047" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="2027" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2047" y="508.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="2047" dy="0">实</tspan><tspan x="2047" dy="21">现</tspan><tspan x="2047" dy="21">上</tspan><tspan x="2047" dy="21">门</tspan><tspan x="2047" dy="21">核</tspan><tspan x="2047" dy="21">验</tspan><tspan x="2047" dy="21">与</tspan><tspan x="2047" dy="21">身</tspan><tspan x="2047" dy="21">份</tspan><tspan x="2047" dy="21">确</tspan><tspan x="2047" dy="21">认</tspan></text>
+  <line x1="2047" y1="723" x2="2047" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2022" y1="765" x2="2072" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2022" y1="765" x2="2022" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2005" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2022" y="824.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2022" dy="0">验</tspan><tspan x="2022" dy="18">证</tspan><tspan x="2022" dy="18">码</tspan><tspan x="2022" dy="18">核</tspan><tspan x="2022" dy="18">验</tspan></text>
+  <line x1="2072" y1="765" x2="2072" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2055" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2072" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2072" dy="0">人</tspan><tspan x="2072" dy="18">脸</tspan><tspan x="2072" dy="18">核</tspan><tspan x="2072" dy="18">验</tspan></text>
+  <line x1="2233" y1="449" x2="2233" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="2213" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2233" y="508.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="2233" dy="0">实</tspan><tspan x="2233" dy="21">现</tspan><tspan x="2233" dy="21">作</tspan><tspan x="2233" dy="21">业</tspan><tspan x="2233" dy="21">反</tspan><tspan x="2233" dy="21">馈</tspan><tspan x="2233" dy="21">与</tspan><tspan x="2233" dy="21">状</tspan><tspan x="2233" dy="21">态</tspan><tspan x="2233" dy="21">流</tspan><tspan x="2233" dy="21">转</tspan></text>
+  <line x1="2233" y1="723" x2="2233" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2183" y1="765" x2="2283" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2183" y1="765" x2="2183" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2166" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2183" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2183" dy="0">开</tspan><tspan x="2183" dy="18">工</tspan><tspan x="2183" dy="18">处</tspan><tspan x="2183" dy="18">理</tspan></text>
+  <line x1="2233" y1="765" x2="2233" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2216" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2233" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2233" dy="0">完</tspan><tspan x="2233" dy="18">工</tspan><tspan x="2233" dy="18">回</tspan><tspan x="2233" dy="18">传</tspan></text>
+  <line x1="2283" y1="765" x2="2283" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2266" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2283" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2283" dy="0">图</tspan><tspan x="2283" dy="18">片</tspan><tspan x="2283" dy="18">上</tspan><tspan x="2283" dy="18">传</tspan></text>
+  <line x1="2420" y1="449" x2="2420" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="2400" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2420" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="2420" dy="0">实</tspan><tspan x="2420" dy="21">现</tspan><tspan x="2420" dy="21">个</tspan><tspan x="2420" dy="21">人</tspan><tspan x="2420" dy="21">信</tspan><tspan x="2420" dy="21">息</tspan><tspan x="2420" dy="21">查</tspan><tspan x="2420" dy="21">看</tspan><tspan x="2420" dy="21">与</tspan><tspan x="2420" dy="21">消</tspan><tspan x="2420" dy="21">息</tspan><tspan x="2420" dy="21">协</tspan><tspan x="2420" dy="21">同</tspan></text>
+  <line x1="2420" y1="723" x2="2420" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2395" y1="765" x2="2445" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2395" y1="765" x2="2395" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2378" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2395" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2395" dy="0">绩</tspan><tspan x="2395" dy="18">效</tspan><tspan x="2395" dy="18">查</tspan><tspan x="2395" dy="18">看</tspan></text>
+  <line x1="2445" y1="765" x2="2445" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2428" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2445" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2445" dy="0">消</tspan><tspan x="2445" dy="18">息</tspan><tspan x="2445" dy="18">通</tspan><tspan x="2445" dy="18">知</tspan></text>
+  <rect x="2785" y="319" width="210" height="62" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2890" y="344.0" text-anchor="middle" font-family="SimSun" font-size="18" fill="#000000"><tspan x="2890" dy="0">物业管理</tspan><tspan x="2890" dy="24">后台</tspan></text>
+  <line x1="2520" y1="449" x2="3260" y2="449" stroke="#000000" stroke-width="2" />
+  <line x1="2890" y1="381" x2="2890" y2="449" stroke="#000000" stroke-width="2" />
+  <line x1="2520" y1="449" x2="2520" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="2500" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2520" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="2520" dy="0">实</tspan><tspan x="2520" dy="21">现</tspan><tspan x="2520" dy="21">资</tspan><tspan x="2520" dy="21">产</tspan><tspan x="2520" dy="21">档</tspan><tspan x="2520" dy="21">案</tspan><tspan x="2520" dy="21">归</tspan><tspan x="2520" dy="21">集</tspan><tspan x="2520" dy="21">与</tspan><tspan x="2520" dy="21">住</tspan><tspan x="2520" dy="21">户</tspan><tspan x="2520" dy="21">维</tspan><tspan x="2520" dy="21">护</tspan></text>
+  <line x1="2520" y1="723" x2="2520" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2495" y1="765" x2="2545" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2495" y1="765" x2="2495" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2478" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2495" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2495" dy="0">房</tspan><tspan x="2495" dy="18">产</tspan><tspan x="2495" dy="18">档</tspan><tspan x="2495" dy="18">案</tspan></text>
+  <line x1="2545" y1="765" x2="2545" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2528" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2545" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2545" dy="0">住</tspan><tspan x="2545" dy="18">户</tspan><tspan x="2545" dy="18">画</tspan><tspan x="2545" dy="18">像</tspan></text>
+  <line x1="2643" y1="449" x2="2643" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="2623" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2643" y="476.5" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="2643" dy="0">实</tspan><tspan x="2643" dy="21">现</tspan><tspan x="2643" dy="21">工</tspan><tspan x="2643" dy="21">单</tspan><tspan x="2643" dy="21">调</tspan><tspan x="2643" dy="21">度</tspan><tspan x="2643" dy="21">分</tspan><tspan x="2643" dy="21">派</tspan><tspan x="2643" dy="21">与</tspan><tspan x="2643" dy="21">S</tspan><tspan x="2643" dy="21">L</tspan><tspan x="2643" dy="21">A</tspan><tspan x="2643" dy="21">督</tspan><tspan x="2643" dy="21">办</tspan></text>
+  <line x1="2643" y1="723" x2="2643" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2593" y1="765" x2="2693" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2593" y1="765" x2="2593" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2576" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2593" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2593" dy="0">智</tspan><tspan x="2593" dy="18">能</tspan><tspan x="2593" dy="18">派</tspan><tspan x="2593" dy="18">单</tspan></text>
+  <line x1="2643" y1="765" x2="2643" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2626" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2643" y="824.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2643" dy="0">优</tspan><tspan x="2643" dy="18">先</tspan><tspan x="2643" dy="18">级</tspan><tspan x="2643" dy="18">调</tspan><tspan x="2643" dy="18">整</tspan></text>
+  <line x1="2693" y1="765" x2="2693" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2676" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2693" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2693" dy="0">超</tspan><tspan x="2693" dy="18">时</tspan><tspan x="2693" dy="18">扫</tspan><tspan x="2693" dy="18">描</tspan></text>
+  <line x1="2767" y1="449" x2="2767" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="2747" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2767" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="2767" dy="0">实</tspan><tspan x="2767" dy="21">现</tspan><tspan x="2767" dy="21">费</tspan><tspan x="2767" dy="21">用</tspan><tspan x="2767" dy="21">账</tspan><tspan x="2767" dy="21">单</tspan><tspan x="2767" dy="21">生</tspan><tspan x="2767" dy="21">成</tspan><tspan x="2767" dy="21">与</tspan><tspan x="2767" dy="21">催</tspan><tspan x="2767" dy="21">缴</tspan><tspan x="2767" dy="21">运</tspan><tspan x="2767" dy="21">营</tspan></text>
+  <line x1="2767" y1="723" x2="2767" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2717" y1="765" x2="2817" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2717" y1="765" x2="2717" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2700" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2717" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2717" dy="0">账</tspan><tspan x="2717" dy="18">单</tspan><tspan x="2717" dy="18">管</tspan><tspan x="2717" dy="18">理</tspan></text>
+  <line x1="2767" y1="765" x2="2767" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2750" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2767" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2767" dy="0">积</tspan><tspan x="2767" dy="18">分</tspan><tspan x="2767" dy="18">充</tspan><tspan x="2767" dy="18">值</tspan></text>
+  <line x1="2817" y1="765" x2="2817" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2800" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2817" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2817" dy="0">催</tspan><tspan x="2817" dy="18">缴</tspan><tspan x="2817" dy="18">任</tspan><tspan x="2817" dy="18">务</tspan></text>
+  <line x1="2890" y1="449" x2="2890" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="2870" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2890" y="476.5" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="2890" dy="0">实</tspan><tspan x="2890" dy="21">现</tspan><tspan x="2890" dy="21">访</tspan><tspan x="2890" dy="21">客</tspan><tspan x="2890" dy="21">记</tspan><tspan x="2890" dy="21">录</tspan><tspan x="2890" dy="21">核</tspan><tspan x="2890" dy="21">验</tspan><tspan x="2890" dy="21">与</tspan><tspan x="2890" dy="21">黑</tspan><tspan x="2890" dy="21">名</tspan><tspan x="2890" dy="21">单</tspan><tspan x="2890" dy="21">处</tspan><tspan x="2890" dy="21">置</tspan></text>
+  <line x1="2890" y1="723" x2="2890" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2840" y1="765" x2="2940" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2840" y1="765" x2="2840" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2823" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2840" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2840" dy="0">访</tspan><tspan x="2840" dy="18">客</tspan><tspan x="2840" dy="18">记</tspan><tspan x="2840" dy="18">录</tspan></text>
+  <line x1="2890" y1="765" x2="2890" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2873" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2890" y="824.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2890" dy="0">黑</tspan><tspan x="2890" dy="18">名</tspan><tspan x="2890" dy="18">单</tspan><tspan x="2890" dy="18">管</tspan><tspan x="2890" dy="18">理</tspan></text>
+  <line x1="2940" y1="765" x2="2940" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2923" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2940" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2940" dy="0">核</tspan><tspan x="2940" dy="18">验</tspan><tspan x="2940" dy="18">记</tspan><tspan x="2940" dy="18">录</tspan></text>
+  <line x1="3013" y1="449" x2="3013" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="2993" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3013" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="3013" dy="0">实</tspan><tspan x="3013" dy="21">现</tspan><tspan x="3013" dy="21">维</tspan><tspan x="3013" dy="21">修</tspan><tspan x="3013" dy="21">人</tspan><tspan x="3013" dy="21">员</tspan><tspan x="3013" dy="21">排</tspan><tspan x="3013" dy="21">班</tspan><tspan x="3013" dy="21">与</tspan><tspan x="3013" dy="21">人</tspan><tspan x="3013" dy="21">脸</tspan><tspan x="3013" dy="21">配</tspan><tspan x="3013" dy="21">置</tspan></text>
+  <line x1="3013" y1="723" x2="3013" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2963" y1="765" x2="3063" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="2963" y1="765" x2="2963" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2946" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="2963" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="2963" dy="0">人</tspan><tspan x="2963" dy="18">员</tspan><tspan x="2963" dy="18">档</tspan><tspan x="2963" dy="18">案</tspan></text>
+  <line x1="3013" y1="765" x2="3013" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="2996" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3013" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3013" dy="0">排</tspan><tspan x="3013" dy="18">班</tspan><tspan x="3013" dy="18">状</tspan><tspan x="3013" dy="18">态</tspan></text>
+  <line x1="3063" y1="765" x2="3063" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="3046" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3063" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3063" dy="0">人</tspan><tspan x="3063" dy="18">脸</tspan><tspan x="3063" dy="18">注</tspan><tspan x="3063" dy="18">册</tspan></text>
+  <line x1="3137" y1="449" x2="3137" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="3117" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3137" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="3137" dy="0">实</tspan><tspan x="3137" dy="21">现</tspan><tspan x="3137" dy="21">公</tspan><tspan x="3137" dy="21">告</tspan><tspan x="3137" dy="21">活</tspan><tspan x="3137" dy="21">动</tspan><tspan x="3137" dy="21">发</tspan><tspan x="3137" dy="21">布</tspan><tspan x="3137" dy="21">与</tspan><tspan x="3137" dy="21">规</tspan><tspan x="3137" dy="21">则</tspan><tspan x="3137" dy="21">维</tspan><tspan x="3137" dy="21">护</tspan></text>
+  <line x1="3137" y1="723" x2="3137" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="3087" y1="765" x2="3187" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="3087" y1="765" x2="3087" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="3070" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3087" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3087" dy="0">公</tspan><tspan x="3087" dy="18">告</tspan><tspan x="3087" dy="18">管</tspan><tspan x="3087" dy="18">理</tspan></text>
+  <line x1="3137" y1="765" x2="3137" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="3120" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3137" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3137" dy="0">活</tspan><tspan x="3137" dy="18">动</tspan><tspan x="3137" dy="18">管</tspan><tspan x="3137" dy="18">理</tspan></text>
+  <line x1="3187" y1="765" x2="3187" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="3170" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3187" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3187" dy="0">推</tspan><tspan x="3187" dy="18">荐</tspan><tspan x="3187" dy="18">规</tspan><tspan x="3187" dy="18">则</tspan></text>
+  <line x1="3260" y1="449" x2="3260" y2="493" stroke="#000000" stroke-width="2" />
+  <rect x="3240" y="493" width="40" height="230" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3260" y="487.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="3260" dy="0">实</tspan><tspan x="3260" dy="21">现</tspan><tspan x="3260" dy="21">投</tspan><tspan x="3260" dy="21">诉</tspan><tspan x="3260" dy="21">信</tspan><tspan x="3260" dy="21">用</tspan><tspan x="3260" dy="21">任</tspan><tspan x="3260" dy="21">务</tspan><tspan x="3260" dy="21">与</tspan><tspan x="3260" dy="21">统</tspan><tspan x="3260" dy="21">计</tspan><tspan x="3260" dy="21">分</tspan><tspan x="3260" dy="21">析</tspan></text>
+  <line x1="3260" y1="723" x2="3260" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="3185" y1="765" x2="3335" y2="765" stroke="#000000" stroke-width="2" />
+  <line x1="3185" y1="765" x2="3185" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="3168" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3185" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3185" dy="0">投</tspan><tspan x="3185" dy="18">诉</tspan><tspan x="3185" dy="18">分</tspan><tspan x="3185" dy="18">析</tspan></text>
+  <line x1="3235" y1="765" x2="3235" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="3218" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3235" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3235" dy="0">信</tspan><tspan x="3235" dy="18">用</tspan><tspan x="3235" dy="18">记</tspan><tspan x="3235" dy="18">录</tspan></text>
+  <line x1="3285" y1="765" x2="3285" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="3268" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3285" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3285" dy="0">数</tspan><tspan x="3285" dy="18">据</tspan><tspan x="3285" dy="18">看</tspan><tspan x="3285" dy="18">板</tspan></text>
+  <line x1="3335" y1="765" x2="3335" y2="777" stroke="#000000" stroke-width="2" />
+  <rect x="3318" y="777" width="34" height="156" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="3335" y="833.0" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000"><tspan x="3335" dy="0">系</tspan><tspan x="3335" dy="18">统</tspan><tspan x="3335" dy="18">日</tspan><tspan x="3335" dy="18">志</tspan></text>
+</svg>

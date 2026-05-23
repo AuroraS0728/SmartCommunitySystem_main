@@ -1,0 +1,32 @@
+﻿<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='760' viewBox='0 0 1200 760'>
+<style>text{font-family:'SimSun','Microsoft YaHei',serif;fill:#111}.t{font-size:30px}.m{font-size:24px}.s{font-size:18px}.xs{font-size:16px}.c{text-anchor:middle}.b{fill:#fff;stroke:#000;stroke-width:1.2}.n{fill:none;stroke:#000;stroke-width:1.1}</style>
+<rect x='390' y='40' width='420' height='70' class='b'/>
+<text x='600' y='84' class='t c'><tspan x='600' dy='0'>异常处理包图</tspan></text>
+<rect x='180' y='145' width='220' height='80' class='b'/>
+<text x='290' y='190' class='m c'><tspan x='290' dy='0'>异常处理类</tspan></text>
+<rect x='760' y='145' width='240' height='80' class='b'/>
+<text x='880' y='190' class='m c'><tspan x='880' dy='0'>异常处理实现</tspan></text>
+<rect x='120' y='380' width='120' height='120' class='b'/>
+<text x='180' y='450' class='xs c'><tspan x='180' dy='0'>参数校验异常</tspan></text>
+<rect x='300' y='380' width='120' height='120' class='b'/>
+<text x='360' y='450' class='xs c'><tspan x='360' dy='0'>业务规则异常</tspan></text>
+<rect x='480' y='380' width='120' height='120' class='b'/>
+<text x='540' y='450' class='xs c'><tspan x='540' dy='0'>状态转换异常</tspan></text>
+<rect x='700' y='380' width='120' height='120' class='b'/>
+<text x='760' y='450' class='xs c'><tspan x='760' dy='0'>非法参数处理</tspan></text>
+<rect x='860' y='380' width='120' height='120' class='b'/>
+<text x='920' y='450' class='xs c'><tspan x='920' dy='0'>统一结果封装</tspan></text>
+<rect x='1020' y='380' width='120' height='120' class='b'/>
+<text x='1080' y='450' class='xs c'><tspan x='1080' dy='0'>系统异常记录</tspan></text>
+<line x1='400' y1='185' x2='760' y2='185' class='n'/>
+<line x1='180' y1='500' x2='290' y2='225' class='n'/>
+<line x1='360' y1='500' x2='290' y2='225' class='n'/>
+<line x1='540' y1='500' x2='290' y2='225' class='n'/>
+<line x1='760' y1='225' x2='760' y2='380' class='n'/>
+<line x1='820' y1='500' x2='880' y2='225' class='n'/>
+<line x1='980' y1='500' x2='880' y2='225' class='n'/>
+<line x1='1140' y1='500' x2='880' y2='225' class='n'/>
+<text x='600' y='680' class='s c'><tspan x='600' dy='0'>图 4-7  异常处理包图</tspan></text>
+<text x='600' y='720' class='s c'><tspan x='600' dy='0'>Fig. 4-7 Exception Handling Package Diagram</tspan></text>
+</svg>
+

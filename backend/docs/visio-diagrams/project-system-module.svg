@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="980" viewBox="0 0 1700 980">
+  <rect x="0" y="0" width="1700" height="980" fill="#FFFFFF" />
+  <text x="850" y="58" text-anchor="middle" font-family="SimSun" font-size="34" fill="#000000">智慧社区系统功能模块图</text>
+  <rect x="690" y="110" width="320" height="58" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="850" y="145" text-anchor="middle" font-family="SimSun" font-size="17" fill="#000000">智慧社区管理系统</text>
+  <line x1="140" y1="250" x2="1560" y2="250" stroke="#000000" stroke-width="2" />
+  <line x1="850" y1="168" x2="850" y2="250" stroke="#000000" stroke-width="2" />
+  <line x1="140" y1="250" x2="140" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="118" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="140" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="140" dy="0">用</tspan><tspan x="140" dy="20">户</tspan><tspan x="140" dy="20">认</tspan><tspan x="140" dy="20">证</tspan></text>
+  <line x1="269" y1="250" x2="269" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="247" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="269" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="269" dy="0">房</tspan><tspan x="269" dy="20">产</tspan><tspan x="269" dy="20">档</tspan><tspan x="269" dy="20">案</tspan></text>
+  <line x1="398" y1="250" x2="398" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="376" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="398" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="398" dy="0">物</tspan><tspan x="398" dy="20">业</tspan><tspan x="398" dy="20">缴</tspan><tspan x="398" dy="20">费</tspan></text>
+  <line x1="527" y1="250" x2="527" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="505" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="527" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="527" dy="0">停</tspan><tspan x="527" dy="20">车</tspan><tspan x="527" dy="20">管</tspan><tspan x="527" dy="20">理</tspan></text>
+  <line x1="656" y1="250" x2="656" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="634" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="656" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="656" dy="0">报</tspan><tspan x="656" dy="20">修</tspan><tspan x="656" dy="20">工</tspan><tspan x="656" dy="20">单</tspan></text>
+  <line x1="785" y1="250" x2="785" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="763" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="785" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="785" dy="0">维</tspan><tspan x="785" dy="20">修</tspan><tspan x="785" dy="20">排</tspan><tspan x="785" dy="20">班</tspan></text>
+  <line x1="915" y1="250" x2="915" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="893" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="915" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="915" dy="0">访</tspan><tspan x="915" dy="20">客</tspan><tspan x="915" dy="20">通</tspan><tspan x="915" dy="20">行</tspan></text>
+  <line x1="1044" y1="250" x2="1044" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="1022" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1044" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1044" dy="0">公</tspan><tspan x="1044" dy="20">告</tspan><tspan x="1044" dy="20">通</tspan><tspan x="1044" dy="20">知</tspan></text>
+  <line x1="1173" y1="250" x2="1173" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="1151" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1173" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1173" dy="0">投</tspan><tspan x="1173" dy="20">诉</tspan><tspan x="1173" dy="20">建</tspan><tspan x="1173" dy="20">议</tspan></text>
+  <line x1="1302" y1="250" x2="1302" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="1280" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1302" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1302" dy="0">积</tspan><tspan x="1302" dy="20">分</tspan><tspan x="1302" dy="20">管</tspan><tspan x="1302" dy="20">理</tspan></text>
+  <line x1="1431" y1="250" x2="1431" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="1409" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1431" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1431" dy="0">邻</tspan><tspan x="1431" dy="20">里</tspan><tspan x="1431" dy="20">互</tspan><tspan x="1431" dy="20">动</tspan></text>
+  <line x1="1560" y1="250" x2="1560" y2="300" stroke="#000000" stroke-width="2" />
+  <rect x="1538" y="300" width="44" height="200" rx="0" ry="0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <text x="1560" y="375.0" text-anchor="middle" font-family="SimSun" font-size="16" fill="#000000"><tspan x="1560" dy="0">活</tspan><tspan x="1560" dy="20">动</tspan><tspan x="1560" dy="20">服</tspan><tspan x="1560" dy="20">务</tspan></text>
+</svg>

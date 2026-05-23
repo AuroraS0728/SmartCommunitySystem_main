@@ -1,0 +1,57 @@
+@startuml
+title 业务逻辑包图
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Microsoft YaHei
+
+package "业务逻辑包" as BIZ {
+  package "控制层\ncontroller" as CTRL {
+    [AuthController]
+    [RepairController]
+    [ActivityController]
+    [RecommendController]
+    [FeeController]
+  }
+
+  package "业务接口层\nservice" as SVC {
+    interface RepairService
+    interface CreditService
+    interface RecommendService
+    interface PaymentReminderService
+    interface WorkerRecommendService
+    interface RepairEvaluationService
+  }
+
+  package "业务实现层\nservice.impl + service" as IMPL {
+    [RepairServiceImpl]
+    [CreditServiceImpl]
+    [RecommendService]
+    [ActivityService]
+    [SmartWorkOrderService]
+    [RepairGradingService]
+    [ComplaintAnalysisService]
+    [ImplicitProfileService]
+    [SlaMonitorService]
+  }
+
+  package "切面与调度\naspect / task" as SUPPORT {
+    [OperationLogAspect]
+    [DataChangeAspect]
+    [CreditDecayTask]
+  }
+}
+
+CTRL --> SVC : 调用业务接口
+SVC <|.. IMPL : 接口实现
+IMPL ..> SUPPORT : 横切日志/定时任务
+
+note right of BIZ
+职责：
+1. 封装报修、投诉、积分、活动、推荐等核心业务
+2. 处理规则判断、权限校验和事务控制
+3. 向数据访问层发起持久化请求
+4. 向表现层返回可展示结果
+end note
+
+@enduml

@@ -117,3 +117,17 @@ docs/**
 !docs/
 !docs/git-workflow.md
 !docs/git-usage-checklist.md
+!docs/diagrams/
+docs/diagrams/*
+!docs/diagrams/package/
+!docs/diagrams/package/README.md
+!docs/diagrams/package/*.puml
+!docs/visio/
+docs/visio/*
+!docs/visio/*.svg
+!docs/visio/ui-package-diagram.vsdx
+!docs/visio/business-logic-package-diagram.vsdx
+!docs/visio/data-access-package-diagram.vsdx
+!docs/visio/config-management-package-diagram.vsdx
+!docs/visio/exception-handling-package-diagram.vsdx
+!docs/visio/system-function-module-diagram.vsdx

@@ -1,0 +1,304 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1400" viewBox="0 0 2200 1400">
+  <rect x="0" y="0" width="2200" height="1400" fill="#FFFFFF" />
+  <text x="1100" y="58" text-anchor="middle" font-family="SimSun" font-size="32" fill="#000000">表间逻辑关系图</text>
+  <rect x="90" y="134" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="90" y1="168" x2="270" y2="168" stroke="#000000" stroke-width="2" />
+  <line x1="180" y1="168" x2="180" y2="226" stroke="#000000" stroke-width="2" />
+  <line x1="90" y1="197" x2="270" y2="197" stroke="#000000" stroke-width="2" />
+  <text x="180" y="157" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">物业费账单表</text>
+  <rect x="330" y="134" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="330" y1="168" x2="510" y2="168" stroke="#000000" stroke-width="2" />
+  <line x1="420" y1="168" x2="420" y2="226" stroke="#000000" stroke-width="2" />
+  <line x1="330" y1="197" x2="510" y2="197" stroke="#000000" stroke-width="2" />
+  <text x="420" y="157" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">房产表</text>
+  <rect x="570" y="134" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="570" y1="168" x2="750" y2="168" stroke="#000000" stroke-width="2" />
+  <line x1="660" y1="168" x2="660" y2="226" stroke="#000000" stroke-width="2" />
+  <line x1="570" y1="197" x2="750" y2="197" stroke="#000000" stroke-width="2" />
+  <text x="660" y="147.5" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000"><tspan x="660" dy="0">用户房产</tspan><tspan x="660" dy="19">关联表</tspan></text>
+  <rect x="950" y="134" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="950" y1="168" x2="1130" y2="168" stroke="#000000" stroke-width="2" />
+  <line x1="1040" y1="168" x2="1040" y2="226" stroke="#000000" stroke-width="2" />
+  <line x1="950" y1="197" x2="1130" y2="197" stroke="#000000" stroke-width="2" />
+  <text x="1040" y="157" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">维修工单表</text>
+  <rect x="1210" y="134" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1210" y1="168" x2="1390" y2="168" stroke="#000000" stroke-width="2" />
+  <line x1="1300" y1="168" x2="1300" y2="226" stroke="#000000" stroke-width="2" />
+  <line x1="1210" y1="197" x2="1390" y2="197" stroke="#000000" stroke-width="2" />
+  <text x="1300" y="157" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">维修派工表</text>
+  <rect x="1470" y="134" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1470" y1="168" x2="1650" y2="168" stroke="#000000" stroke-width="2" />
+  <line x1="1560" y1="168" x2="1560" y2="226" stroke="#000000" stroke-width="2" />
+  <line x1="1470" y1="197" x2="1650" y2="197" stroke="#000000" stroke-width="2" />
+  <text x="1560" y="147.5" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000"><tspan x="1560" dy="0">维修人员</tspan><tspan x="1560" dy="19">排班表</tspan></text>
+  <rect x="90" y="384" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="90" y1="418" x2="270" y2="418" stroke="#000000" stroke-width="2" />
+  <line x1="180" y1="418" x2="180" y2="476" stroke="#000000" stroke-width="2" />
+  <line x1="90" y1="447" x2="270" y2="447" stroke="#000000" stroke-width="2" />
+  <text x="180" y="407" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">停车订单表</text>
+  <rect x="330" y="384" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="330" y1="418" x2="510" y2="418" stroke="#000000" stroke-width="2" />
+  <line x1="420" y1="418" x2="420" y2="476" stroke="#000000" stroke-width="2" />
+  <line x1="330" y1="447" x2="510" y2="447" stroke="#000000" stroke-width="2" />
+  <text x="420" y="407" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">用户车辆表</text>
+  <rect x="730" y="384" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="730" y1="418" x2="910" y2="418" stroke="#000000" stroke-width="2" />
+  <line x1="820" y1="418" x2="820" y2="476" stroke="#000000" stroke-width="2" />
+  <line x1="730" y1="447" x2="910" y2="447" stroke="#000000" stroke-width="2" />
+  <text x="820" y="407" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">用户表</text>
+  <rect x="950" y="384" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="950" y1="418" x2="1130" y2="418" stroke="#000000" stroke-width="2" />
+  <line x1="1040" y1="418" x2="1040" y2="476" stroke="#000000" stroke-width="2" />
+  <line x1="950" y1="447" x2="1130" y2="447" stroke="#000000" stroke-width="2" />
+  <text x="1040" y="397.5" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000"><tspan x="1040" dy="0">维修费用</tspan><tspan x="1040" dy="19">账单表</tspan></text>
+  <rect x="1210" y="384" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1210" y1="418" x2="1390" y2="418" stroke="#000000" stroke-width="2" />
+  <line x1="1300" y1="418" x2="1300" y2="476" stroke="#000000" stroke-width="2" />
+  <line x1="1210" y1="447" x2="1390" y2="447" stroke="#000000" stroke-width="2" />
+  <text x="1300" y="397.5" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000"><tspan x="1300" dy="0">维修费用</tspan><tspan x="1300" dy="19">异议表</tspan></text>
+  <rect x="1470" y="384" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1470" y1="418" x2="1650" y2="418" stroke="#000000" stroke-width="2" />
+  <line x1="1560" y1="418" x2="1560" y2="476" stroke="#000000" stroke-width="2" />
+  <line x1="1470" y1="447" x2="1650" y2="447" stroke="#000000" stroke-width="2" />
+  <text x="1560" y="407" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">维修评价表</text>
+  <rect x="1730" y="384" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1730" y1="418" x2="1910" y2="418" stroke="#000000" stroke-width="2" />
+  <line x1="1820" y1="418" x2="1820" y2="476" stroke="#000000" stroke-width="2" />
+  <line x1="1730" y1="447" x2="1910" y2="447" stroke="#000000" stroke-width="2" />
+  <text x="1820" y="407" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">访客邀请表</text>
+  <rect x="90" y="634" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="90" y1="668" x2="270" y2="668" stroke="#000000" stroke-width="2" />
+  <line x1="180" y1="668" x2="180" y2="726" stroke="#000000" stroke-width="2" />
+  <line x1="90" y1="697" x2="270" y2="697" stroke="#000000" stroke-width="2" />
+  <text x="180" y="647.5" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000"><tspan x="180" dy="0">业主停车</tspan><tspan x="180" dy="19">额度表</tspan></text>
+  <rect x="330" y="634" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="330" y1="668" x2="510" y2="668" stroke="#000000" stroke-width="2" />
+  <line x1="420" y1="668" x2="420" y2="726" stroke="#000000" stroke-width="2" />
+  <line x1="330" y1="697" x2="510" y2="697" stroke="#000000" stroke-width="2" />
+  <text x="420" y="657" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">投诉表</text>
+  <rect x="570" y="634" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="570" y1="668" x2="750" y2="668" stroke="#000000" stroke-width="2" />
+  <line x1="660" y1="668" x2="660" y2="726" stroke="#000000" stroke-width="2" />
+  <line x1="570" y1="697" x2="750" y2="697" stroke="#000000" stroke-width="2" />
+  <text x="660" y="647.5" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000"><tspan x="660" dy="0">积分充值</tspan><tspan x="660" dy="19">记录表</tspan></text>
+  <rect x="810" y="634" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="810" y1="668" x2="990" y2="668" stroke="#000000" stroke-width="2" />
+  <line x1="900" y1="668" x2="900" y2="726" stroke="#000000" stroke-width="2" />
+  <line x1="810" y1="697" x2="990" y2="697" stroke="#000000" stroke-width="2" />
+  <text x="900" y="647.5" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000"><tspan x="900" dy="0">积分消费</tspan><tspan x="900" dy="19">记录表</tspan></text>
+  <rect x="1730" y="634" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1730" y1="668" x2="1910" y2="668" stroke="#000000" stroke-width="2" />
+  <line x1="1820" y1="668" x2="1820" y2="726" stroke="#000000" stroke-width="2" />
+  <line x1="1730" y1="697" x2="1910" y2="697" stroke="#000000" stroke-width="2" />
+  <text x="1820" y="657" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">访客通知表</text>
+  <rect x="430" y="1034" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="430" y1="1068" x2="610" y2="1068" stroke="#000000" stroke-width="2" />
+  <line x1="520" y1="1068" x2="520" y2="1126" stroke="#000000" stroke-width="2" />
+  <line x1="430" y1="1097" x2="610" y2="1097" stroke="#000000" stroke-width="2" />
+  <text x="520" y="1057" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">二手收藏表</text>
+  <rect x="690" y="1034" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="690" y1="1068" x2="870" y2="1068" stroke="#000000" stroke-width="2" />
+  <line x1="780" y1="1068" x2="780" y2="1126" stroke="#000000" stroke-width="2" />
+  <line x1="690" y1="1097" x2="870" y2="1097" stroke="#000000" stroke-width="2" />
+  <text x="780" y="1057" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">二手物品表</text>
+  <rect x="950" y="1034" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="950" y1="1068" x2="1130" y2="1068" stroke="#000000" stroke-width="2" />
+  <line x1="1040" y1="1068" x2="1040" y2="1126" stroke="#000000" stroke-width="2" />
+  <line x1="950" y1="1097" x2="1130" y2="1097" stroke="#000000" stroke-width="2" />
+  <text x="1040" y="1057" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">失物招领表</text>
+  <rect x="1210" y="1034" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1210" y1="1068" x2="1390" y2="1068" stroke="#000000" stroke-width="2" />
+  <line x1="1300" y1="1068" x2="1300" y2="1126" stroke="#000000" stroke-width="2" />
+  <line x1="1210" y1="1097" x2="1390" y2="1097" stroke="#000000" stroke-width="2" />
+  <text x="1300" y="1057" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">失物认领表</text>
+  <rect x="1470" y="1034" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1470" y1="1068" x2="1650" y2="1068" stroke="#000000" stroke-width="2" />
+  <line x1="1560" y1="1068" x2="1560" y2="1126" stroke="#000000" stroke-width="2" />
+  <line x1="1470" y1="1097" x2="1650" y2="1097" stroke="#000000" stroke-width="2" />
+  <text x="1560" y="1057" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">论坛帖子表</text>
+  <rect x="1730" y="934" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1730" y1="968" x2="1910" y2="968" stroke="#000000" stroke-width="2" />
+  <line x1="1820" y1="968" x2="1820" y2="1026" stroke="#000000" stroke-width="2" />
+  <line x1="1730" y1="997" x2="1910" y2="997" stroke="#000000" stroke-width="2" />
+  <text x="1820" y="957" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">帖子点赞表</text>
+  <rect x="1730" y="1134" width="180" height="92" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+  <line x1="1730" y1="1168" x2="1910" y2="1168" stroke="#000000" stroke-width="2" />
+  <line x1="1820" y1="1168" x2="1820" y2="1226" stroke="#000000" stroke-width="2" />
+  <line x1="1730" y1="1197" x2="1910" y2="1197" stroke="#000000" stroke-width="2" />
+  <text x="1820" y="1157" text-anchor="middle" font-family="SimSun" font-size="15" fill="#000000">帖子评论表</text>
+  <polyline points="270,180 330,180" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="244" y="151" width="113" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="300" y="165" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">生成物业费账单</text>
+  <text x="280" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="324" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="510,180 570,180" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="506" y="151" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="540" y="165" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">关联房产</text>
+  <text x="520" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="564" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="730,226 730,320 820,320 820,384" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="736" y="293" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="770" y="307" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">绑定业主</text>
+  <text x="748" y="250" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="836" y="380" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="1040,226 1040,320 870,320" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="926" y="293" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="960" y="307" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">提交报修</text>
+  <text x="1056" y="250" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="884" y="314" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="970,180 750,180 750,210 510,210" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="696" y="151" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="730" y="165" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">对应房产</text>
+  <text x="960" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="526" y="204" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="1130,180 1210,180" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1121" y="151" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1170" y="165" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">分配维修人员</text>
+  <text x="1144" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1208" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="1390,180 1470,180" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1381" y="151" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1430" y="165" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">人员排班信息</text>
+  <text x="1404" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="1468" y="160" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="270,430 730,430" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="421" y="399" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="470" y="413" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">创建停车订单</text>
+  <text x="286" y="410" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="724" y="410" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="270,460 330,460 330,226" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="251" y="321" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="300" y="335" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">停车归属房产</text>
+  <text x="286" y="454" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="344" y="250" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="510,430 730,430" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="586" y="453" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="620" y="467" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">绑定车辆</text>
+  <text x="526" y="410" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="724" y="460" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="270,680 730,680" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="421" y="649" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="470" y="663" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">业主停车额度</text>
+  <text x="286" y="660" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="724" y="660" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="510,680 730,680" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="586" y="703" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="620" y="717" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">提交投诉</text>
+  <text x="526" y="660" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="724" y="710" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="750,476 750,634 660,634" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="666" y="601" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="700" y="615" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">积分充值</text>
+  <text x="766" y="500" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="674" y="628" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="860,476 860,634 900,634" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="876" y="601" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="910" y="615" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">积分消费</text>
+  <text x="876" y="500" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="914" y="628" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="820,476 820,760 700,760 700,726" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="689" y="733" width="83" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="730" y="747" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">充值操作人</text>
+  <text x="832" y="500" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="714" y="750" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="1040,226 1040,384" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1046" y="295" width="128" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1110" y="309" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">生成维修费用账单</text>
+  <text x="1056" y="250" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1056" y="380" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="1090,430 1210,430" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1101" y="399" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1150" y="413" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">提交费用异议</text>
+  <text x="1104" y="410" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1208" y="410" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="1300,476 1300,560 1090,560 1090,476" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1146" y="533" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1195" y="547" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">关联维修工单</text>
+  <text x="1316" y="500" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="1104" y="500" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="1560,384 1560,226 1090,226" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1356" y="237" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1390" y="251" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">评价工单</text>
+  <text x="1576" y="380" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1104" y="220" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="950,430 730,430" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="861" y="453" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="910" y="467" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">账单归属用户</text>
+  <text x="944" y="410" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="724" y="460" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="1210,460 900,460" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1011" y="483" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1060" y="497" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">异议提交用户</text>
+  <text x="1204" y="454" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="914" y="454" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="870,430 1730,430" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1401" y="399" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1450" y="413" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">创建访客邀请</text>
+  <text x="886" y="410" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1724" y="410" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="1820,476 1820,634" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1861" y="551" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1910" y="565" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">生成访客通知</text>
+  <text x="1836" y="500" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1836" y="628" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="1730,680 900,680" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1411" y="703" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1460" y="717" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">通知归属用户</text>
+  <text x="1724" y="660" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="914" y="710" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="730,476 730,930 780,930 780,1034" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="771" y="939" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="820" y="953" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">发布二手物品</text>
+  <text x="746" y="500" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="796" y="1028" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="590,1080 690,1080" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="591" y="1051" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="640" y="1065" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">收藏二手物品</text>
+  <text x="604" y="1060" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <text x="684" y="1060" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <polyline points="730,460 520,460 520,1034" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="436" y="731" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="470" y="745" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">收藏用户</text>
+  <text x="724" y="454" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="536" y="1028" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="820,476 820,930 1040,930 1040,1034" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="891" y="939" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="940" y="953" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">发布失物信息</text>
+  <text x="836" y="500" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1056" y="1028" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="1130,1080 1210,1080" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1136" y="1051" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1170" y="1065" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">提交认领</text>
+  <text x="1144" y="1060" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1208" y="1060" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="900,460 1300,460 1300,1034" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1296" y="731" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1330" y="745" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">认领用户</text>
+  <text x="914" y="454" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1316" y="1028" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="870,430 1560,430 1560,1034" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1461" y="733" width="98" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1510" y="747" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">发布论坛帖子</text>
+  <text x="886" y="454" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1576" y="1028" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="1650,1048 1730,1002" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1666" y="1007" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1700" y="1021" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">点赞帖子</text>
+  <text x="1662" y="1034" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1722" y="1000" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="1650,1112 1730,1158" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1666" y="1137" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1700" y="1151" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">评论帖子</text>
+  <text x="1662" y="1112" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1722" y="1162" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="900,430 1820,430 1820,934" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1836" y="711" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1870" y="725" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">点赞用户</text>
+  <text x="914" y="422" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1836" y="928" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+  <polyline points="900,450 1900,450 1900,1180 1910,1180" fill="none" stroke="#000000" stroke-width="2" />
+  <rect x="1916" y="811" width="68" height="18" fill="#FFFFFF" stroke="#000000" stroke-width="0" />
+  <text x="1950" y="825" text-anchor="middle" font-family="SimSun" font-size="14" fill="#000000">评论用户</text>
+  <text x="914" y="468" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">1</text>
+  <text x="1906" y="1174" text-anchor="start" font-family="SimSun" font-size="15" fill="#000000">*</text>
+</svg>

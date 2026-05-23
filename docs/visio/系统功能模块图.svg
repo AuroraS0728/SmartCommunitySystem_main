@@ -1,0 +1,122 @@
+﻿<svg xmlns='http://www.w3.org/2000/svg' width='1500' height='800' viewBox='0 0 1500 800'>
+<style>text{font-family:'SimSun','Microsoft YaHei',serif;fill:#111}.t{font-size:30px}.m{font-size:24px}.s{font-size:18px}.xs{font-size:16px}.c{text-anchor:middle}.b{fill:#fff;stroke:#000;stroke-width:1.2}.n{fill:none;stroke:#000;stroke-width:1.1}</style>
+<rect x='600' y='20' width='320' height='70' class='b'/>
+<text x='760' y='65' class='t c'><tspan x='760' dy='0'>智慧社区物业服务系统</tspan></text>
+<line x1='760' y1='90' x2='760' y2='130' class='n'/>
+<line x1='120' y1='130' x2='1380' y2='130' class='n'/>
+<line x1='120' y1='130' x2='120' y2='180' class='n'/>
+<rect x='65' y='180' width='110' height='70' class='b'/>
+<text x='120' y='225' class='m c'><tspan x='120' dy='0'>用户房产</tspan><tspan x='120' dy='1.2em'>管理</tspan></text>
+<line x1='120' y1='250' x2='120' y2='285' class='n'/>
+<line x1='70' y1='285' x2='170' y2='285' class='n'/>
+<line x1='90' y1='285' x2='90' y2='320' class='n'/>
+<rect x='78' y='320' width='24' height='250' class='b'/>
+<text x='90' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>用户注册登录</text>
+<line x1='122' y1='285' x2='122' y2='320' class='n'/>
+<rect x='110' y='320' width='24' height='250' class='b'/>
+<text x='122' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>个人资料维护</text>
+<line x1='154' y1='285' x2='154' y2='320' class='n'/>
+<rect x='142' y='320' width='24' height='250' class='b'/>
+<text x='154' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>房产绑定管理</text>
+<line x1='290' y1='130' x2='290' y2='180' class='n'/>
+<rect x='235' y='180' width='110' height='70' class='b'/>
+<text x='290' y='225' class='m c'><tspan x='290' dy='0'>报修工单</tspan><tspan x='290' dy='1.2em'>管理</tspan></text>
+<line x1='290' y1='250' x2='290' y2='285' class='n'/>
+<line x1='240' y1='285' x2='340' y2='285' class='n'/>
+<line x1='260' y1='285' x2='260' y2='320' class='n'/>
+<rect x='248' y='320' width='24' height='250' class='b'/>
+<text x='260' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>提交报修申请</text>
+<line x1='292' y1='285' x2='292' y2='320' class='n'/>
+<rect x='280' y='320' width='24' height='250' class='b'/>
+<text x='292' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>查看工单进度</text>
+<line x1='324' y1='285' x2='324' y2='320' class='n'/>
+<rect x='312' y='320' width='24' height='250' class='b'/>
+<text x='324' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>评价维修服务</text>
+<line x1='460' y1='130' x2='460' y2='180' class='n'/>
+<rect x='405' y='180' width='110' height='70' class='b'/>
+<text x='460' y='225' class='m c'><tspan x='460' dy='0'>投诉建议</tspan><tspan x='460' dy='1.2em'>管理</tspan></text>
+<line x1='460' y1='250' x2='460' y2='285' class='n'/>
+<line x1='410' y1='285' x2='510' y2='285' class='n'/>
+<line x1='430' y1='285' x2='430' y2='320' class='n'/>
+<rect x='418' y='320' width='24' height='250' class='b'/>
+<text x='430' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>提交投诉建议</text>
+<line x1='462' y1='285' x2='462' y2='320' class='n'/>
+<rect x='450' y='320' width='24' height='250' class='b'/>
+<text x='462' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>情感分析预警</text>
+<line x1='494' y1='285' x2='494' y2='320' class='n'/>
+<rect x='482' y='320' width='24' height='250' class='b'/>
+<text x='494' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>查看处理结果</text>
+<line x1='630' y1='130' x2='630' y2='180' class='n'/>
+<rect x='575' y='180' width='110' height='70' class='b'/>
+<text x='630' y='225' class='m c'><tspan x='630' dy='0'>费用账单</tspan><tspan x='630' dy='1.2em'>管理</tspan></text>
+<line x1='630' y1='250' x2='630' y2='285' class='n'/>
+<line x1='580' y1='285' x2='680' y2='285' class='n'/>
+<line x1='600' y1='285' x2='600' y2='320' class='n'/>
+<rect x='588' y='320' width='24' height='250' class='b'/>
+<text x='600' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>查看费用账单</text>
+<line x1='632' y1='285' x2='632' y2='320' class='n'/>
+<rect x='620' y='320' width='24' height='250' class='b'/>
+<text x='632' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>在线缴费支付</text>
+<line x1='664' y1='285' x2='664' y2='320' class='n'/>
+<rect x='652' y='320' width='24' height='250' class='b'/>
+<text x='664' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>逾期催缴提醒</text>
+<line x1='800' y1='130' x2='800' y2='180' class='n'/>
+<rect x='745' y='180' width='110' height='70' class='b'/>
+<text x='800' y='225' class='m c'><tspan x='800' dy='0'>社区活动</tspan><tspan x='800' dy='1.2em'>与便民</tspan></text>
+<line x1='800' y1='250' x2='800' y2='285' class='n'/>
+<line x1='750' y1='285' x2='850' y2='285' class='n'/>
+<line x1='770' y1='285' x2='770' y2='320' class='n'/>
+<rect x='758' y='320' width='24' height='250' class='b'/>
+<text x='770' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>发布社区活动</text>
+<line x1='802' y1='285' x2='802' y2='320' class='n'/>
+<rect x='790' y='320' width='24' height='250' class='b'/>
+<text x='802' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>报名活动服务</text>
+<line x1='834' y1='285' x2='834' y2='320' class='n'/>
+<rect x='822' y='320' width='24' height='250' class='b'/>
+<text x='834' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>个性化推荐</text>
+<line x1='970' y1='130' x2='970' y2='180' class='n'/>
+<rect x='915' y='180' width='110' height='70' class='b'/>
+<text x='970' y='225' class='m c'><tspan x='970' dy='0'>访客安防</tspan><tspan x='970' dy='1.2em'>管理</tspan></text>
+<line x1='970' y1='250' x2='970' y2='285' class='n'/>
+<line x1='920' y1='285' x2='1020' y2='285' class='n'/>
+<line x1='940' y1='285' x2='940' y2='320' class='n'/>
+<rect x='928' y='320' width='24' height='250' class='b'/>
+<text x='940' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>访客邀约通行</text>
+<line x1='972' y1='285' x2='972' y2='320' class='n'/>
+<rect x='960' y='320' width='24' height='250' class='b'/>
+<text x='972' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>二维码核验</text>
+<line x1='1004' y1='285' x2='1004' y2='320' class='n'/>
+<rect x='992' y='320' width='24' height='250' class='b'/>
+<text x='1004' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>异常访客处理</text>
+<line x1='1140' y1='130' x2='1140' y2='180' class='n'/>
+<rect x='1085' y='180' width='110' height='70' class='b'/>
+<text x='1140' y='225' class='m c'><tspan x='1140' dy='0'>信用积分</tspan><tspan x='1140' dy='1.2em'>管理</tspan></text>
+<line x1='1140' y1='250' x2='1140' y2='285' class='n'/>
+<line x1='1090' y1='285' x2='1190' y2='285' class='n'/>
+<line x1='1110' y1='285' x2='1110' y2='320' class='n'/>
+<rect x='1098' y='320' width='24' height='250' class='b'/>
+<text x='1110' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>信用分变动</text>
+<line x1='1142' y1='285' x2='1142' y2='320' class='n'/>
+<rect x='1130' y='320' width='24' height='250' class='b'/>
+<text x='1142' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>积分充值消费</text>
+<line x1='1174' y1='285' x2='1174' y2='320' class='n'/>
+<rect x='1162' y='320' width='24' height='250' class='b'/>
+<text x='1174' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>规则查询统计</text>
+<line x1='1310' y1='130' x2='1310' y2='180' class='n'/>
+<rect x='1255' y='180' width='110' height='70' class='b'/>
+<text x='1310' y='225' class='m c'><tspan x='1310' dy='0'>系统配置</tspan><tspan x='1310' dy='1.2em'>与统计</tspan></text>
+<line x1='1310' y1='250' x2='1310' y2='285' class='n'/>
+<line x1='1260' y1='285' x2='1360' y2='285' class='n'/>
+<line x1='1280' y1='285' x2='1280' y2='320' class='n'/>
+<rect x='1268' y='320' width='24' height='250' class='b'/>
+<text x='1280' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>公告与消息管理</text>
+<line x1='1312' y1='285' x2='1312' y2='320' class='n'/>
+<rect x='1300' y='320' width='24' height='250' class='b'/>
+<text x='1312' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>推荐规则配置</text>
+<line x1='1344' y1='285' x2='1344' y2='320' class='n'/>
+<rect x='1332' y='320' width='24' height='250' class='b'/>
+<text x='1344' y='332' class='xs c' writing-mode='tb' glyph-orientation-vertical='0'>数据统计分析</text>
+<text x='760' y='630' class='s c'><tspan x='760' dy='0'>图 2-4  智慧社区物业服务系统功能模块图</tspan></text>
+<text x='760' y='675' class='s c'><tspan x='760' dy='0'>Fig. 2-4 Function Model of Smart Community Property Service System</tspan></text>
+</svg>
+

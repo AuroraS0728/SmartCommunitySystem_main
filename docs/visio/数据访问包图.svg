@@ -1,0 +1,21 @@
+﻿<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='760' viewBox='0 0 1200 760'>
+<style>text{font-family:'SimSun','Microsoft YaHei',serif;fill:#111}.t{font-size:30px}.m{font-size:24px}.s{font-size:18px}.xs{font-size:16px}.c{text-anchor:middle}.b{fill:#fff;stroke:#000;stroke-width:1.2}.n{fill:none;stroke:#000;stroke-width:1.1}</style>
+<rect x='430' y='40' width='340' height='70' class='b'/>
+<text x='600' y='84' class='t c'><tspan x='600' dy='0'>数据访问包图</tspan></text>
+<rect x='420' y='145' width='230' height='80' class='b'/>
+<text x='535' y='190' class='m c'><tspan x='535' dy='0'>数据访问</tspan></text>
+<rect x='420' y='325' width='240' height='150' class='b'/>
+<text x='540' y='390' class='m c'><tspan x='540' dy='0'>Dao / Mapper</tspan></text>
+<rect x='845' y='320' width='250' height='90' class='b'/>
+<text x='970' y='373' class='m c'><tspan x='970' dy='0'>Mapper XML</tspan></text>
+<rect x='845' y='455' width='250' height='90' class='b'/>
+<text x='970' y='508' class='m c'><tspan x='970' dy='0'>DB Script</tspan></text>
+<line x1='535' y1='225' x2='535' y2='325' class='n'/>
+<line x1='660' y1='390' x2='845' y2='365' class='n'/>
+<line x1='970' y1='410' x2='970' y2='455' class='n'/>
+<rect x='900' y='560' width='250' height='100' class='b'/>
+<text x='1025' y='595' class='xs c'><tspan x='1025' dy='0'>职责：</tspan><tspan x='1025' dy='1.2em'>1. 完成实体数据持久化</tspan><tspan x='1025' dy='1.2em'>2. 通过 Mapper/XML 实现复杂查询</tspan><tspan x='1025' dy='1.2em'>3. 支撑事务处理与分页访问</tspan></text>
+<text x='600' y='680' class='s c'><tspan x='600' dy='0'>图 4-5  数据访问包图</tspan></text>
+<text x='600' y='720' class='s c'><tspan x='600' dy='0'>Fig. 4-5 Data Access Package Diagram</tspan></text>
+</svg>
+
