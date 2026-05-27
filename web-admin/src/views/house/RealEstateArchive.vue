@@ -27,11 +27,11 @@
             v-model="keyword"
             placeholder="按房产号/楼栋/单元/房号/业主/租户搜索"
             clearable
-            style="width: 320px"
-            @keyup.enter="loadData"
-            @clear="loadData"
+            class="keyword-input"
+            @keyup.enter="handleSearch"
+            @clear="handleSearch"
           />
-          <el-select v-model="statusFilter" clearable placeholder="状态" style="width: 140px" @change="loadData">
+          <el-select v-model="statusFilter" clearable placeholder="状态" style="width: 140px" @change="handleSearch">
             <el-option label="未售" :value="1" />
             <el-option label="已售" :value="2" />
             <el-option label="空置" :value="3" />
@@ -57,14 +57,14 @@
         </div>
 
         <div class="table-panel">
-          <el-table :data="properties" stripe v-loading="loading">
-            <el-table-column prop="propertyCode" label="房产号" min-width="150" />
-            <el-table-column prop="community" label="小区" min-width="120" />
+          <el-table class="room-table" :data="properties" stripe v-loading="loading">
+            <el-table-column prop="propertyCode" label="房产号" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="community" label="小区" min-width="120" show-overflow-tooltip />
             <el-table-column prop="building" label="楼栋" width="86" />
             <el-table-column prop="unit" label="单元" width="86" />
             <el-table-column prop="room" label="房号" width="86" />
-            <el-table-column prop="ownerName" label="业主" min-width="110" />
-            <el-table-column prop="tenantName" label="租户" min-width="110">
+            <el-table-column prop="ownerName" label="业主" min-width="110" show-overflow-tooltip />
+            <el-table-column prop="tenantName" label="租户" min-width="110" show-overflow-tooltip>
               <template #default="{ row }">{{ row.tenantName || '--' }}</template>
             </el-table-column>
             <el-table-column prop="area" label="面积(m²)" width="108" />
@@ -80,6 +80,23 @@
               </template>
             </el-table-column>
           </el-table>
+          <div class="pagination-bar">
+            <div class="page-shortcuts">
+              <el-button :disabled="pageNum <= 1 || loading" @click="goFirstPage">首页</el-button>
+              <el-button :disabled="pageNum >= lastPage || loading" @click="goLastPage">尾页</el-button>
+            </div>
+            <el-pagination
+              v-model:current-page="pageNum"
+              v-model:page-size="pageSize"
+              :total="total"
+              :page-sizes="[20, 50, 100]"
+              :disabled="loading"
+              background
+              layout="total, sizes, prev, pager, next, jumper"
+              @current-change="handlePageChange"
+              @size-change="handleSizeChange"
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -133,7 +150,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { addHouse, deleteHouse, updateHouse } from '@/api/house'
 import { getRealEstateArchive } from '@/api/realEstate'
@@ -146,6 +163,11 @@ const summary = ref({})
 const buildingStats = ref([])
 const properties = ref([])
 const dialogVisible = ref(false)
+const pageNum = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
+
+const lastPage = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 
 const form = ref({
   id: null,
@@ -212,14 +234,46 @@ async function loadData() {
   try {
     const res = await getRealEstateArchive({
       keyword: keyword.value.trim() || undefined,
-      status: statusFilter.value || undefined
+      status: statusFilter.value || undefined,
+      pageNum: pageNum.value,
+      pageSize: pageSize.value
     })
     summary.value = res.data?.summary || {}
     buildingStats.value = Array.isArray(res.data?.buildingStats) ? res.data.buildingStats : []
     properties.value = Array.isArray(res.data?.properties) ? res.data.properties : []
+    total.value = Number(res.data?.total || 0)
   } finally {
     loading.value = false
   }
+}
+
+function handleSearch() {
+  pageNum.value = 1
+  loadData()
+}
+
+function handlePageChange(value) {
+  pageNum.value = value
+  loadData()
+}
+
+function handleSizeChange(value) {
+  pageSize.value = value
+  pageNum.value = 1
+  loadData()
+}
+
+function goFirstPage() {
+  if (pageNum.value === 1) return
+  pageNum.value = 1
+  loadData()
+}
+
+function goLastPage() {
+  const target = lastPage.value
+  if (pageNum.value === target) return
+  pageNum.value = target
+  loadData()
 }
 
 async function submit() {
@@ -326,10 +380,48 @@ onMounted(loadData)
   gap: 10px;
 }
 
+.keyword-input {
+  width: 320px;
+}
+
+.table-panel {
+  min-width: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.room-table {
+  width: 100%;
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 2px;
+  flex-wrap: wrap;
+}
+
+.page-shortcuts {
+  display: flex;
+  gap: 8px;
+}
+
 @media (max-width: 1200px) {
   .summary-grid,
   .content-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }
 
@@ -337,6 +429,14 @@ onMounted(loadData)
   .summary-grid,
   .content-grid {
     grid-template-columns: 1fr;
+  }
+
+  .keyword-input {
+    width: 100%;
+  }
+
+  .pagination-bar {
+    justify-content: flex-start;
   }
 }
 </style>

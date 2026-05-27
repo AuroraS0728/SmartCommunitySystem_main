@@ -1,23 +1,31 @@
 <template>
   <div class="page-grid">
-    <section class="summary-grid">
-      <article class="summary-card">
-        <p>停车订单总数</p>
-        <h3>{{ orders.length }}</h3>
-      </article>
-      <article class="summary-card">
-        <p>已缴订单</p>
-        <h3>{{ paidCount }}</h3>
-      </article>
-      <article class="summary-card">
-        <p>待缴订单</p>
-        <h3>{{ pendingCount }}</h3>
-      </article>
-      <article class="summary-card">
-        <p>累计停车收入</p>
-        <h3>¥ {{ formatMoney(totalAmount) }}</h3>
-      </article>
-    </section>
+    <el-row class="stat-row" :gutter="16">
+      <el-col :xs="24" :sm="12" :lg="6">
+        <el-card class="stat-card" shadow="never">
+          <div class="stat-title">停车订单总数</div>
+          <div class="stat-value">{{ orders.length }}</div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :lg="6">
+        <el-card class="stat-card" shadow="never">
+          <div class="stat-title">已缴订单</div>
+          <div class="stat-value">{{ paidCount }}</div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :lg="6">
+        <el-card class="stat-card" shadow="never">
+          <div class="stat-title">待缴订单</div>
+          <div class="stat-value">{{ pendingCount }}</div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :lg="6">
+        <el-card class="stat-card" shadow="never">
+          <div class="stat-title">累计停车收入</div>
+          <div class="stat-value">¥ {{ formatMoney(totalAmount) }}</div>
+        </el-card>
+      </el-col>
+    </el-row>
 
     <section class="panel">
       <div class="panel-header">
@@ -88,9 +96,10 @@ const displayList = computed(() => {
       String(item.vehicleNo || '').includes(text) ||
       String(item.propertyId || '').includes(text) ||
       orderTypeText(item.orderType).includes(text)
-    const matchStatus = statusFilter.value === undefined || statusFilter.value === null
-      ? true
-      : Number(item.status || 0) === Number(statusFilter.value)
+    const matchStatus =
+      statusFilter.value === undefined || statusFilter.value === null
+        ? true
+        : Number(item.status || 0) === Number(statusFilter.value)
     return matchKeyword && matchStatus
   })
 })
@@ -100,7 +109,10 @@ const pendingCount = computed(() => orders.value.filter((item) => Number(item.st
 const totalAmount = computed(() => orders.value.reduce((sum, item) => sum + Number(item.amount || 0), 0))
 
 function formatMoney(value) {
-  return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return Number(value || 0).toLocaleString('zh-CN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
 }
 
 function formatTime(value) {
@@ -128,3 +140,75 @@ async function loadData() {
 
 onMounted(loadData)
 </script>
+
+<style scoped>
+.page-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.stat-row {
+  margin: 20px 0;
+}
+
+.stat-card {
+  height: 110px;
+  border-radius: 8px;
+}
+
+.stat-card :deep(.el-card__body) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-title {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 16px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.panel-header h3 {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .actions {
+    justify-content: flex-start;
+  }
+}
+</style>

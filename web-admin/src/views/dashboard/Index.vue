@@ -87,7 +87,11 @@
           <div
             v-for="(item, index) in liveActivities"
             :key="`${item.text}-${item.time}-${index}`"
-            class="news-item"
+            class="news-item is-clickable"
+            role="button"
+            tabindex="0"
+            @click="openActivity(item)"
+            @keyup.enter="openActivity(item)"
           >
             <div class="news-top">
               <span class="news-title">{{ item.text }}</span>
@@ -116,15 +120,63 @@
         </div>
       </article>
     </section>
+
+    <el-drawer v-model="activityDrawerVisible" title="社区动态详情" size="420px">
+      <div v-if="selectedActivity" class="activity-detail">
+        <el-tag>{{ selectedActivity.typeName || typeName(selectedActivity.type) }}</el-tag>
+        <h3>{{ selectedActivity.title || selectedActivity.text }}</h3>
+        <p class="activity-time">{{ selectedActivity.time }}</p>
+        <p class="activity-text">{{ selectedActivity.detail || selectedActivity.text }}</p>
+
+        <dl class="activity-meta">
+          <template v-if="selectedActivity.publisher">
+            <dt>发布人</dt>
+            <dd>{{ selectedActivity.publisher }}</dd>
+          </template>
+          <template v-if="selectedActivity.community">
+            <dt>小区</dt>
+            <dd>{{ selectedActivity.community }}</dd>
+          </template>
+          <template v-if="selectedActivity.price !== undefined && selectedActivity.price !== null">
+            <dt>价格</dt>
+            <dd>￥{{ formatNumber(selectedActivity.price) }}</dd>
+          </template>
+          <template v-if="selectedActivity.contact">
+            <dt>联系方式</dt>
+            <dd>{{ selectedActivity.contact }}</dd>
+          </template>
+          <template v-if="selectedActivity.visitorName">
+            <dt>访客</dt>
+            <dd>{{ selectedActivity.visitorName }}</dd>
+          </template>
+          <template v-if="selectedActivity.visitorPhone">
+            <dt>访客电话</dt>
+            <dd>{{ selectedActivity.visitorPhone }}</dd>
+          </template>
+        </dl>
+
+        <el-button
+          v-if="selectedActivity.targetPath"
+          type="primary"
+          @click="goActivityTarget"
+        >
+          进入相关模块
+        </el-button>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { getOverview } from '@/api/statistics'
 
+const router = useRouter()
 const overview = ref({})
 const loading = ref(true)
+const activityDrawerVisible = ref(false)
+const selectedActivity = ref(null)
 
 const trendLabels = computed(() => {
   const labels = overview.value.trendLabels
@@ -177,6 +229,26 @@ function formatNumber(value) {
     minimumFractionDigits: Number(value || 0) % 1 === 0 ? 0 : 2,
     maximumFractionDigits: 2
   })
+}
+
+function openActivity(item) {
+  selectedActivity.value = item
+  activityDrawerVisible.value = true
+}
+
+function goActivityTarget() {
+  if (!selectedActivity.value?.targetPath) return
+  activityDrawerVisible.value = false
+  router.push(selectedActivity.value.targetPath)
+}
+
+function typeName(type) {
+  const map = {
+    notice: '社区公告',
+    visitor: '访客通行',
+    'second-hand': '二手物品'
+  }
+  return map[type] || '社区动态'
 }
 
 async function loadOverview() {
@@ -346,6 +418,21 @@ onMounted(loadOverview)
   border-bottom: 1px solid #f8fafc;
 }
 
+.news-item.is-clickable {
+  cursor: pointer;
+  border-radius: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.news-item.is-clickable:hover,
+.news-item.is-clickable:focus-visible {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  outline: none;
+}
+
 .news-item:last-child {
   border-bottom: none;
 }
@@ -366,6 +453,50 @@ onMounted(loadOverview)
   padding: 12px 0;
   color: #64748b;
   font-size: 13px;
+}
+
+.activity-detail {
+  display: grid;
+  gap: 12px;
+}
+
+.activity-detail h3 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.35;
+  color: #0f172a;
+}
+
+.activity-time {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.activity-text {
+  margin: 0;
+  color: #334155;
+  line-height: 1.7;
+}
+
+.activity-meta {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 10px 12px;
+  margin: 0;
+  padding: 14px 0;
+  border-top: 1px solid #eef2f7;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.activity-meta dt {
+  color: #64748b;
+}
+
+.activity-meta dd {
+  margin: 0;
+  color: #0f172a;
+  word-break: break-word;
 }
 
 @media (max-width: 1200px) {

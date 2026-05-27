@@ -27,6 +27,7 @@ import com.smartcommunity.mapper.VisitorInviteMapper;
 import com.smartcommunity.service.LocalCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -281,25 +282,46 @@ public class StatisticsController {
         for (SecondHand goods : secondHands) {
             Map<String, Object> item = new LinkedHashMap<>();
             String name = nicknameMap.getOrDefault(goods.getUserId(), "社区业主");
-            item.put("text", name + "业主刚刚发布了二手物品《" + safeTitle(goods.getTitle()) + "》");
-            item.put("time", relativeTime(goods.getCreateTime(), now));
+            item.put("id", goods.getId());
             item.put("type", "second-hand");
+            item.put("typeName", "二手物品");
+            item.put("title", safeTitle(goods.getTitle()));
+            item.put("text", name + "业主刚刚发布了二手物品《" + safeTitle(goods.getTitle()) + "》");
+            item.put("detail", goods.getDescription());
+            item.put("publisher", name);
+            item.put("price", goods.getPrice());
+            item.put("contact", goods.getContact());
+            item.put("community", goods.getCommunity());
+            item.put("time", relativeTime(goods.getCreateTime(), now));
             item.put("sortTime", goods.getCreateTime());
             items.add(item);
         }
         for (Notice notice : notices) {
             Map<String, Object> item = new LinkedHashMap<>();
-            item.put("text", "物业发布了社区公告《" + safeTitle(notice.getTitle()) + "》");
-            item.put("time", relativeTime(notice.getPublishTime(), now));
+            item.put("id", notice.getId());
             item.put("type", "notice");
+            item.put("typeName", "社区公告");
+            item.put("title", safeTitle(notice.getTitle()));
+            item.put("text", "物业发布了社区公告《" + safeTitle(notice.getTitle()) + "》");
+            item.put("detail", notice.getContent());
+            item.put("publisher", notice.getPublisher());
+            item.put("targetPath", "/notice/manage");
+            item.put("time", relativeTime(notice.getPublishTime(), now));
             item.put("sortTime", notice.getPublishTime());
             items.add(item);
         }
         for (VisitorInvite visitor : visitors) {
             Map<String, Object> item = new LinkedHashMap<>();
-            item.put("text", safeName(visitor.getVisitorName()) + "提交了访客通行申请");
-            item.put("time", relativeTime(visitor.getCreateTime(), now));
+            item.put("id", visitor.getId());
             item.put("type", "visitor");
+            item.put("typeName", "访客通行");
+            item.put("title", safeName(visitor.getVisitorName()) + "的访客通行申请");
+            item.put("text", safeName(visitor.getVisitorName()) + "提交了访客通行申请");
+            item.put("detail", StringUtils.hasText(visitor.getVisitReason()) ? visitor.getVisitReason() : visitorReason(visitor, now));
+            item.put("visitorName", visitor.getVisitorName());
+            item.put("visitorPhone", visitor.getVisitorPhone());
+            item.put("targetPath", "/visitor/record");
+            item.put("time", relativeTime(visitor.getCreateTime(), now));
             item.put("sortTime", visitor.getCreateTime());
             items.add(item);
         }
