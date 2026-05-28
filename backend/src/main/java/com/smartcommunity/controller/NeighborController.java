@@ -22,6 +22,7 @@ import com.smartcommunity.service.NeighborService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -51,6 +52,12 @@ public class NeighborController {
     @PostMapping("/second-hand/publish")
     public Result<SecondHand> publishSecond(@Valid @RequestBody PublishSecondHandReq req) {
         return Result.success(neighborService.publishSecondHand(requireUserId(), req));
+    }
+
+    @PostMapping("/second-hand/upload")
+    public Result<String> uploadSecondHandImage(@RequestParam("file") MultipartFile file) {
+        requireUserId();
+        return Result.success(neighborService.uploadSecondHandImage(file));
     }
 
     @PutMapping("/second-hand/{id}")

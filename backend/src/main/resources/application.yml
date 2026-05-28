@@ -32,6 +32,9 @@ blog:
 activity:
   asset-dir: ${ACTIVITY_ASSET_DIR:./activity-assets}
 
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:D:/upload}
+
 image-audit:
   enabled: ${IMAGE_AUDIT_ENABLED:true}
   model-url: ${IMAGE_AUDIT_MODEL_URL:http://127.0.0.1:8000/predict}

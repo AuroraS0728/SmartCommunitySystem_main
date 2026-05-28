@@ -70,8 +70,7 @@ const menuGroups = [
     title: '核心业务',
     items: [
       { label: '数据看板', path: '/dashboard' },
-      { label: '房间管理', path: '/house/archive' },
-      { label: '住户管理', path: '/house/owner' },
+      { label: '住户信息管理', path: '/house/archive' },
       { label: '报修管理', path: '/repair/smart' },
       { label: '停车管理', path: '/parking/manage' },
       { label: '费用管理', path: '/fee/manage' },

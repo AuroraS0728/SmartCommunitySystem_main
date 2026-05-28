@@ -89,4 +89,58 @@ function request({ url, method = 'GET', data = {}, skipAuth = false }) {
   return ensureToken().then(() => doRequest())
 }
 
-module.exports = { request }
+function uploadFile({ url, filePath, name = 'file', formData = {}, skipAuth = false }) {
+  const doUpload = () =>
+    new Promise((resolve, reject) => {
+      wx.uploadFile({
+        url: `${app.globalData.baseUrl}${url}`,
+        filePath,
+        name,
+        formData: sanitizeData(formData || {}),
+        header: { Authorization: app.globalData.token ? `Bearer ${app.globalData.token}` : '' },
+        success: (res) => {
+          let body = {}
+          try {
+            body = typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data || {}
+          } catch (error) {
+            reject(new Error('上传响应解析失败'))
+            return
+          }
+
+          const unauthorized = res.statusCode === 401 || body.code === 401 || body.message === 'unauthorized'
+          if (unauthorized) {
+            handleUnauthorized()
+            reject(new Error('登录已失效，请重新登录'))
+            return
+          }
+          if (body.code === 200) {
+            resolve(body.data)
+            return
+          }
+          reject(new Error(body.message || '上传失败'))
+        },
+        fail: (error) => reject(error)
+      })
+    })
+
+  if (skipAuth) {
+    return doUpload()
+  }
+  return ensureToken().then(() => doUpload())
+}
+
+function assetBaseUrl() {
+  const baseUrl = (app.globalData.baseUrl || '').replace(/\/$/, '')
+  return baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl
+}
+
+function resolveAssetUrl(value) {
+  if (!value || typeof value !== 'string') return ''
+  if (/^(https?:|data:|wxfile:|file:|blob:)/i.test(value)) return value
+  if (value.startsWith('/files/') || value.startsWith('/api/')) {
+    return `${assetBaseUrl()}${value}`
+  }
+  return value
+}
+
+module.exports = { request, uploadFile, resolveAssetUrl }

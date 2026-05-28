@@ -21,7 +21,7 @@
 
     <section class="panel">
       <div class="panel-header">
-        <h3>房间管理</h3>
+        <h3>住户信息管理</h3>
         <div class="actions">
           <el-input
             v-model="keyword"
@@ -39,69 +39,55 @@
             <el-option label="已出租" :value="5" />
           </el-select>
           <el-button @click="loadData">刷新</el-button>
-          <el-button type="primary" @click="openCreate">新增档案</el-button>
+          <el-button type="primary" @click="openCreate">新增住户信息</el-button>
         </div>
       </div>
 
-      <div class="content-grid">
-        <div class="building-panel">
-          <div class="sub-title">楼栋概览</div>
-          <el-table :data="buildingStats" max-height="520" stripe>
-            <el-table-column prop="building" label="楼栋" min-width="110" />
-            <el-table-column prop="propertyCount" label="房产数" width="92" />
-            <el-table-column prop="occupiedCount" label="入住" width="92" />
-            <el-table-column label="入住率" min-width="120">
-              <template #default="{ row }">{{ row.occupancyRate }}%</template>
-            </el-table-column>
-          </el-table>
-        </div>
-
-        <div class="table-panel">
-          <el-table class="room-table" :data="properties" stripe v-loading="loading">
-            <el-table-column prop="propertyCode" label="房产号" min-width="150" show-overflow-tooltip />
-            <el-table-column prop="community" label="小区" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="building" label="楼栋" width="86" />
-            <el-table-column prop="unit" label="单元" width="86" />
-            <el-table-column prop="room" label="房号" width="86" />
-            <el-table-column prop="ownerName" label="业主" min-width="110" show-overflow-tooltip />
-            <el-table-column prop="tenantName" label="租户" min-width="110" show-overflow-tooltip>
-              <template #default="{ row }">{{ row.tenantName || '--' }}</template>
-            </el-table-column>
-            <el-table-column prop="area" label="面积(m²)" width="108" />
-            <el-table-column label="状态" width="110">
-              <template #default="{ row }">
-                <el-tag :type="statusMeta(row.status).type">{{ statusMeta(row.status).text }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="160" fixed="right">
-              <template #default="{ row }">
-                <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
-                <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="pagination-bar">
-            <div class="page-shortcuts">
-              <el-button :disabled="pageNum <= 1 || loading" @click="goFirstPage">首页</el-button>
-              <el-button :disabled="pageNum >= lastPage || loading" @click="goLastPage">尾页</el-button>
-            </div>
-            <el-pagination
-              v-model:current-page="pageNum"
-              v-model:page-size="pageSize"
-              :total="total"
-              :page-sizes="[20, 50, 100]"
-              :disabled="loading"
-              background
-              layout="total, sizes, prev, pager, next, jumper"
-              @current-change="handlePageChange"
-              @size-change="handleSizeChange"
-            />
+      <div class="table-panel">
+        <el-table class="room-table" :data="properties" stripe v-loading="loading">
+          <el-table-column prop="propertyCode" label="房产号" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="community" label="小区" min-width="120" show-overflow-tooltip />
+          <el-table-column prop="building" label="楼栋" width="86" />
+          <el-table-column prop="unit" label="单元" width="86" />
+          <el-table-column prop="room" label="房号" width="86" />
+          <el-table-column prop="ownerName" label="业主" min-width="110" show-overflow-tooltip />
+          <el-table-column prop="tenantName" label="租户" min-width="110" show-overflow-tooltip>
+            <template #default="{ row }">{{ row.tenantName || '--' }}</template>
+          </el-table-column>
+          <el-table-column prop="area" label="面积(m²)" width="108" />
+          <el-table-column label="状态" width="110">
+            <template #default="{ row }">
+              <el-tag :type="statusMeta(row.status).type">{{ statusMeta(row.status).text }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="160" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
+              <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="pagination-bar">
+          <div class="page-shortcuts">
+            <el-button :disabled="pageNum <= 1 || loading" @click="goFirstPage">首页</el-button>
+            <el-button :disabled="pageNum >= lastPage || loading" @click="goLastPage">尾页</el-button>
           </div>
+          <el-pagination
+            v-model:current-page="pageNum"
+            v-model:page-size="pageSize"
+            :total="total"
+            :page-sizes="[20, 50, 100]"
+            :disabled="loading"
+            background
+            layout="total, sizes, prev, pager, next, jumper"
+            @current-change="handlePageChange"
+            @size-change="handleSizeChange"
+          />
         </div>
       </div>
     </section>
 
-    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑房产档案' : '新增房产档案'" width="760px">
+    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑住户信息' : '新增住户信息'" width="760px">
       <el-form label-width="96px">
         <el-row :gutter="12">
           <el-col :span="12"><el-form-item label="小区"><el-input v-model="form.community" /></el-form-item></el-col>
@@ -160,7 +146,6 @@ const saving = ref(false)
 const keyword = ref('')
 const statusFilter = ref(null)
 const summary = ref({})
-const buildingStats = ref([])
 const properties = ref([])
 const dialogVisible = ref(false)
 const pageNum = ref(1)
@@ -239,7 +224,6 @@ async function loadData() {
       pageSize: pageSize.value
     })
     summary.value = res.data?.summary || {}
-    buildingStats.value = Array.isArray(res.data?.buildingStats) ? res.data.buildingStats : []
     properties.value = Array.isArray(res.data?.properties) ? res.data.properties : []
     total.value = Number(res.data?.total || 0)
   } finally {
@@ -290,10 +274,10 @@ async function submit() {
   try {
     if (form.value.id) {
       await updateHouse(form.value.id, payload)
-      ElMessage.success('房产档案已更新')
+      ElMessage.success('住户信息已更新')
     } else {
       await addHouse(payload)
-      ElMessage.success('房产档案已创建')
+      ElMessage.success('住户信息已创建')
     }
     dialogVisible.value = false
     await loadData()
@@ -303,7 +287,7 @@ async function submit() {
 }
 
 async function handleDelete(row) {
-  await ElMessageBox.confirm(`确认删除房产档案 ${row.propertyCode || row.id} 吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除住户信息 ${row.propertyCode || row.id} 吗？`, '提示', { type: 'warning' })
   await deleteHouse(row.id)
   ElMessage.success('已删除')
   await loadData()
@@ -369,17 +353,6 @@ onMounted(loadData)
   font-size: 16px;
 }
 
-.content-grid {
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 16px;
-}
-
-.building-panel {
-  display: grid;
-  gap: 10px;
-}
-
 .keyword-input {
   width: 320px;
 }
@@ -409,8 +382,7 @@ onMounted(loadData)
 }
 
 @media (max-width: 1200px) {
-  .summary-grid,
-  .content-grid {
+  .summary-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -426,8 +398,7 @@ onMounted(loadData)
 }
 
 @media (max-width: 900px) {
-  .summary-grid,
-  .content-grid {
+  .summary-grid {
     grid-template-columns: 1fr;
   }
 

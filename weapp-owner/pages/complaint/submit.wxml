@@ -13,4 +13,27 @@
 
     <view class="btn" bindtap="submit">{{submitting ? '提交中...' : '提交反馈'}}</view>
   </view>
+
+  <view class="group-title">我的投诉建议</view>
+  <view wx:if="{{loading}}" class="empty">加载中...</view>
+
+  <block wx:elif="{{list.length}}">
+    <view wx:for="{{list}}" wx:key="id" class="item complaint-card">
+      <view class="row-between">
+        <view class="item-title">{{item.title || '投诉建议'}}</view>
+        <view class="status-tag">{{item.statusText}}</view>
+      </view>
+      <view class="meta">提交时间：{{item.createTimeText || '--'}}</view>
+      <view class="item-desc">{{item.content || '--'}}</view>
+
+      <view class="reply-box">
+        <view class="field-label">物业反馈</view>
+        <view wx:if="{{item.reply}}" class="item-desc reply-content">{{item.reply}}</view>
+        <view wx:if="{{item.reply}}" class="meta">反馈时间：{{item.replyTimeText || '--'}}</view>
+        <view wx:else class="item-desc">物业暂未反馈，请耐心等待。</view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:else class="empty">暂无投诉建议记录</view>
 </view>

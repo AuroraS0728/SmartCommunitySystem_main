@@ -65,6 +65,12 @@
       </view>
       <view class="service-name">闲置交易</view>
     </view>
+    <view class="service-cell" data-url="/pages/neighbor/lostfound/list" bindtap="goPage">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/hand-heart.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">失物招领</view>
+    </view>
   </view>
 
   <view id="additional-service-section" class="group-title">可预约附加服务</view>

@@ -1,1 +1,18 @@
-/* Page styles are unified in app.wxss */
+.complaint-card .item-title {
+  max-width: 430rpx;
+}
+
+.reply-box {
+  margin-top: 24rpx;
+  padding: 22rpx;
+  border-radius: 12rpx;
+  background: #f8fafc;
+}
+
+.reply-box .field-label {
+  margin-bottom: 8rpx;
+}
+
+.reply-content {
+  color: #4a4a4a;
+}

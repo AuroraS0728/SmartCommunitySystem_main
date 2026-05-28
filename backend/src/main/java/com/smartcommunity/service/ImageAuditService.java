@@ -47,6 +47,7 @@ public class ImageAuditService {
     private static final Logger log = LoggerFactory.getLogger(ImageAuditService.class);
     private static final String ACTIVITY_ASSET_PREFIX = "/api/activity/assets/";
     private static final String BLOG_ASSET_PREFIX = "/api/blog/assets/";
+    private static final String FILE_ASSET_PREFIX = "/files/";
     private static final TypeReference<List<String>> STRING_LIST_TYPE = new TypeReference<>() {
     };
 
@@ -61,6 +62,9 @@ public class ImageAuditService {
 
     @Value("${blog.asset-dir:./blog-assets}")
     private String blogAssetDir;
+
+    @Value("${file.upload-dir:D:/upload}")
+    private String fileUploadDir;
 
     public ImageAuditService(ImageAuditProperties properties,
                              ImageAuditClient imageAuditClient,
@@ -198,6 +202,9 @@ public class ImageAuditService {
         }
         if (withoutQuery.startsWith(BLOG_ASSET_PREFIX)) {
             return resolveUnderRoot(blogAssetDir, withoutQuery.substring(BLOG_ASSET_PREFIX.length()));
+        }
+        if (withoutQuery.startsWith(FILE_ASSET_PREFIX)) {
+            return resolveUnderRoot(fileUploadDir, withoutQuery.substring(FILE_ASSET_PREFIX.length()));
         }
         if (withoutQuery.toLowerCase(Locale.ROOT).startsWith("file:")) {
             try {

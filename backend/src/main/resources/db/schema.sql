@@ -462,7 +462,7 @@ CREATE TABLE `second_hand` (
   `category` VARCHAR(20) NOT NULL DEFAULT 'other',
   `description` TEXT DEFAULT NULL,
   `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-  `images` VARCHAR(2000) NOT NULL,
+  `images` TEXT NOT NULL COMMENT '商品图片路径',
   `status` TINYINT NOT NULL DEFAULT 1,
   `view_count` INT NOT NULL DEFAULT 0,
   `report_count` INT NOT NULL DEFAULT 0,

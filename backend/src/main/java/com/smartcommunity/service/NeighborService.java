@@ -11,6 +11,7 @@ import com.smartcommunity.entity.LostFound;
 import com.smartcommunity.entity.LostFoundClaim;
 import com.smartcommunity.entity.SecondHand;
 import com.smartcommunity.entity.SecondHandReport;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -30,6 +31,8 @@ public interface NeighborService {
     Map<String, Object> secondHandDetail(Long id, Long userId);
 
     SecondHand publishSecondHand(Long userId, PublishSecondHandReq req);
+
+    String uploadSecondHandImage(MultipartFile file);
 
     SecondHand updateSecondHand(Long id, Long userId, Integer role, PublishSecondHandReq req);
 

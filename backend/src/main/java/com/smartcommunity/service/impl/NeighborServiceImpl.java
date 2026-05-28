@@ -31,12 +31,21 @@ import com.smartcommunity.service.CreditService;
 import com.smartcommunity.service.ImageAuditService;
 import com.smartcommunity.service.NeighborService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,6 +66,7 @@ public class NeighborServiceImpl implements NeighborService {
     private static final int SECOND_HAND_STATUS_PUBLISHED = 1;
     private static final int SECOND_HAND_STATUS_SOLD = 2;
     private static final int SECOND_HAND_STATUS_OFFLINE = 3;
+    private static final long MAX_SECOND_HAND_IMAGE_BYTES = 8L * 1024L * 1024L;
 
     private final NeighborModuleConfig neighborModuleConfig;
     private final ContentSafetyService contentSafetyService;
@@ -69,6 +80,9 @@ public class NeighborServiceImpl implements NeighborService {
     private final ForumPostMapper forumPostMapper;
     private final ForumCommentMapper forumCommentMapper;
     private final ForumPostLikeMapper forumPostLikeMapper;
+
+    @Value("${file.upload-dir:D:/upload}")
+    private String fileUploadDir;
 
     @Override
     public PageData<SecondHand> pageSecondHand(Integer page, Integer size, Integer status, String category, String keyword,
@@ -162,6 +176,36 @@ public class NeighborServiceImpl implements NeighborService {
         }
         applyAuditSummary(item, auditSummary.results());
         return item;
+    }
+
+    @Override
+    public String uploadSecondHandImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("image file is empty");
+        }
+        if (file.getSize() > MAX_SECOND_HAND_IMAGE_BYTES) {
+            throw new IllegalArgumentException("image file is too large");
+        }
+
+        String ext = resolveImageExtension(file);
+        String filename = System.currentTimeMillis() + "_" + UUID.randomUUID() + ext;
+        Path root = Paths.get(fileUploadDir).toAbsolutePath().normalize();
+        Path dir = root.resolve("second-hand").normalize();
+        Path target = dir.resolve(filename).normalize();
+        if (!target.startsWith(root)) {
+            throw new IllegalArgumentException("invalid upload path");
+        }
+
+        try {
+            Files.createDirectories(dir);
+            try (InputStream in = file.getInputStream()) {
+                Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException ex) {
+            throw new IllegalStateException("save second hand image failed", ex);
+        }
+
+        return "/files/second-hand/" + filename;
     }
 
     @Override
@@ -798,6 +842,33 @@ public class NeighborServiceImpl implements NeighborService {
         if (req.getPrice() != null && req.getPrice().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("price不能小于0");
         }
+    }
+
+    private String resolveImageExtension(MultipartFile file) {
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
+        String ext = switch (contentType) {
+            case "image/jpeg", "image/jpg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/webp" -> ".webp";
+            case "image/gif" -> ".gif";
+            default -> "";
+        };
+        if (StringUtils.hasText(ext)) {
+            return ext;
+        }
+
+        String originalExt = StringUtils.getFilenameExtension(file.getOriginalFilename());
+        if (!StringUtils.hasText(originalExt)) {
+            throw new IllegalArgumentException("only jpg, png, webp and gif images are supported");
+        }
+        String normalized = originalExt.toLowerCase(Locale.ROOT);
+        if ("jpeg".equals(normalized) || "jpg".equals(normalized)) {
+            return ".jpg";
+        }
+        if ("png".equals(normalized) || "webp".equals(normalized) || "gif".equals(normalized)) {
+            return "." + normalized;
+        }
+        throw new IllegalArgumentException("only jpg, png, webp and gif images are supported");
     }
 
     private void validateLostFoundReq(PublishLostFoundReq req) {

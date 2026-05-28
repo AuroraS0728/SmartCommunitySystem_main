@@ -15,22 +15,21 @@ const routes = [
       {
         path: 'house/building',
         component: () => import('@/views/house/RealEstateArchive.vue'),
-        meta: { title: '房间管理', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
+        meta: { title: '住户信息管理', subtitle: '统一管理房屋状态、业主与租户档案' }
       },
       {
         path: 'house/property',
         component: () => import('@/views/house/RealEstateArchive.vue'),
-        meta: { title: '房间管理', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
+        meta: { title: '住户信息管理', subtitle: '统一管理房屋状态、业主与租户档案' }
       },
       {
         path: 'house/archive',
         component: () => import('@/views/house/RealEstateArchive.vue'),
-        meta: { title: '房间管理', subtitle: '统一管理楼栋、房屋状态、业主与租户档案' }
+        meta: { title: '住户信息管理', subtitle: '统一管理房屋状态、业主与租户档案' }
       },
       {
         path: 'house/owner',
-        component: () => import('@/views/house/Owner.vue'),
-        meta: { title: '住户管理', subtitle: '统一管理业主基础资料、积分余额与住户画像' }
+        redirect: '/house/archive'
       },
       {
         path: 'repair/list',
