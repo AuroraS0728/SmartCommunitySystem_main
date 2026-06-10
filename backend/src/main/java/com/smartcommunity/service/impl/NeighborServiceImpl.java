@@ -66,6 +66,7 @@ public class NeighborServiceImpl implements NeighborService {
     private static final int SECOND_HAND_STATUS_PUBLISHED = 1;
     private static final int SECOND_HAND_STATUS_SOLD = 2;
     private static final int SECOND_HAND_STATUS_OFFLINE = 3;
+    private static final int SECOND_HAND_STATUS_REJECTED = 4;
     private static final long MAX_SECOND_HAND_IMAGE_BYTES = 8L * 1024L * 1024L;
 
     private final NeighborModuleConfig neighborModuleConfig;
@@ -122,10 +123,15 @@ public class NeighborServiceImpl implements NeighborService {
     }
 
     @Override
-    public Map<String, Object> secondHandDetail(Long id, Long userId) {
+    public Map<String, Object> secondHandDetail(Long id, Long userId, Integer role) {
         SecondHand item = secondHandMapper.selectById(id);
         if (item == null) {
             throw new IllegalArgumentException("商品不存在");
+        }
+        if (!Integer.valueOf(SECOND_HAND_STATUS_PUBLISHED).equals(item.getStatus())
+                && !isAdmin(role)
+                && (userId == null || !userId.equals(item.getUserId()))) {
+            throw new IllegalArgumentException("forbidden");
         }
         secondHandMapper.update(null, new LambdaUpdateWrapper<SecondHand>()
                 .eq(SecondHand::getId, id)
@@ -233,7 +239,8 @@ public class NeighborServiceImpl implements NeighborService {
             ImageAuditService.AuditSummary auditSummary = imageAuditService.auditSecondHandImages(item.getId(), item.getImages());
             if (auditSummary.needManualReview()) {
                 item.setStatus(SECOND_HAND_STATUS_PENDING_REVIEW);
-            } else if (Integer.valueOf(SECOND_HAND_STATUS_PENDING_REVIEW).equals(oldStatus)) {
+            } else if (Integer.valueOf(SECOND_HAND_STATUS_PENDING_REVIEW).equals(oldStatus)
+                    || Integer.valueOf(SECOND_HAND_STATUS_REJECTED).equals(oldStatus)) {
                 item.setStatus(SECOND_HAND_STATUS_PUBLISHED);
             }
             item.setUpdateTime(LocalDateTime.now());
@@ -384,6 +391,21 @@ public class NeighborServiceImpl implements NeighborService {
         }
         wrapper.orderByDesc(SecondHandReport::getCreateTime).orderByDesc(SecondHandReport::getId);
         return pageData(secondHandReportMapper.selectList(wrapper), page, size);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public SecondHand reviewSecondHandImageAudit(Long id, Integer role, boolean approved) {
+        requireAdmin(role);
+        SecondHand item = secondHandMapper.selectById(id);
+        if (item == null) {
+            throw new IllegalArgumentException("商品不存在");
+        }
+        item.setStatus(approved ? SECOND_HAND_STATUS_PUBLISHED : SECOND_HAND_STATUS_REJECTED);
+        item.setUpdateTime(LocalDateTime.now());
+        secondHandMapper.updateById(item);
+        enrichImageAudits(List.of(item));
+        return item;
     }
 
     @Override
@@ -951,6 +973,9 @@ public class NeighborServiceImpl implements NeighborService {
         }
         if (Integer.valueOf(SECOND_HAND_STATUS_OFFLINE).equals(status)) {
             return "OFFLINE";
+        }
+        if (Integer.valueOf(SECOND_HAND_STATUS_REJECTED).equals(status)) {
+            return "REJECTED";
         }
         return null;
     }

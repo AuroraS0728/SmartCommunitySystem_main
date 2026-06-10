@@ -7,3 +7,56 @@
   background: linear-gradient(135deg, #0f766e, #0d9488);
 }
 
+.analysis-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin: 12rpx 0 8rpx;
+}
+
+.analysis-tag,
+.analysis-score {
+  min-height: 42rpx;
+  padding: 0 16rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  line-height: 42rpx;
+  color: #334155;
+  background: #f1f5f9;
+}
+
+.risk-high {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.risk-mid {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.risk-low {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.risk-empty,
+.sentiment-empty {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.sentiment-positive {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.sentiment-negative {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.sentiment-neutral {
+  color: #1d4ed8;
+  background: #dbeafe;
+}

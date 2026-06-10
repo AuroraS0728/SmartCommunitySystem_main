@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">投诉建议</view>
-    <view class="hero-desc">欢迎反馈社区服务问题，我们会尽快处理。</view>
   </view>
 
   <view class="item">
@@ -30,6 +29,27 @@
         <view class="field-label">物业反馈</view>
         <view wx:if="{{item.reply}}" class="item-desc reply-content">{{item.reply}}</view>
         <view wx:if="{{item.reply}}" class="meta">反馈时间：{{item.replyTimeText || '--'}}</view>
+        <block wx:if="{{item.reply}}">
+          <view wx:if="{{item.satisfaction}}" class="satisfaction-done">
+            已评价：{{item.satisfactionText}}（{{item.satisfaction}}分）
+          </view>
+          <view wx:elif="{{item.canRate}}" class="satisfaction-box">
+            <view class="field-label">处理结果评价</view>
+            <view class="rating-row">
+              <view
+                wx:for="{{ratingOptions}}"
+                wx:for-item="score"
+                wx:key="*this"
+                class="rating-btn {{ratingId === item.id ? 'rating-disabled' : ''}}"
+                data-id="{{item.id}}"
+                data-score="{{score}}"
+                bindtap="submitSatisfaction"
+              >
+                {{score}}分
+              </view>
+            </view>
+          </view>
+        </block>
         <view wx:else class="item-desc">物业暂未反馈，请耐心等待。</view>
       </view>
     </view>

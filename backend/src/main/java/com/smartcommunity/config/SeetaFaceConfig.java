@@ -86,6 +86,11 @@ public class SeetaFaceConfig {
         LinkedHashSet<String> orderedLibs = new LinkedHashSet<>();
         for (String lib : libs) {
             String libName = lib == null ? "" : lib.trim();
+            if (shouldSkipAntiSpoofing(properties, libName)) {
+                log.warn("Skip SeetaFace anti-spoofing native library. enableLivenessCheck={}, skipAntiSpoofingLibrary={}",
+                        properties.isEnableLivenessCheck(), properties.isSkipAntiSpoofingLibrary());
+                continue;
+            }
             if (!libName.isEmpty()) {
                 orderedLibs.add(libName);
             }
@@ -106,6 +111,15 @@ public class SeetaFaceConfig {
             loaded.add(libName);
             log.info("Loaded native library: {}, osType={}", nativePath, osType);
         }
+    }
+
+    private boolean shouldSkipAntiSpoofing(SeetaFaceProperties properties, String libName) {
+        if (!StringUtils.hasText(libName)) {
+            return false;
+        }
+        String normalized = libName.toLowerCase(Locale.ROOT);
+        boolean antiSpoofing = normalized.contains("antispoof");
+        return antiSpoofing && (!properties.isEnableLivenessCheck() || properties.isSkipAntiSpoofingLibrary());
     }
 
     private List<String> optionalNativeDependencies(OsType osType) {

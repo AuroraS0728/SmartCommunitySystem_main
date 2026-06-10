@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">报修工单</view>
-    <view class="hero-desc">提交后将依次进入：派单、上门核验、服务、评价。</view>
   </view>
 
   <view wx:if="{{!list.length}}" class="empty">暂无报修记录</view>

@@ -53,6 +53,7 @@ public class FeeBillingService {
             if (existed != null) {
                 continue;
             }
+            // 物业费基础公式：房屋面积 * 单价。这里默认单价是5元/㎡·月。
             BigDecimal area = safeArea(property.getArea());
             BigDecimal amount = area.multiply(DEFAULT_UNIT_PRICE).setScale(2, RoundingMode.HALF_UP);
             FeeBill bill = new FeeBill();
@@ -129,6 +130,7 @@ public class FeeBillingService {
             wrapper.eq(FeeBill::getBillPeriod, billPeriod.trim());
         }
         List<FeeBill> bills = feeBillMapper.selectList(wrapper);
+        // 收缴率 = 实收金额 / 应收金额 * 100，用于管理端统计展示。
         BigDecimal total = bills.stream()
                 .map(FeeBill::getAmount)
                 .map(this::safeMoney)
@@ -184,6 +186,7 @@ public class FeeBillingService {
     }
 
     private int toNeedPoints(BigDecimal amount) {
+        // 系统约定1积分=1元，遇到小数向上取整，保证积分足够覆盖应缴金额。
         return amount == null ? 0 : amount.setScale(0, RoundingMode.UP).intValue();
     }
 }

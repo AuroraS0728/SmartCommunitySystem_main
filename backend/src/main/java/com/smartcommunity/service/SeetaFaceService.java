@@ -61,6 +61,7 @@ public class SeetaFaceService {
 
     public String registerFace(Long workerId, String imageBase64) {
         ensureWorker(workerId);
+        // 注册时只保存人脸特征，不直接保存原始照片，减少隐私数据落库。
         float[] feature = extractFeature(imageBase64);
         saveFeature(workerId, feature);
         log.info("Worker face registered. workerId={}", workerId);
@@ -93,14 +94,17 @@ public class SeetaFaceService {
         SeetaImageData imageData = toSeetaImageData(imageBase64);
         double threshold = runtime.getProperties().getSimilarityThreshold();
 
-        int livenessStatus = runtime.getEngine().predictImage(imageData);
-        String livenessLabel = livenessLabel(livenessStatus);
-        boolean livenessPassed = livenessStatus == LIVENESS_REAL;
+        // AI本地模型接入点：通过JNI调用服务器上的SeetaFace6动态库做活体检测。
+        boolean livenessCheckEnabled = runtime.getProperties().isEnableLivenessCheck();
+        int livenessStatus = livenessCheckEnabled ? runtime.getEngine().predictImage(imageData) : LIVENESS_REAL;
+        String livenessLabel = livenessCheckEnabled ? livenessLabel(livenessStatus) : "DISABLED";
+        boolean livenessPassed = !livenessCheckEnabled || livenessStatus == LIVENESS_REAL;
 
         MaskCheck mask = detectMask(imageData);
         EyeStateCheck eyeState = detectEyeState(imageData);
         QualityCheck quality = evaluateQuality(imageData);
 
+        // 活体、口罩、睁眼、图像质量都属于前置门禁，不通过时不继续认可人脸相似度。
         boolean maskGatePassed = !runtime.getProperties().isRequireNoMask()
                 || !runtime.getProperties().isEnableMaskCheck()
                 || !mask.isSupported()
@@ -142,6 +146,7 @@ public class SeetaFaceService {
             );
         }
 
+        // 前置检测都通过后，再做人脸特征相似度比较。
         float[] current = extractFeature(imageData);
         float score = runtime.getEngine().calculateSimilarity(stored, current);
         boolean match = score >= threshold;
@@ -377,6 +382,7 @@ public class SeetaFaceService {
         featureCache.put(workerId, feature);
         String encoded = encodeFeature(feature);
         try {
+            // Redis保存特征后，服务重启也能继续读取维修人员已注册的人脸信息。
             redisUtil.set(redisKey(workerId), encoded);
         } catch (Exception ex) {
             log.warn("Save face feature to redis failed, use local cache only. workerId={}", workerId, ex);

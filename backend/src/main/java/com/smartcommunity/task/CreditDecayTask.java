@@ -16,6 +16,7 @@ public class CreditDecayTask {
     @Scheduled(cron = "0 0 1 * * ?")
     public void decayCreditScores() {
         try {
+            // 每天凌晨1点执行信用分周期修正，具体衰减公式写在UserMapper.xml里。
             int affected = userMapper.decayCreditScores();
             log.info("Credit score decay completed, affected={}", affected);
         } catch (Exception ex) {

@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">发布失物/招领</view>
-    <view class="hero-desc">支持图文发布，后续可在详情页处理认领流程</view>
   </view>
 
   <view class="item">

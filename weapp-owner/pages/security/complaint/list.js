@@ -15,6 +15,46 @@ function statusText(status) {
   return map[Number(status)] || "未知"
 }
 
+function riskText(level) {
+  const map = {
+    HIGH: "高风险",
+    MID: "中风险",
+    LOW: "低风险"
+  }
+  return map[level] || "未分析"
+}
+
+function sentimentText(label) {
+  const map = {
+    POSITIVE: "正向",
+    NEGATIVE: "负向",
+    NEUTRAL: "中性"
+  }
+  return map[label] || "未分析"
+}
+
+function riskClass(level) {
+  const map = {
+    HIGH: "risk-high",
+    MID: "risk-mid",
+    LOW: "risk-low"
+  }
+  return map[level] || "risk-empty"
+}
+
+function sentimentClass(label) {
+  const map = {
+    POSITIVE: "sentiment-positive",
+    NEGATIVE: "sentiment-negative",
+    NEUTRAL: "sentiment-neutral"
+  }
+  return map[label] || "sentiment-empty"
+}
+
+function scoreText(score) {
+  return score === undefined || score === null || score === "" ? "--" : String(score)
+}
+
 Page({
   data: {
     loading: false,
@@ -42,7 +82,13 @@ Page({
       })
       const list = (Array.isArray(rawList) ? rawList : []).map((item) => ({
         ...item,
-        statusText: statusText(item.status)
+        statusText: statusText(item.status),
+        riskText: riskText(item.riskLevel),
+        riskClass: riskClass(item.riskLevel),
+        sentimentText: sentimentText(item.sentimentLabel),
+        sentimentClass: sentimentClass(item.sentimentLabel),
+        sentimentScoreText: scoreText(item.sentimentScore),
+        analyzedAtText: item.analyzedAt || "未分析"
       }))
       const replyDrafts = { ...this.data.replyDrafts }
       list.forEach((item) => {

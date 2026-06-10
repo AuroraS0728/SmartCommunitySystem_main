@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero worker-hero">
     <view class="hero-title">上门人脸实时检测</view>
-    <view class="hero-desc">支持单人实时核验，也支持多人同框连续核验</view>
   </view>
 
   <view class="item">
@@ -34,4 +33,3 @@
   <view wx:if="{{!running}}" class="btn worker-btn" bindtap="startLiveVerify">开始实时检测</view>
   <view wx:else class="btn worker-btn danger-btn" bindtap="stopLiveVerify">停止检测</view>
 </view>
-

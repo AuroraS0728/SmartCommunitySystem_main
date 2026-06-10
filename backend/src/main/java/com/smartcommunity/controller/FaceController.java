@@ -91,6 +91,7 @@ public class FaceController {
             return Result.fail(StatusCode.FORBIDDEN, "worker can only verify self face");
         }
         log.info("Face live verify request received. role={}, userId={}, workerId={}", role, userId, req.getWorkerId());
+        // 单人核验：适合维修人员自己上门签到时调用。
         SeetaFaceService.FaceLiveVerifyResult result = seetaFaceService.verifyLiveFaceWithScore(
                 req.getWorkerId(), req.getImageBase64()
         );
@@ -152,6 +153,7 @@ public class FaceController {
                         .orderByAsc(RepairOrderWorker::getWorkerId)
         );
         if (participants.isEmpty() && order.getAssignee() != null) {
+            // 兼容旧工单：如果没有参与人员表记录，就用主维修人补一条参与记录。
             RepairOrderWorker fallback = new RepairOrderWorker();
             fallback.setOrderId(order.getId());
             fallback.setWorkerId(order.getAssignee());
@@ -182,6 +184,7 @@ public class FaceController {
 
         List<FaceLiveVerifyMultiItemResp> results = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
+        // 多人核验：同一张现场照片会依次和所有参与维修人员的人脸特征做比对。
         for (RepairOrderWorker participant : participants) {
             Long workerId = participant.getWorkerId();
             if (workerId == null) {

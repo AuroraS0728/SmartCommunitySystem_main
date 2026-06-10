@@ -28,7 +28,7 @@ public interface NeighborService {
             Integer role
     );
 
-    Map<String, Object> secondHandDetail(Long id, Long userId);
+    Map<String, Object> secondHandDetail(Long id, Long userId, Integer role);
 
     SecondHand publishSecondHand(Long userId, PublishSecondHandReq req);
 
@@ -47,6 +47,8 @@ public interface NeighborService {
     void reportSecondHand(Long id, Long userId, String reason);
 
     PageData<SecondHandReport> pageSecondHandReports(Integer page, Integer size, Integer status, Integer role);
+
+    SecondHand reviewSecondHandImageAudit(Long id, Integer role, boolean approved);
 
     PageData<LostFound> pageLostFound(
             Integer page,

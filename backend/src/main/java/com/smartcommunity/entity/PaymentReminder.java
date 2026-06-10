@@ -14,6 +14,8 @@ public class PaymentReminder {
     private Long id;
     private Long userId;
     private Long feeBillId;
+    private Integer businessType;
+    private Long businessId;
     private String method;
     private String content;
     private Integer status;

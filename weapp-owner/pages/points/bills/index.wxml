@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">费用缴纳</view>
-    <view class="hero-desc">当前可用积分：{{points}}</view>
   </view>
 
   <view wx:if="{{!bills.length}}" class="empty">暂无可缴费账单</view>

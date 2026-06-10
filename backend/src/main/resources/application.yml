@@ -49,6 +49,8 @@ seetaface:
   recognizer-model-path: ${SEETAFACE_RECOGNIZER_MODEL:D:/Face/sf3.0_models/sf3.0_models/face_recognizer.csta}
   landmarker-model-path: ${SEETAFACE_LANDMARKER_MODEL:D:/Face/sf3.0_models/sf3.0_models/face_landmarker_pts5.csta}
   similarity-threshold: ${SEETAFACE_THRESHOLD:0.7}
+  enable-liveness-check: ${SEETAFACE_ENABLE_LIVENESS_CHECK:false}
+  skip-anti-spoofing-library: ${SEETAFACE_SKIP_ANTISPOOF:true}
   enable-mask-check: ${SEETAFACE_ENABLE_MASK_CHECK:true}
   require-no-mask: ${SEETAFACE_REQUIRE_NO_MASK:true}
   enable-eye-state-check: ${SEETAFACE_ENABLE_EYE_STATE_CHECK:true}

@@ -25,6 +25,8 @@ public class PaymentReminderController {
     @GetMapping("/list")
     public Result<List<PaymentReminder>> list(@RequestParam(required = false) Long userId,
                                               @RequestParam(required = false) Long feeBillId,
+                                              @RequestParam(required = false) Integer businessType,
+                                              @RequestParam(required = false) Long businessId,
                                               @RequestParam(required = false) Integer status) {
         Integer role = AuthContext.getRole();
         Long uid = AuthContext.getUserId();
@@ -41,6 +43,12 @@ public class PaymentReminderController {
         if (feeBillId != null) {
             wrapper.eq(PaymentReminder::getFeeBillId, feeBillId);
         }
+        if (businessType != null) {
+            wrapper.eq(PaymentReminder::getBusinessType, businessType);
+        }
+        if (businessId != null) {
+            wrapper.eq(PaymentReminder::getBusinessId, businessId);
+        }
         if (status != null) {
             wrapper.eq(PaymentReminder::getStatus, status);
         }
@@ -53,13 +61,16 @@ public class PaymentReminderController {
         if (!isAdmin()) {
             return Result.fail(StatusCode.FORBIDDEN, "only admin can create reminder");
         }
-        if (req == null || req.getUserId() == null || req.getFeeBillId() == null) {
-            return Result.fail(StatusCode.BAD_REQUEST, "userId and feeBillId are required");
+        if (req == null || req.getUserId() == null || (req.getFeeBillId() == null && req.getBusinessId() == null)) {
+            return Result.fail(StatusCode.BAD_REQUEST, "userId and bill id are required");
         }
         LocalDateTime now = LocalDateTime.now();
+        Long businessId = req.getBusinessId() == null ? req.getFeeBillId() : req.getBusinessId();
         PaymentReminder row = new PaymentReminder();
         row.setUserId(req.getUserId());
-        row.setFeeBillId(req.getFeeBillId());
+        row.setFeeBillId(req.getFeeBillId() == null ? businessId : req.getFeeBillId());
+        row.setBusinessType(req.getBusinessType() == null ? 1 : req.getBusinessType());
+        row.setBusinessId(businessId);
         row.setMethod(StringUtils.hasText(req.getMethod()) ? req.getMethod().trim() : "MESSAGE");
         row.setContent(StringUtils.hasText(req.getContent()) ? req.getContent().trim() : "您有一笔待缴费用，请及时处理。");
         row.setStatus(req.getStatus() == null ? 0 : req.getStatus());

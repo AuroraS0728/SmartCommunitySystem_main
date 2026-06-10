@@ -14,12 +14,25 @@ function statusText(status) {
   return map[Number(status)] || '待处理'
 }
 
+function satisfactionText(value) {
+  const map = {
+    1: '非常不满意',
+    2: '不满意',
+    3: '一般',
+    4: '满意',
+    5: '非常满意'
+  }
+  return map[Number(value)] || ''
+}
+
 Page({
   data: {
     title: '',
     content: '',
     submitting: false,
     loading: false,
+    ratingId: null,
+    ratingOptions: [1, 2, 3, 4, 5],
     list: []
   },
   onShow() {
@@ -39,7 +52,9 @@ Page({
         ...item,
         statusText: statusText(item.status),
         createTimeText: formatTime(item.createTime),
-        replyTimeText: formatTime(item.replyTime)
+        replyTimeText: formatTime(item.replyTime),
+        satisfactionText: satisfactionText(item.satisfaction),
+        canRate: !!item.reply && !item.satisfaction
       }))
       this.setData({ list })
     } catch (error) {
@@ -60,19 +75,37 @@ Page({
 
     this.setData({ submitting: true })
     try {
-      const complaint = await request({
+      await request({
         url: '/complaint/submit',
         method: 'POST',
         data: { type: 1, title, content, images: '[]' }
       })
-      const risk = complaint?.riskLevel ? `，风险${complaint.riskLevel}` : ''
-      wx.showToast({ title: `提交成功${risk}`, icon: 'none' })
+      wx.showToast({ title: '提交成功', icon: 'success' })
       this.setData({ title: '', content: '' })
       await this.loadList()
     } catch (error) {
       wx.showToast({ title: error?.message || '提交失败', icon: 'none' })
     } finally {
       this.setData({ submitting: false })
+    }
+  },
+  async submitSatisfaction(e) {
+    const id = Number(e.currentTarget.dataset.id)
+    const score = Number(e.currentTarget.dataset.score)
+    if (!id || !score || this.data.ratingId) return
+
+    this.setData({ ratingId: id })
+    try {
+      await request({
+        url: `/complaint/${id}/satisfaction?satisfaction=${score}`,
+        method: 'POST'
+      })
+      wx.showToast({ title: '评价成功', icon: 'success' })
+      await this.loadList()
+    } catch (error) {
+      wx.showToast({ title: error?.message || '评价失败', icon: 'none' })
+    } finally {
+      this.setData({ ratingId: null })
     }
   }
 })

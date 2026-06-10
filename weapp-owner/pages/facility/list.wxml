@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">设施管理</view>
-    <view class="hero-desc">查看社区公共设施开放状态，并可直接发起设施报修。</view>
   </view>
 
   <view wx:if="{{!facilities.length && !loading}}" class="empty">暂无设施信息</view>

@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">停车费缴纳</view>
-    <view class="hero-desc">当前可用积分：{{points}}</view>
   </view>
 
   <view class="item">

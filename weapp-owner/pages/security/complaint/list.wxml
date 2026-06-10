@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero security-hero">
     <view class="hero-title">投诉建议反馈</view>
-    <view class="hero-desc">查看业主投诉建议，并提交处理回复。</view>
   </view>
 
   <view class="item">
@@ -21,9 +20,15 @@
         <view class="item-title">#{{item.id}} {{item.title || "投诉单"}}</view>
         <view class="status-tag">{{item.statusText}}</view>
       </view>
+      <view class="analysis-row">
+        <view class="analysis-tag {{item.riskClass}}">风险：{{item.riskText}}</view>
+        <view class="analysis-tag {{item.sentimentClass}}">情感：{{item.sentimentText}}</view>
+        <view class="analysis-score">分数：{{item.sentimentScoreText}}</view>
+      </view>
       <view class="meta">业主ID：{{item.userId}}</view>
       <view class="meta">类型：{{item.type || "--"}}</view>
       <view class="meta">提交时间：{{item.createTime || "--"}}</view>
+      <view class="meta">分析时间：{{item.analyzedAtText}}</view>
       <view class="item-desc">{{item.content || "--"}}</view>
 
       <block wx:if="{{item.reply}}">

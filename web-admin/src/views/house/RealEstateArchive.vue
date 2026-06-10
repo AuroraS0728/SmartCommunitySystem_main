@@ -39,6 +39,14 @@
             <el-option label="已出租" :value="5" />
           </el-select>
           <el-button @click="loadData">刷新</el-button>
+          <el-upload
+            :show-file-list="false"
+            accept=".csv"
+            :http-request="handleImport"
+          >
+            <el-button :loading="importing">导入CSV</el-button>
+          </el-upload>
+          <el-button :loading="exporting" @click="handleExport">导出CSV</el-button>
           <el-button type="primary" @click="openCreate">新增住户信息</el-button>
         </div>
       </div>
@@ -138,11 +146,13 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { addHouse, deleteHouse, updateHouse } from '@/api/house'
+import { addHouse, deleteHouse, exportHouses, importHouses, updateHouse } from '@/api/house'
 import { getRealEstateArchive } from '@/api/realEstate'
 
 const loading = ref(false)
 const saving = ref(false)
+const importing = ref(false)
+const exporting = ref(false)
 const keyword = ref('')
 const statusFilter = ref(null)
 const summary = ref({})
@@ -291,6 +301,46 @@ async function handleDelete(row) {
   await deleteHouse(row.id)
   ElMessage.success('已删除')
   await loadData()
+}
+
+async function handleImport({ file }) {
+  if (!file) return
+  importing.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const res = await importHouses(formData)
+    const data = res.data || {}
+    const errors = Array.isArray(data.errors) ? data.errors : []
+    ElMessage.success(`导入完成：新增 ${data.created || 0}，更新 ${data.updated || 0}，跳过 ${data.skipped || 0}`)
+    if (errors.length) {
+      ElMessage.warning(`有 ${errors.length} 行导入失败，请检查CSV内容`)
+    }
+    await loadData()
+  } finally {
+    importing.value = false
+  }
+}
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    const res = await exportHouses({
+      keyword: keyword.value.trim() || undefined,
+      status: statusFilter.value || undefined
+    })
+    const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `house_export_${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } finally {
+    exporting.value = false
+  }
 }
 
 onMounted(loadData)

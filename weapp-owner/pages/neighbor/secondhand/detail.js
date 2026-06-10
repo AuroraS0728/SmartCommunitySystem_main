@@ -1,5 +1,5 @@
 const app = getApp()
-const { request } = require("../../../api/request")
+const { request, resolveAssetUrl } = require("../../../api/request")
 
 const REPORT_REASONS = ["疑似欺诈", "违规内容", "虚假信息", "侵权内容", "其他原因"]
 
@@ -15,8 +15,15 @@ function parseImages(images) {
 }
 
 function statusText(status) {
-  const map = { 1: "在售", 2: "已售", 3: "下架" }
-  return map[Number(status)] || "未知"
+  return ({ 0: "待审核未发布", 1: "在售", 2: "已售", 3: "下架", 4: "审核未通过" })[Number(status)] || "未知"
+}
+
+function imageAuditText(item) {
+  if (!item) return ""
+  if (Number(item.status) === 4) return "图片审核未通过，请重新上传商品图片"
+  if (Number(item.status) === 0 || item.imageRiskLevel === "HIGH" || item.imageAuditStatus === "MANUAL_REVIEW") return "图片待审核，商品暂未发布"
+  if (item.imageAuditStatus === "SUSPICIOUS") return "图片存疑，物业可能会复核"
+  return ""
 }
 
 function formatTime(value) {
@@ -26,14 +33,7 @@ function formatTime(value) {
 }
 
 Page({
-  data: {
-    id: null,
-    loading: false,
-    actionLoading: false,
-    item: null,
-    favorited: false,
-    isOwner: false
-  },
+  data: { id: null, loading: false, actionLoading: false, item: null, favorited: false, isOwner: false },
 
   onLoad(options) {
     this.setData({ id: Number(options?.id || 0) || null })
@@ -47,13 +47,10 @@ Page({
     if (!this.data.id) return
     this.setData({ loading: true })
     try {
-      const data = await request({
-        url: `/neighbor/second-hand/${this.data.id}`,
-        skipAuth: true
-      })
+      const data = await request({ url: `/neighbor/second-hand/${this.data.id}`, skipAuth: true })
       const item = data?.item || null
       if (!item) throw new Error("商品不存在")
-      const images = parseImages(item.images)
+      const images = parseImages(item.images).map((url) => resolveAssetUrl(url)).filter(Boolean)
       const price = Number(item.price || 0)
       const uid = Number(app.globalData.userInfo?.id || 0)
       this.setData({
@@ -61,6 +58,7 @@ Page({
           ...item,
           images,
           statusText: statusText(item.status),
+          imageAuditText: imageAuditText(item),
           priceText: price > 0 ? `¥${price.toFixed(2)}` : "面议",
           timeText: formatTime(item.updateTime || item.createTime)
         },
@@ -82,12 +80,7 @@ Page({
   },
 
   onContact() {
-    const contact = this.data.item?.contact || "暂无联系方式"
-    wx.showModal({
-      title: "联系卖家",
-      content: String(contact),
-      showCancel: false
-    })
+    wx.showModal({ title: "联系卖家", content: String(this.data.item?.contact || "暂无联系方式"), showCancel: false })
   },
 
   async onToggleFavorite() {
@@ -96,15 +89,9 @@ Page({
     this.setData({ actionLoading: true })
     try {
       const favorited = this.data.favorited
-      await request({
-        url: `/neighbor/second-hand/${this.data.id}/favorite`,
-        method: favorited ? "DELETE" : "POST"
-      })
+      await request({ url: `/neighbor/second-hand/${this.data.id}/favorite`, method: favorited ? "DELETE" : "POST" })
       this.setData({ favorited: !favorited })
-      wx.showToast({
-        title: favorited ? "已取消收藏" : "收藏成功",
-        icon: "success"
-      })
+      wx.showToast({ title: favorited ? "已取消收藏" : "收藏成功", icon: "success" })
     } catch (error) {
       wx.showToast({ title: error?.message || "操作失败", icon: "none" })
     } finally {
@@ -119,8 +106,7 @@ Page({
       itemList: REPORT_REASONS,
       success: ({ tapIndex }) => {
         const reason = REPORT_REASONS[tapIndex]
-        if (!reason) return
-        this.submitReport(reason)
+        if (reason) this.submitReport(reason)
       }
     })
   },
@@ -128,17 +114,18 @@ Page({
   async submitReport(reason) {
     this.setData({ actionLoading: true })
     try {
-      await request({
-        url: `/neighbor/second-hand/${this.data.id}/report`,
-        method: "POST",
-        data: { reason }
-      })
+      await request({ url: `/neighbor/second-hand/${this.data.id}/report`, method: "POST", data: { reason } })
       wx.showToast({ title: "举报已提交", icon: "success" })
     } catch (error) {
       wx.showToast({ title: error?.message || "举报失败", icon: "none" })
     } finally {
       this.setData({ actionLoading: false })
     }
+  },
+
+  onEdit() {
+    if (!this.data.id) return
+    wx.navigateTo({ url: `/pages/neighbor/secondhand/publish?id=${this.data.id}` })
   },
 
   onMarkSold() {
@@ -156,8 +143,7 @@ Page({
       title,
       content: "确认继续？",
       success: ({ confirm }) => {
-        if (!confirm) return
-        this.doChangeStatus(action)
+        if (confirm) this.doChangeStatus(action)
       }
     })
   },
@@ -165,10 +151,7 @@ Page({
   async doChangeStatus(action) {
     this.setData({ actionLoading: true })
     try {
-      await request({
-        url: `/neighbor/second-hand/${this.data.id}/${action}`,
-        method: "POST"
-      })
+      await request({ url: `/neighbor/second-hand/${this.data.id}/${action}`, method: "POST" })
       wx.showToast({ title: "操作成功", icon: "success" })
       await this.loadDetail()
     } catch (error) {
@@ -185,8 +168,7 @@ Page({
       title: "删除商品",
       content: "删除后不可恢复，确认删除？",
       success: ({ confirm }) => {
-        if (!confirm) return
-        this.deleteItem()
+        if (confirm) this.deleteItem()
       }
     })
   },
@@ -194,10 +176,7 @@ Page({
   async deleteItem() {
     this.setData({ actionLoading: true })
     try {
-      await request({
-        url: `/neighbor/second-hand/${this.data.id}`,
-        method: "DELETE"
-      })
+      await request({ url: `/neighbor/second-hand/${this.data.id}`, method: "DELETE" })
       wx.showToast({ title: "已删除", icon: "success" })
       setTimeout(() => wx.navigateBack({ delta: 1 }), 350)
     } catch (error) {

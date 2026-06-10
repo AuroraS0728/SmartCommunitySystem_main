@@ -1,9 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">附加服务</view>
-    <view class="hero-desc">
-      {{ guestMode ? "登录后可根据您的家庭画像查看推荐附加服务" : "基于家庭画像，为您推荐可直接预约的附加服务" }}
-    </view>
   </view>
 
   <view class="item points-card">
@@ -11,7 +8,6 @@
       <view class="item-title">当前可用积分</view>
       <view class="points-value">{{ points }}</view>
     </view>
-    <view class="item-desc">附加服务支持积分直接购买，提交预约后由物业跟进安排。</view>
     <view class="link" bindtap="openPointsDetail">查看积分明细 ></view>
   </view>
 
@@ -76,7 +72,6 @@
   <view id="additional-service-section" class="group-title">可预约附加服务</view>
   <view wx:if="{{guestMode}}" class="item empty-card">
     <view class="item-title">请先登录</view>
-    <view class="item-desc">登录后可按家庭画像查看推荐服务，并使用积分预约购买。</view>
   </view>
 
   <block wx:elif="{{services.length > 0}}">
@@ -146,7 +141,6 @@
 
   <view wx:else class="item empty-card">
     <view class="item-title">暂无可推荐服务</view>
-    <view class="item-desc">当前还没有命中您的画像服务，后续会根据活动、报修和家庭画像持续更新。</view>
   </view>
 
   <view class="group-title">最近预约</view>
@@ -161,6 +155,6 @@
     </view>
   </view>
   <view wx:else class="item empty-card compact-empty">
-    <view class="item-desc">暂时还没有附加服务预约记录。</view>
+    <view class="item-title">暂无预约记录</view>
   </view>
 </view>

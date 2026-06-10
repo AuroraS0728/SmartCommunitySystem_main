@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">报修 / 家政提交</view>
-    <view class="hero-desc">选择服务内容与上门时间段，灰色时段表示暂无可用人员。</view>
   </view>
 
   <view class="item">

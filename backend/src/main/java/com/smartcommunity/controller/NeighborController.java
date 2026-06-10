@@ -46,7 +46,7 @@ public class NeighborController {
 
     @GetMapping("/second-hand/{id}")
     public Result<Map<String, Object>> secondHandDetail(@PathVariable Long id) {
-        return Result.success(neighborService.secondHandDetail(id, AuthContext.getUserId()));
+        return Result.success(neighborService.secondHandDetail(id, AuthContext.getUserId(), AuthContext.getRole()));
     }
 
     @PostMapping("/second-hand/publish")
@@ -98,6 +98,18 @@ public class NeighborController {
                                                          @RequestParam(required = false) Integer status) {
         if (!isAdmin()) return Result.fail(StatusCode.FORBIDDEN, "forbidden");
         return Result.success(neighborService.pageSecondHandReports(page, size, status, AuthContext.getRole()));
+    }
+
+    @PostMapping("/admin/second-hand/{id}/image-audit/approve")
+    public Result<SecondHand> approveSecondHandImageAudit(@PathVariable Long id) {
+        if (!isAdmin()) return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+        return Result.success(neighborService.reviewSecondHandImageAudit(id, AuthContext.getRole(), true));
+    }
+
+    @PostMapping("/admin/second-hand/{id}/image-audit/reject")
+    public Result<SecondHand> rejectSecondHandImageAudit(@PathVariable Long id) {
+        if (!isAdmin()) return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+        return Result.success(neighborService.reviewSecondHandImageAudit(id, AuthContext.getRole(), false));
     }
 
     @GetMapping("/lost-found/list")

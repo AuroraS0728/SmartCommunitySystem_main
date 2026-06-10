@@ -33,35 +33,13 @@
       <div class="panel-header">
         <div>
           <h3>报修管理</h3>
-          <span class="hint">工单列表、智能优先级、推荐维修员、派单和状态流转统一在此处理</span>
         </div>
       </div>
 
       <el-skeleton v-if="loading && !rows.length" :rows="5" animated />
 
-      <div v-else-if="rows.length" class="work-order-preview">
-        <article
-          v-for="(row, index) in rows.slice(0, 4)"
-          :key="row.id"
-          class="work-order-card card fade-list-item"
-          :style="{ animationDelay: `${index * 0.05}s` }"
-          @click="openDetail(row.id)"
-        >
-          <div class="work-order-top">
-            <span class="order-id">#{{ row.id }}</span>
-            <el-tag :type="priorityMeta(row.priority).type">{{ row.priorityText || priorityMeta(row.priority).text }}</el-tag>
-          </div>
-          <div class="order-title">{{ row.category || '维修工单' }}</div>
-          <p>{{ row.description || '暂无问题描述' }}</p>
-          <div class="order-meta">
-            <span>{{ row.ownerName || '未知业主' }}</span>
-            <span>{{ row.suggestedWorkerName || '待推荐维修员' }}</span>
-            <span>{{ formatTime(row.slaDeadline) }}</span>
-          </div>
-        </article>
-      </div>
-
       <el-table
+        v-else
         :data="rows"
         stripe
         v-loading="loading && rows.length > 0"
@@ -69,11 +47,26 @@
       >
         <el-table-column prop="id" label="工单ID" width="88" />
         <el-table-column prop="ownerName" label="业主" min-width="120" />
-        <el-table-column prop="category" label="类型" min-width="110" />
-        <el-table-column prop="description" label="问题描述" min-width="240" show-overflow-tooltip />
+        <el-table-column label="类型" min-width="120">
+          <template #default="{ row }">{{ displayCategory(row) }}</template>
+        </el-table-column>
+        <el-table-column label="问题描述" min-width="240" show-overflow-tooltip>
+          <template #default="{ row }">{{ displayDescription(row.description) }}</template>
+        </el-table-column>
         <el-table-column label="优先级" width="112">
           <template #default="{ row }">
-            <el-tag :type="priorityMeta(row.priority).type">{{ row.priorityText || priorityMeta(row.priority).text }}</el-tag>
+            <el-dropdown trigger="click" @command="(value) => changePriority(row, value)">
+              <el-tag class="priority-tag" :type="priorityMeta(row.priority).type">
+                {{ row.priorityText || priorityMeta(row.priority).text }}
+              </el-tag>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :command="1">紧急</el-dropdown-item>
+                  <el-dropdown-item :command="2">普通</el-dropdown-item>
+                  <el-dropdown-item :command="3">低</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
         <el-table-column label="推荐维修员" min-width="140">
@@ -130,7 +123,7 @@
             <el-option
               v-for="worker in workers"
               :key="worker.id"
-              :label="worker.nickname || worker.account"
+              :label="workerOptionLabel(worker)"
               :value="worker.id"
             />
           </el-select>
@@ -152,13 +145,13 @@
           <el-descriptions :column="2" border>
             <el-descriptions-item label="工单ID">{{ detail.id }}</el-descriptions-item>
             <el-descriptions-item label="业主">{{ detail.ownerName }}</el-descriptions-item>
-            <el-descriptions-item label="主类">{{ detail.serviceMajor || '--' }}</el-descriptions-item>
+            <el-descriptions-item label="类型">{{ displayCategory(detail) }}</el-descriptions-item>
             <el-descriptions-item label="子类">{{ detail.serviceSubType || '--' }}</el-descriptions-item>
             <el-descriptions-item label="状态">{{ detail.statusText }}</el-descriptions-item>
             <el-descriptions-item label="优先级">{{ detail.priorityText }}</el-descriptions-item>
             <el-descriptions-item label="推荐维修员">{{ detail.suggestedWorkerName || '--' }}</el-descriptions-item>
             <el-descriptions-item label="当前负责人">{{ detail.assigneeName || '--' }}</el-descriptions-item>
-            <el-descriptions-item label="描述" :span="2">{{ detail.description || '--' }}</el-descriptions-item>
+            <el-descriptions-item label="描述" :span="2">{{ displayDescription(detail.description) || '--' }}</el-descriptions-item>
           </el-descriptions>
         </section>
 
@@ -203,6 +196,7 @@ import {
   getSmartWorkOrderDetail,
   getSmartWorkOrders,
   scanSmartWorkOrderSla,
+  updateSmartWorkOrderPriority,
   updateSmartWorkOrderStatus
 } from '@/api/smartWorkOrder'
 import { getWorkerList } from '@/api/worker'
@@ -249,6 +243,66 @@ function statusMeta(value) {
 function formatTime(value) {
   if (!value) return '--'
   return String(value).replace('T', ' ').slice(0, 19)
+}
+
+function displayDescription(value) {
+  return String(value || '').replace(/^仪表盘模拟[:：]\s*/, '').trim()
+}
+
+function displayCategory(row) {
+  if (!row) return '--'
+  return row.categoryText || categoryText(row.category) || row.serviceSubType || row.serviceMajor || '维修工单'
+}
+
+function categoryText(value) {
+  const map = {
+    security: '安防门禁',
+    plumbing: '管道疏通',
+    elevator: '电梯设施',
+    public: '公共设施',
+    electrical: '电路照明',
+    electric: '电路照明',
+    appliance: '家电维修',
+    door: '门窗门锁'
+  }
+  const key = String(value || '').trim().toLowerCase()
+  return map[key] || value
+}
+
+function workerOptionLabel(worker) {
+  if (!worker) return '维修员'
+  const aliases = {
+    20: '陈佳',
+    21: '李娜',
+    22: '王静',
+    23: '赵敏',
+    24: '周芳',
+    25: '吴洁',
+    26: '孙宁',
+    27: '郑欣',
+    28: '刘志国',
+    29: '陈建华',
+    30: '王立强',
+    31: '赵明'
+  }
+  const trades = {
+    20: '家政',
+    21: '家政',
+    22: '家电清洗',
+    23: '家电清洗',
+    24: '护理',
+    25: '家政',
+    26: '家政',
+    27: '家政',
+    28: '水工',
+    29: '电工',
+    30: '家电维修',
+    31: '综合维修'
+  }
+  const id = Number(worker.id)
+  const rawName = worker.nickname || worker.account || `维修员${worker.id}`
+  const name = /[\u4e00-\u9fa5]/.test(rawName) ? rawName : aliases[id] || rawName
+  return `${name}-${trades[id] || '维修'}`
 }
 
 async function loadWorkers() {
@@ -339,6 +393,17 @@ async function submitDispatch() {
   }
 }
 
+async function changePriority(row, priority) {
+  if (!row?.id || Number(row.priority) === Number(priority)) return
+  try {
+    await updateSmartWorkOrderPriority(row.id, { priority })
+    ElMessage.success('优先级已更新')
+    await loadData()
+  } catch (error) {
+    ElMessage.error(error?.message || '优先级更新失败')
+  }
+}
+
 async function changeStatus(status) {
   if (!detail.value?.id) return
   statusLoading.value = true
@@ -419,53 +484,8 @@ onMounted(async () => {
   font-size: 13px;
 }
 
-.work-order-preview {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.work-order-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 14px;
-  background: #f8fafc;
-  animation: listFadeIn 0.25s ease both;
+.priority-tag {
   cursor: pointer;
-}
-
-.work-order-top,
-.order-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.order-id {
-  color: #64748b;
-  font-size: 12px;
-}
-
-.order-title {
-  margin-top: 10px;
-  color: #0f172a;
-  font-weight: 700;
-}
-
-.work-order-card p {
-  height: 42px;
-  margin: 8px 0 12px;
-  color: #475569;
-  font-size: 13px;
-  line-height: 1.6;
-  overflow: hidden;
-}
-
-.order-meta {
-  color: #64748b;
-  font-size: 12px;
 }
 
 .sla-cell {
@@ -510,15 +530,4 @@ onMounted(async () => {
   }
 }
 
-@media (max-width: 1400px) {
-  .work-order-preview {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-  .work-order-preview {
-    grid-template-columns: 1fr;
-  }
-}
 </style>

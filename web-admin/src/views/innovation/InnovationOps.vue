@@ -24,9 +24,9 @@
         <el-tab-pane label="投诉分析" name="complaint">
           <div class="toolbar">
             <el-select v-model="complaintRisk" clearable placeholder="风险等级" style="width: 160px" @change="loadComplaints">
-              <el-option label="HIGH" value="HIGH" />
-              <el-option label="MID" value="MID" />
-              <el-option label="LOW" value="LOW" />
+              <el-option label="高风险" value="HIGH" />
+              <el-option label="中风险" value="MID" />
+              <el-option label="低风险" value="LOW" />
             </el-select>
             <el-button type="primary" @click="loadComplaints">刷新</el-button>
           </div>
@@ -36,13 +36,13 @@
             <el-table-column prop="content" label="内容" min-width="260" show-overflow-tooltip />
             <el-table-column label="情感" width="130">
               <template #default="{ row }">
-                <el-tag :type="sentimentType(row.sentimentLabel)">{{ row.sentimentLabel || '--' }}</el-tag>
+                <el-tag :type="sentimentType(row.sentimentLabel)">{{ sentimentText(row.sentimentLabel) }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column prop="sentimentScore" label="分数" width="90" />
             <el-table-column label="风险" width="110">
               <template #default="{ row }">
-                <el-tag :type="riskType(row.riskLevel)">{{ row.riskLevel || '--' }}</el-tag>
+                <el-tag :type="riskType(row.riskLevel)">{{ riskText(row.riskLevel) }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column prop="analyzedAt" label="分析时间" min-width="170" />
@@ -261,10 +261,28 @@ function sentimentType(label) {
   return 'info'
 }
 
+function sentimentText(label) {
+  const map = {
+    POSITIVE: '正向',
+    NEGATIVE: '负向',
+    NEUTRAL: '中性'
+  }
+  return map[label] || '未分析'
+}
+
 function riskType(level) {
   if (level === 'HIGH') return 'danger'
   if (level === 'MID') return 'warning'
   return 'success'
+}
+
+function riskText(level) {
+  const map = {
+    HIGH: '高风险',
+    MID: '中风险',
+    LOW: '低风险'
+  }
+  return map[level] || '未分析'
 }
 
 function priorityText(priority) {
@@ -350,8 +368,8 @@ async function submitCredit() {
 }
 
 async function loadReminders() {
-  const res = await getPaymentReminders()
-  reminders.value = Array.isArray(res.data) ? res.data : []
+  const res = await getPaymentReminders({ pageNum: 1, pageSize: 100 })
+  reminders.value = Array.isArray(res.data?.records) ? res.data.records : Array.isArray(res.data) ? res.data : []
 }
 
 async function generateReminders() {
@@ -373,8 +391,8 @@ async function removeReminder(row) {
 }
 
 async function loadTasks() {
-  const res = await getPropertyTasks()
-  tasks.value = Array.isArray(res.data) ? res.data : []
+  const res = await getPropertyTasks({ pageNum: 1, pageSize: 100 })
+  tasks.value = Array.isArray(res.data?.records) ? res.data.records : Array.isArray(res.data) ? res.data : []
 }
 
 async function loadWorkers() {

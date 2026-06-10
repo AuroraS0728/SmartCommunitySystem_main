@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">活动专区</view>
-    <view class="hero-desc">社区活动、邻里互动与报名入口</view>
   </view>
 
   <scroll-view scroll-x class="tab-strip">

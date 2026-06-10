@@ -13,6 +13,8 @@ public class SeetaFaceProperties {
     private String recognizerModelPath;
     private String landmarkerModelPath;
     private double similarityThreshold = 0.7d;
+    private boolean enableLivenessCheck = false;
+    private boolean skipAntiSpoofingLibrary = true;
     private boolean enableMaskCheck = true;
     private boolean requireNoMask = true;
     private boolean enableEyeStateCheck = true;

@@ -5,7 +5,6 @@
         <div class="brand-logo">智</div>
         <div class="brand-text">
           <p class="brand-title">智慧社区管理</p>
-          <p class="brand-subtitle">Smart Community System</p>
         </div>
       </div>
 
@@ -37,7 +36,6 @@
       <header class="shell-header">
         <div>
           <h1>{{ pageTitle }}</h1>
-          <p class="header-subtitle">{{ pageSubtitle }}</p>
         </div>
         <div class="header-right">
           <span class="time-text">{{ currentTime }}</span>
@@ -69,6 +67,7 @@ const menuGroups = [
   {
     title: '核心业务',
     items: [
+      { label: '图片审核', path: '/neighbor/image-audit' },
       { label: '数据看板', path: '/dashboard' },
       { label: '住户信息管理', path: '/house/archive' },
       { label: '报修管理', path: '/repair/smart' },
@@ -82,6 +81,7 @@ const menuGroups = [
     items: [
       { label: '公告管理', path: '/notice/manage' },
       { label: '访客管理', path: '/visitor/record' },
+      { label: '附加服务管理', path: '/service/additional' },
       { label: '维修人员管理', path: '/worker/manage' },
       { label: '快递管理', path: '/express/manage' },
       { label: '设施管理', path: '/facility/manage' },
@@ -102,7 +102,6 @@ const menuGroups = [
 ]
 
 const pageTitle = computed(() => route.meta.title || '智慧社区管理系统')
-const pageSubtitle = computed(() => route.meta.subtitle || '统一管理社区资产、服务与运营数据')
 
 const username = computed(() => userStore.userInfo?.nickname || userStore.userInfo?.name || '系统管理员')
 const roleText = computed(() => userStore.userInfo?.roleName || '管理员')
@@ -178,12 +177,6 @@ onBeforeUnmount(() => {
   margin: 0;
   color: #fff;
   font-weight: 700;
-}
-
-.brand-subtitle {
-  margin: 3px 0 0;
-  color: #64748b;
-  font-size: 12px;
 }
 
 .menu {
@@ -275,12 +268,6 @@ onBeforeUnmount(() => {
   margin: 0;
   color: #0f172a;
   font-size: 20px;
-}
-
-.header-subtitle {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 13px;
 }
 
 .header-right {

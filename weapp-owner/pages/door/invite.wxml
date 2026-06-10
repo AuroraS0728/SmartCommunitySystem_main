@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">访客邀请闭环</view>
-    <view class="hero-desc">提交邀请、生成口令、门禁核验、到访通知一条线完成。</view>
   </view>
 
   <view class="item">

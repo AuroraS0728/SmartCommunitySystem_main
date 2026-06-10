@@ -3,6 +3,7 @@ package com.smartcommunity.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartcommunity.common.StatusCode;
 import com.smartcommunity.dto.request.AdditionalServiceOrderCreateReq;
 import com.smartcommunity.dto.response.AdditionalServiceOrderVO;
 import com.smartcommunity.dto.response.ServiceRecommendation;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -148,6 +150,57 @@ public class AdditionalServiceOrderService {
                 .toList();
     }
 
+    public List<AdditionalServiceOrderVO> listAdminOrders(Integer status, String keyword, Integer limit) {
+        int size = limit == null || limit <= 0 ? 200 : Math.min(limit, 500);
+        LambdaQueryWrapper<AdditionalServiceOrder> wrapper = new LambdaQueryWrapper<AdditionalServiceOrder>()
+                .eq(AdditionalServiceOrder::getIsDeleted, 0)
+                .eq(status != null, AdditionalServiceOrder::getStatus, status)
+                .and(StringUtils.hasText(keyword), w -> w
+                        .like(AdditionalServiceOrder::getServiceName, keyword.trim())
+                        .or()
+                        .like(AdditionalServiceOrder::getContactName, keyword.trim())
+                        .or()
+                        .like(AdditionalServiceOrder::getContactPhone, keyword.trim())
+                        .or()
+                        .like(AdditionalServiceOrder::getRemark, keyword.trim()))
+                .orderByAsc(AdditionalServiceOrder::getStatus)
+                .orderByDesc(AdditionalServiceOrder::getCreateTime)
+                .last("limit " + size);
+        return additionalServiceOrderMapper.selectList(wrapper).stream().map(this::toVO).toList();
+    }
+
+    public Map<String, Object> adminSummary() {
+        List<AdditionalServiceOrder> rows = additionalServiceOrderMapper.selectList(new LambdaQueryWrapper<AdditionalServiceOrder>()
+                .eq(AdditionalServiceOrder::getIsDeleted, 0));
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("total", rows.size());
+        summary.put("reserved", rows.stream().filter(row -> Integer.valueOf(1).equals(row.getStatus())).count());
+        summary.put("accepted", rows.stream().filter(row -> Integer.valueOf(2).equals(row.getStatus())).count());
+        summary.put("completed", rows.stream().filter(row -> Integer.valueOf(3).equals(row.getStatus())).count());
+        summary.put("cancelled", rows.stream().filter(row -> Integer.valueOf(4).equals(row.getStatus())).count());
+        summary.put("pointsCost", rows.stream().mapToInt(row -> row.getPointsCost() == null ? 0 : row.getPointsCost()).sum());
+        return summary;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public AdditionalServiceOrderVO updateStatus(Long id, Integer status) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("order id is invalid");
+        }
+        if (status == null || status < 1 || status > 4) {
+            throw new IllegalArgumentException("status must be 1-4");
+        }
+        AdditionalServiceOrder order = additionalServiceOrderMapper.selectById(id);
+        if (order == null || Integer.valueOf(1).equals(order.getIsDeleted())) {
+            throw new IllegalArgumentException("additional service order not found");
+        }
+        order.setStatus(status);
+        order.setUpdateTime(LocalDateTime.now());
+        additionalServiceOrderMapper.updateById(order);
+        notifyOwnerStatusChanged(order);
+        return toVO(order);
+    }
+
     private List<RecommendRule> activeRules() {
         return recommendRuleMapper.selectList(new LambdaQueryWrapper<RecommendRule>()
                 .eq(RecommendRule::getIsDeleted, 0)
@@ -255,15 +308,30 @@ public class AdditionalServiceOrderService {
         }
     }
 
+    private void notifyOwnerStatusChanged(AdditionalServiceOrder order) {
+        SysMessage message = new SysMessage();
+        message.setUserId(order.getUserId());
+        message.setTitle("附加服务状态更新");
+        message.setContent("您预约的 " + order.getServiceName() + " 已更新为：" + statusText(order.getStatus()));
+        message.setIsRead(0);
+        message.setCreateTime(LocalDateTime.now());
+        message.setUpdateTime(message.getCreateTime());
+        message.setIsDeleted(0);
+        sysMessageMapper.insert(message);
+    }
+
     private AdditionalServiceOrderVO toVO(AdditionalServiceOrder order) {
         AdditionalServiceOrderVO vo = new AdditionalServiceOrderVO();
         vo.setId(order.getId());
+        vo.setUserId(order.getUserId());
         vo.setServiceId(order.getServiceId());
         vo.setServiceName(order.getServiceName());
         vo.setPrice(order.getPrice());
         vo.setPointsCost(order.getPointsCost());
         vo.setAppointmentDate(order.getAppointmentDate());
         vo.setAppointmentTimeSlot(order.getAppointmentTimeSlot());
+        vo.setContactName(order.getContactName());
+        vo.setContactPhone(order.getContactPhone());
         vo.setRemark(order.getRemark());
         vo.setStatus(order.getStatus());
         vo.setStatusText(statusText(order.getStatus()));

@@ -56,6 +56,7 @@ public final class SentimentAnalyzer {
         }
         try {
             String normalized = text.trim();
+            // 紧急词直接判高风险，避免被普通情绪分数稀释。
             if (containsAny(normalized, EMERGENCY_KEYWORDS)) {
                 return new SentimentResult(-5.0D, LABEL_NEGATIVE, RISK_HIGH);
             }
@@ -69,6 +70,7 @@ public final class SentimentAnalyzer {
             int polarity = 1;
             double degreeWeight = 1D;
 
+            // 情感分数 = 情绪词基础分 * 否定词极性 * 程度副词权重。
             for (String word : words) {
                 if (!StringUtils.hasText(word)) {
                     continue;

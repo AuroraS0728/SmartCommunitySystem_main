@@ -64,6 +64,14 @@
         <div class="panel-header">
           <h4>收缴结构统计</h4>
         </div>
+        <div class="segment-bar" aria-label="收缴结构比例">
+          <span
+            v-for="item in visibleFeeSegments"
+            :key="item.name"
+            :style="{ width: `${item.percent}%`, backgroundColor: item.color }"
+            :title="`${item.name} ${item.percent}%`"
+          ></span>
+        </div>
         <div class="segment-list">
           <div v-for="item in feeSegments" :key="item.name" class="segment-item">
             <div class="segment-left">
@@ -205,6 +213,11 @@ const feeSegments = computed(() => {
     { name: '逾期未缴', percent: 0, color: '#f59e0b' }
   ]
 })
+const visibleFeeSegments = computed(() => {
+  const positive = feeSegments.value.filter((item) => Number(item.percent) > 0)
+  if (positive.length) return positive
+  return [{ name: '暂无数据', percent: 100, color: '#e2e8f0' }]
+})
 const notices = computed(() => (Array.isArray(overview.value.notices) ? overview.value.notices : []))
 const liveActivities = computed(() => {
   const list = overview.value.liveActivities
@@ -332,6 +345,7 @@ onMounted(loadOverview)
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+  align-items: start;
 }
 
 .panel {
@@ -385,6 +399,20 @@ onMounted(loadOverview)
 .segment-list {
   display: grid;
   gap: 12px;
+}
+
+.segment-bar {
+  display: flex;
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.segment-bar span {
+  min-width: 2px;
 }
 
 .segment-item,

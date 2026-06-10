@@ -52,6 +52,7 @@ public class CreditServiceImpl implements CreditService {
                 }
 
                 int beforeScore = normalizeScore(user.getCreditScore());
+                // 信用分统一限制在0到200之间，防止人工调整或自动加分导致越界。
                 int afterScore = clamp(beforeScore + delta);
                 LocalDateTime now = LocalDateTime.now();
 

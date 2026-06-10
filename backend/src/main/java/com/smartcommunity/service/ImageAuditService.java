@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -119,6 +120,7 @@ public class ImageAuditService {
         if (fakeProbability == null || !Double.isFinite(fakeProbability)) {
             return AUDIT_MANUAL_REVIEW;
         }
+        // AI图片审核模型返回fake概率，后端再按阈值转成业务审核状态。
         if (fakeProbability >= properties.getReviewThreshold()) {
             return AUDIT_MANUAL_REVIEW;
         }
@@ -144,6 +146,7 @@ public class ImageAuditService {
     private ImageAuditResult detectImage(Long tradeId, String imageUrl) {
         try {
             ImagePayload payload = loadImage(imageUrl);
+            // AI模型接入点：Spring Boot通过HTTP把图片传给Python FastAPI模型服务。
             ImageAuditModelResp modelResp = imageAuditClient.detect(payload.bytes(), payload.filename());
             Double fakeProbability = modelResp == null ? null : modelResp.getFakeProbability();
             ImageAuditResult result = baseResult(tradeId, imageUrl);
@@ -178,6 +181,17 @@ public class ImageAuditService {
         }
         String trimmed = imageUrl.trim();
         String lower = trimmed.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("data:image/")) {
+            int comma = trimmed.indexOf(',');
+            if (comma <= 0) {
+                throw new IllegalArgumentException("invalid data image url");
+            }
+            byte[] bytes = Base64.getDecoder().decode(trimmed.substring(comma + 1));
+            if (bytes.length == 0) {
+                throw new IllegalArgumentException("image bytes is empty");
+            }
+            return new ImagePayload(bytes, filenameFromDataUrl(lower));
+        }
         if (lower.startsWith("http://") || lower.startsWith("https://")) {
             ResponseEntity<byte[]> response = downloadRestTemplate.getForEntity(URI.create(trimmed), byte[].class);
             byte[] bytes = response.getBody();
@@ -283,6 +297,19 @@ public class ImageAuditService {
             return "image.jpg";
         }
         return URLDecoder.decode(name, StandardCharsets.UTF_8);
+    }
+
+    private String filenameFromDataUrl(String dataUrl) {
+        if (dataUrl.startsWith("data:image/png")) {
+            return "image.png";
+        }
+        if (dataUrl.startsWith("data:image/webp")) {
+            return "image.webp";
+        }
+        if (dataUrl.startsWith("data:image/gif")) {
+            return "image.gif";
+        }
+        return "image.jpg";
     }
 
     private String stripQuery(String value) {

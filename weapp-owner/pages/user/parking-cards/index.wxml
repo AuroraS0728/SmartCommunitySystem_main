@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">停车月卡</view>
-    <view class="hero-desc">按车牌查看月卡到期时间、剩余天数与代缴费用</view>
   </view>
 
   <view wx:if="{{!cards.length}}" class="empty">暂无停车月卡记录</view>

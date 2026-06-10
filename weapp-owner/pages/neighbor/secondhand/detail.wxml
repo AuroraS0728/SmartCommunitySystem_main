@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">商品详情</view>
-    <view class="hero-desc">查看商品信息、联系卖家与交易状态</view>
   </view>
 
   <view wx:if="{{loading}}" class="meta">加载中...</view>
@@ -20,6 +19,7 @@
           <view class="goods-title">{{item.title}}</view>
           <view class="status-tag">{{item.statusText}}</view>
         </view>
+        <view wx:if="{{item.imageAuditText}}" class="audit-notice">{{item.imageAuditText}}</view>
         <view class="goods-price">{{item.priceText}}</view>
         <view class="goods-desc">{{item.description || "暂无描述"}}</view>
         <view class="goods-meta">分类：{{item.category || "other"}} · 浏览：{{item.viewCount || 0}}</view>
@@ -42,6 +42,7 @@
     <view wx:if="{{isOwner}}" class="item">
       <view class="field-label">我的管理操作</view>
       <view class="action-row">
+        <view class="small-btn primary" bindtap="onEdit">{{item.status == 4 ? "重新上传" : "编辑"}}</view>
         <view class="small-btn primary" bindtap="onMarkSold">标记已售</view>
         <view class="small-btn" bindtap="onOffline">下架</view>
         <view class="small-btn danger" bindtap="onDelete">删除</view>

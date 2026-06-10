@@ -30,6 +30,8 @@ public class PaymentReminderAdminController {
                                                  @RequestParam(defaultValue = "10") int pageSize,
                                                  @RequestParam(required = false) Long userId,
                                                  @RequestParam(required = false) Long feeBillId,
+                                                 @RequestParam(required = false) Integer businessType,
+                                                 @RequestParam(required = false) Long businessId,
                                                  @RequestParam(required = false) String method,
                                                  @RequestParam(required = false) Integer status) {
         if (!isAdmin()) {
@@ -39,11 +41,11 @@ public class PaymentReminderAdminController {
         int safePageSize = Math.min(Math.max(pageSize, 1), 100);
         int offset = (safePageNum - 1) * safePageSize;
 
-        LambdaQueryWrapper<PaymentReminder> base = buildWrapper(userId, feeBillId, method, status);
+        LambdaQueryWrapper<PaymentReminder> base = buildWrapper(userId, feeBillId, businessType, businessId, method, status);
         Long total = paymentReminderMapper.selectCount(base);
         List<PaymentReminder> records = List.of();
         if (total != null && total > 0) {
-            records = paymentReminderMapper.selectList(buildWrapper(userId, feeBillId, method, status)
+            records = paymentReminderMapper.selectList(buildWrapper(userId, feeBillId, businessType, businessId, method, status)
                     .orderByDesc(PaymentReminder::getId)
                     .last("LIMIT " + offset + "," + safePageSize));
         }
@@ -64,7 +66,8 @@ public class PaymentReminderAdminController {
         return Result.success(paymentReminderService.generateRemindersNow());
     }
 
-    private LambdaQueryWrapper<PaymentReminder> buildWrapper(Long userId, Long feeBillId, String method, Integer status) {
+    private LambdaQueryWrapper<PaymentReminder> buildWrapper(Long userId, Long feeBillId, Integer businessType,
+                                                             Long businessId, String method, Integer status) {
         LambdaQueryWrapper<PaymentReminder> wrapper = new LambdaQueryWrapper<PaymentReminder>()
                 .eq(PaymentReminder::getIsDeleted, 0);
         if (userId != null) {
@@ -72,6 +75,12 @@ public class PaymentReminderAdminController {
         }
         if (feeBillId != null) {
             wrapper.eq(PaymentReminder::getFeeBillId, feeBillId);
+        }
+        if (businessType != null) {
+            wrapper.eq(PaymentReminder::getBusinessType, businessType);
+        }
+        if (businessId != null) {
+            wrapper.eq(PaymentReminder::getBusinessId, businessId);
         }
         if (method != null && !method.isBlank()) {
             wrapper.eq(PaymentReminder::getMethod, method.trim());

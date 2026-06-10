@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">快递管理</view>
-    <view class="hero-desc">查看物业代收快递，并在取件后完成确认。</view>
   </view>
 
   <view wx:if="{{!packages.length && !loading}}" class="empty">暂无快递记录</view>

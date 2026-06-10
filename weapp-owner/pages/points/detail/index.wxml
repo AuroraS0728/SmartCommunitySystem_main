@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">积分明细</view>
-    <view class="hero-desc">当前可用积分：{{ points }}</view>
   </view>
 
   <view wx:if="{{!records.length}}" class="empty">暂无积分流水</view>
