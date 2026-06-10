@@ -3,6 +3,7 @@ package com.smartcommunity.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.smartcommunity.common.AuthContext;
 import com.smartcommunity.common.Result;
+import com.smartcommunity.common.RoleUtils;
 import com.smartcommunity.common.StatusCode;
 import com.smartcommunity.dto.request.FeeAnnualDiscountReq;
 import com.smartcommunity.dto.request.FeeWechatPayReq;
@@ -242,6 +243,12 @@ public class FeeController {
 
     @PostMapping("/bill")
     public Result<FeeBill> createBill(@RequestBody FeeBill bill) {
+        if (!isPropertyAdmin()) {
+            return Result.fail(StatusCode.FORBIDDEN, "only admin can create bill");
+        }
+        if (bill == null) {
+            return Result.fail(StatusCode.BAD_REQUEST, "bill body is required");
+        }
         fillFeeBillByRules(bill);
         bill.setNeedPoints(toNeedPoints(bill.getAmount()));
         bill.setCreateTime(LocalDateTime.now());
@@ -259,6 +266,12 @@ public class FeeController {
 
     @PutMapping("/bill/{id}")
     public Result<FeeBill> updateBill(@PathVariable Long id, @RequestBody FeeBill req) {
+        if (!isPropertyAdmin()) {
+            return Result.fail(StatusCode.FORBIDDEN, "only admin can update bill");
+        }
+        if (req == null) {
+            return Result.fail(StatusCode.BAD_REQUEST, "bill body is required");
+        }
         FeeBill bill = feeBillMapper.selectById(id);
         if (bill == null) {
             return Result.fail("bill not found");
@@ -283,6 +296,9 @@ public class FeeController {
 
     @DeleteMapping("/bill/{id}")
     public Result<Void> deleteBill(@PathVariable Long id) {
+        if (!isPropertyAdmin()) {
+            return Result.fail(StatusCode.FORBIDDEN, "only admin can delete bill");
+        }
         feeBillMapper.deleteById(id);
         return Result.success("deleted", null);
     }
@@ -296,6 +312,7 @@ public class FeeController {
         if (role != 2) {
             return Result.fail(StatusCode.FORBIDDEN, "only admin can generate bills");
         }
+        // 管理端手动生成某个月的物业费账单，propertyId为空时表示给全部房产生成。
         return Result.success(feeBillingService.generateBillsForPeriod(req.getBillPeriod(), req.getPropertyId()));
     }
 
@@ -308,11 +325,13 @@ public class FeeController {
         if (role != 2) {
             return Result.fail(StatusCode.FORBIDDEN, "only admin can apply annual discount");
         }
+        // 年缴优惠入口：从startPeriod开始生成12个月账单，并对第12个月做减免。
         return Result.success(feeBillingService.applyAnnualDiscount(req.getPropertyId(), req.getStartPeriod()));
     }
 
     @GetMapping("/collection-rate")
     public Result<Map<String, Object>> collectionRate(@RequestParam(required = false) String billPeriod) {
+        // 给后台统计卡片使用，billPeriod为空时统计全部账单。
         return Result.success(feeBillingService.collectionRate(billPeriod));
     }
 
@@ -366,6 +385,10 @@ public class FeeController {
             return 0;
         }
         return amount.setScale(0, RoundingMode.UP).intValue();
+    }
+
+    private boolean isPropertyAdmin() {
+        return RoleUtils.isPropertyAdmin(AuthContext.getRole());
     }
 
     private void fillFeeBillByRules(FeeBill bill) {

@@ -86,9 +86,12 @@ public class RecommendRuleService {
         }
         long waterElectricRepairCount = countWaterElectricRepairs(userId);
         List<String> keywords = implicitProfileService.getKeywords(userId);
+        // 把用户画像、历史报修次数、隐式关键词统一整理成规则上下文，后面表达式都从这里取值。
         RuleContext context = buildContext(user, waterElectricRepairCount, keywords);
         Map<String, ServiceRecommendation> matched = new LinkedHashMap<>();
 
+        // 后续如果要新增推荐规则，优先改数据库中的recommend_rule记录，
+        // 不建议在这里写死具体服务，这样后台规则管理才能继续生效。
         for (RecommendRule rule : activeRules()) {
             JsonNode condition = parseCondition(rule.getConditionJson());
             if (popupOnly && !booleanCondition(condition, "popupEnabled", true)) {
@@ -162,6 +165,7 @@ public class RecommendRuleService {
     }
 
     private long countWaterElectricRepairs(Long userId) {
+        // 近似统计用户对水电/家电维修的需求频率，用于推荐水电保养套餐。
         Long count = repairOrderMapper.selectCount(new LambdaQueryWrapper<RepairOrder>()
                 .eq(RepairOrder::getUserId, userId)
                 .eq(RepairOrder::getIsDeleted, 0)
@@ -174,6 +178,7 @@ public class RecommendRuleService {
 
     private RuleContext buildContext(User user, long waterElectricRepairCount, List<String> keywords) {
         Map<String, Object> values = new HashMap<>();
+        // 同时放驼峰和下划线两种字段名，方便后台规则表达式用不同写法。
         values.put(normalizeKey("hasElderly"), truthy(user.getHasElderly()));
         values.put(normalizeKey("has_elderly"), truthy(user.getHasElderly()));
         values.put(normalizeKey("hasChild"), truthy(user.getHasChild()));
@@ -229,6 +234,7 @@ public class RecommendRuleService {
                 .replace("or", "||")
                 .replace("且", "&&")
                 .replace("并且", "&&");
+        // 简单表达式解析器：先按“或”拆分，再按“且”逐个判断条件。
         for (String orPart : normalized.split("\\|\\|")) {
             boolean andMatch = true;
             for (String andPart : orPart.split("&&")) {

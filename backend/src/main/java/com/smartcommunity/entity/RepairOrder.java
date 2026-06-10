@@ -19,6 +19,8 @@ public class RepairOrder {
     private Integer serviceType;
     private String serviceMajor;
     private String serviceSubType;
+    private Long facilityId;
+    private String facilityName;
     private LocalDate appointmentDate;
     private String appointmentTimeSlot;
     private String category;

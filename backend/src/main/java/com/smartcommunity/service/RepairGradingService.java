@@ -27,6 +27,19 @@ public class RepairGradingService {
 
     private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]*>");
     private static final Pattern PUNCTUATION_PATTERN = Pattern.compile("[\\p{P}\\p{S}\\s]+");
+    private static final List<String> URGENT_KEYWORDS = List.of(
+            "漏水", "跑水", "渗水", "冒水", "爆管", "漫水", "返水", "倒灌",
+            "停电", "断电", "跳闸", "漏电", "短路", "打火", "火花", "冒烟", "起火", "焦味",
+            "燃气泄漏", "煤气泄漏", "天然气泄漏",
+            "门锁打不开", "门打不开", "反锁", "门禁失灵", "门禁读卡异常", "电梯困人", "电梯故障"
+    );
+    private static final List<String> NORMAL_KEYWORDS = List.of(
+            "灯泡", "照明", "水龙头", "开关", "插座", "马桶", "堵塞", "下水",
+            "排水沟", "电梯异响", "热水器", "空调", "冰箱", "洗衣机", "玻璃", "柜门", "窗帘"
+    );
+    private static final List<String> LOW_KEYWORDS = List.of(
+            "咨询", "建议", "报价", "怎么收费", "预约", "上门时间", "了解一下"
+    );
     private static final Map<Integer, Map<String, List<String>>> KEYWORD_LEVELS = new LinkedHashMap<>();
     private static final Map<String, String> SYNONYM_TO_CANONICAL = new LinkedHashMap<>();
     private static final List<Map.Entry<String, String>> SORTED_SYNONYM_ENTRIES;
@@ -70,10 +83,16 @@ public class RepairGradingService {
 
     private final UserMapper userMapper;
 
+    /**
+     * 工单优先级计算。
+     * 基本思路：先用报修描述匹配紧急/普通/低优先级关键词，再结合业主信用分做修正。
+     * 返回值约定：1=紧急，2=普通，3=低。
+     */
     public int calculatePriority(String description, Long userId) {
         int baseLevel = matchBaseLevel(description);
         int creditScore = getCreditScore(userId);
 
+        // 紧急工单不因为信用分降级，避免影响漏水、停电等实际风险问题。
         if (baseLevel == PRIORITY_URGENT) {
             return PRIORITY_URGENT;
         }
@@ -91,6 +110,16 @@ public class RepairGradingService {
         if (!StringUtils.hasText(normalized)) {
             return PRIORITY_NORMAL;
         }
+        // 按紧急程度从高到低匹配，优先保证高风险工单被识别出来。
+        if (containsKeyword(normalized, URGENT_KEYWORDS)) {
+            return PRIORITY_URGENT;
+        }
+        if (containsKeyword(normalized, LOW_KEYWORDS)) {
+            return PRIORITY_LOW;
+        }
+        if (containsKeyword(normalized, NORMAL_KEYWORDS)) {
+            return PRIORITY_NORMAL;
+        }
         String canonicalText = canonicalizeText(normalized);
         for (Map.Entry<Integer, Map<String, List<String>>> entry : KEYWORD_LEVELS.entrySet()) {
             for (String keyword : entry.getValue().keySet()) {
@@ -100,6 +129,15 @@ public class RepairGradingService {
             }
         }
         return PRIORITY_NORMAL;
+    }
+
+    private boolean containsKeyword(String normalized, List<String> keywords) {
+        for (String keyword : keywords) {
+            if (normalized.contains(normalizeForMatch(keyword))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int getCreditScore(Long userId) {

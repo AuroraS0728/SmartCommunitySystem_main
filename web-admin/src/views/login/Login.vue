@@ -6,7 +6,6 @@
         <div class="brand-logo">慧</div>
         <div>
           <h2>智慧社区管理系统</h2>
-          <p>物业管理端登录</p>
         </div>
       </div>
 
@@ -25,7 +24,6 @@
         </el-form-item>
       </el-form>
 
-      <p class="hint">仅允许物业管理端账户登录</p>
       <el-button type="primary" :loading="submitting" @click="doLogin" style="width: 100%">登录</el-button>
     </div>
   </div>

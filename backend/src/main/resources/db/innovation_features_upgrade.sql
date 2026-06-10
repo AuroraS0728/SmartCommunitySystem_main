@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS `payment_reminder` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
   `fee_bill_id` BIGINT NOT NULL,
+  `business_type` TINYINT NOT NULL DEFAULT 1 COMMENT '1物业费 2停车费 3维修费',
+  `business_id` BIGINT DEFAULT NULL COMMENT '对应费用业务ID',
   `method` VARCHAR(20) DEFAULT NULL COMMENT 'MESSAGE/TASK',
   `content` VARCHAR(200) DEFAULT NULL,
   `status` TINYINT NOT NULL DEFAULT 0 COMMENT '0待发送1已发送',
@@ -43,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `payment_reminder` (
   PRIMARY KEY (`id`),
   KEY `idx_payment_reminder_user_id` (`user_id`),
   KEY `idx_payment_reminder_fee_bill_id` (`fee_bill_id`),
+  KEY `idx_payment_reminder_business` (`business_type`, `business_id`),
   KEY `idx_payment_reminder_status` (`status`),
   KEY `idx_payment_reminder_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='智能催缴提醒表';

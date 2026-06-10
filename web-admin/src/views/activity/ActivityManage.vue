@@ -2,7 +2,7 @@
   <div class="page-grid">
     <section class="panel">
       <div class="panel-header">
-        <h3>活动专区</h3>
+        <h3>活动管理</h3>
         <div class="actions">
           <el-input v-model="keyword" placeholder="搜索标题/地点" clearable style="width: 240px" @keyup.enter="loadData" />
           <el-select v-model="typeFilter" clearable placeholder="类型" style="width: 140px" @change="loadData">

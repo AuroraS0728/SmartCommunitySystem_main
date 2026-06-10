@@ -57,6 +57,17 @@
   font-size: 24rpx;
 }
 
+.audit-notice {
+  display: inline-block;
+  margin-top: 12rpx;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 23rpx;
+  font-weight: 600;
+}
+
 .contact-text {
   color: #0f172a;
   font-size: 28rpx;

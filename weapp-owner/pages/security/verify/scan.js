@@ -83,9 +83,27 @@ Page({
     })
   },
 
-  async simulateScanVerify() {
+  scanCode() {
     if (this.data.verifying) return
-    const token = extractToken(this.data.scanText || this.data.token)
+    wx.scanCode({
+      onlyFromCamera: true,
+      scanType: ['qrCode', 'barCode'],
+      success: ({ result }) => {
+        const scanText = result || ''
+        const token = extractToken(scanText)
+        this.setData({ scanText, token })
+        this.verifyToken(token)
+      },
+      fail: (error) => {
+        const message = error?.errMsg && error.errMsg.includes('cancel') ? '已取消扫码' : '扫码失败，请重试'
+        wx.showToast({ title: message, icon: 'none' })
+      }
+    })
+  },
+
+  async verifyToken(tokenValue) {
+    if (this.data.verifying) return
+    const token = extractToken(tokenValue || this.data.scanText || this.data.token)
     if (!token) {
       wx.showToast({ title: '请先输入扫码内容或 token', icon: 'none' })
       return
@@ -112,5 +130,9 @@ Page({
     } finally {
       this.setData({ verifying: false })
     }
+  },
+
+  simulateScanVerify() {
+    return this.verifyToken()
   }
 })

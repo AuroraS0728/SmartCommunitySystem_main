@@ -183,12 +183,7 @@ public class WorkerController {
 
     @PostMapping("/schedule")
     public Result<Map<String, Object>> schedule(@RequestBody WorkerScheduleReq req) {
-        return Result.success(Map.of(
-                "workerId", req.getWorkerId(),
-                "scheduleDate", req.getScheduleDate(),
-                "shift", req.getShift(),
-                "message", "schedule saved (placeholder)"
-        ));
+        return Result.fail(StatusCode.BAD_REQUEST, "worker schedule is not implemented; use staffing/save for shift group and status");
     }
 
     @GetMapping("/tasks")

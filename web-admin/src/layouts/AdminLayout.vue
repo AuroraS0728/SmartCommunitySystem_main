@@ -5,7 +5,6 @@
         <div class="brand-logo">智</div>
         <div class="brand-text">
           <p class="brand-title">智慧社区管理</p>
-          <p class="brand-subtitle">Smart Community System</p>
         </div>
       </div>
 
@@ -37,7 +36,6 @@
       <header class="shell-header">
         <div>
           <h1>{{ pageTitle }}</h1>
-          <p class="header-subtitle">{{ pageSubtitle }}</p>
         </div>
         <div class="header-right">
           <span class="time-text">{{ currentTime }}</span>
@@ -69,13 +67,13 @@ const menuGroups = [
   {
     title: '核心业务',
     items: [
+      { label: '图片审核', path: '/neighbor/image-audit' },
       { label: '数据看板', path: '/dashboard' },
-      { label: '房产档案', path: '/house/archive' },
-      { label: '积分与画像', path: '/house/owner' },
-      { label: '智能工单管控', path: '/repair/smart' },
+      { label: '住户信息管理', path: '/house/archive' },
+      { label: '报修管理', path: '/repair/smart' },
+      { label: '停车管理', path: '/parking/manage' },
       { label: '费用管理', path: '/fee/manage' },
-      { label: '智能运营', path: '/innovation/ops' },
-      { label: '活动专区', path: '/activity/manage' }
+      { label: '活动管理', path: '/activity/manage' }
     ]
   },
   {
@@ -83,24 +81,27 @@ const menuGroups = [
     items: [
       { label: '公告管理', path: '/notice/manage' },
       { label: '访客管理', path: '/visitor/record' },
-      { label: '家政维修管理', path: '/worker/manage' },
-      { label: '催缴待办', path: '/operation/tasks' },
-      { label: '信用分明细', path: '/credit/log' },
-      { label: '推荐规则配置', path: '/recommend/rules' }
+      { label: '附加服务管理', path: '/service/additional' },
+      { label: '维修人员管理', path: '/worker/manage' },
+      { label: '快递管理', path: '/express/manage' },
+      { label: '设施管理', path: '/facility/manage' },
+      { label: '催缴任务管理', path: '/operation/tasks' },
+      { label: '信用记录管理', path: '/credit/log' },
+      { label: '推荐规则管理', path: '/recommend/rules' },
+      { label: '运营管理', path: '/innovation/ops' }
     ]
   },
   {
     title: '系统设置',
     items: [
-      { label: '角色权限', path: '/system/role' },
-      { label: '操作日志', path: '/system/log' },
-      { label: '积分充值记录', path: '/system/points-recharge' }
+      { label: '角色权限管理', path: '/system/role' },
+      { label: '系统日志管理', path: '/system/log' },
+      { label: '积分充值管理', path: '/system/points-recharge' }
     ]
   }
 ]
 
 const pageTitle = computed(() => route.meta.title || '智慧社区管理系统')
-const pageSubtitle = computed(() => route.meta.subtitle || '统一管理社区资产、服务与运营数据')
 
 const username = computed(() => userStore.userInfo?.nickname || userStore.userInfo?.name || '系统管理员')
 const roleText = computed(() => userStore.userInfo?.roleName || '管理员')
@@ -176,12 +177,6 @@ onBeforeUnmount(() => {
   margin: 0;
   color: #fff;
   font-weight: 700;
-}
-
-.brand-subtitle {
-  margin: 3px 0 0;
-  color: #64748b;
-  font-size: 12px;
 }
 
 .menu {
@@ -273,12 +268,6 @@ onBeforeUnmount(() => {
   margin: 0;
   color: #0f172a;
   font-size: 20px;
-}
-
-.header-subtitle {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 13px;
 }
 
 .header-right {

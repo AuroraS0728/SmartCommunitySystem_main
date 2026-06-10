@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">社区公告</view>
-    <view class="hero-desc">第一时间掌握小区通知和服务动态。</view>
   </view>
 
   <view wx:if="{{!list.length}}" class="empty">暂无公告</view>

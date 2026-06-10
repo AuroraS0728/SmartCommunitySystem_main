@@ -1,6 +1,7 @@
 package com.smartcommunity.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.smartcommunity.entity.Property;
 import com.smartcommunity.mapper.PropertyMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,28 @@ public class RealEstateArchiveService {
     private final PropertyMapper propertyMapper;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> archive(String keyword, Integer status) {
+    public Map<String, Object> archive(String keyword, Integer status, Integer pageNum, Integer pageSize) {
+        int safePageNum = pageNum == null ? 1 : Math.max(pageNum, 1);
+        int safePageSize = pageSize == null ? 20 : Math.min(Math.max(pageSize, 1), 200);
+
+        List<Property> matchedProperties = propertyMapper.selectList(buildQuery(keyword, status));
+        Page<Property> page = propertyMapper.selectPage(
+                new Page<>(safePageNum, safePageSize),
+                buildQuery(keyword, status)
+        );
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("summary", summary(matchedProperties));
+        payload.put("buildingStats", buildingStats(matchedProperties));
+        payload.put("properties", page.getRecords());
+        payload.put("total", page.getTotal());
+        payload.put("pageNum", page.getCurrent());
+        payload.put("pageSize", page.getSize());
+        payload.put("pages", page.getPages());
+        return payload;
+    }
+
+    private LambdaQueryWrapper<Property> buildQuery(String keyword, Integer status) {
         LambdaQueryWrapper<Property> wrapper = new LambdaQueryWrapper<Property>()
                 .eq(Property::getIsDeleted, 0)
                 .orderByAsc(Property::getBuilding)
@@ -38,12 +60,7 @@ public class RealEstateArchiveService {
         if (status != null) {
             wrapper.eq(Property::getStatus, status);
         }
-        List<Property> properties = propertyMapper.selectList(wrapper);
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("summary", summary(properties));
-        payload.put("buildingStats", buildingStats(properties));
-        payload.put("properties", properties);
-        return payload;
+        return wrapper;
     }
 
     private Map<String, Object> summary(List<Property> properties) {

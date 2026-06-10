@@ -1,10 +1,18 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">报修 / 家政提交</view>
-    <view class="hero-desc">选择服务内容与上门时间段，灰色时段表示暂无可用人员</view>
   </view>
 
   <view class="item">
+    <view wx:if="{{facilityId}}" class="facility-card">
+      <view class="row-between">
+        <view class="item-title">关联设施</view>
+        <view class="link" bindtap="clearFacility">取消关联</view>
+      </view>
+      <view class="item-desc">设施名称：{{ facilityName || '--' }}</view>
+      <view wx:if="{{facilityLocation}}" class="item-desc">设施位置：{{ facilityLocation }}</view>
+    </view>
+
     <view class="field-label">服务类型</view>
     <view class="type-row">
       <view class="type-chip {{serviceType === 1 ? 'active' : ''}}" data-type="1" bindtap="onServiceTypeChange">维修服务</view>
@@ -49,7 +57,7 @@
 
     <view class="field-label">上门日期</view>
     <picker mode="date" value="{{appointmentDate}}" bindchange="onDateChange">
-      <view class="date-picker">{{appointmentDate || "请选择上门日期"}}</view>
+      <view class="date-picker">{{appointmentDate || '请选择上门日期'}}</view>
     </picker>
 
     <view class="field-label">上门时间段</view>
@@ -64,7 +72,7 @@
         bindtap="onSlotTap"
       >
         <view class="slot-title">{{item.label}}</view>
-        <view class="slot-meta">{{item.available ? ("可预约 " + item.availableCount + " 人") : "暂无人员"}}</view>
+        <view class="slot-meta">{{item.available ? ('可预约 ' + item.availableCount + ' 人') : '暂无人员'}}</view>
       </view>
     </view>
 
@@ -76,6 +84,6 @@
       bindinput="onDesc"
     ></textarea>
 
-    <view class="btn" bindtap="submitRepair">{{submitting ? "提交中..." : "提交工单"}}</view>
+    <view class="btn" bindtap="submitRepair">{{submitting ? '提交中...' : '提交工单'}}</view>
   </view>
 </view>

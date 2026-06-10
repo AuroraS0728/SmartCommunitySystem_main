@@ -22,6 +22,7 @@ import com.smartcommunity.service.NeighborService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -45,12 +46,18 @@ public class NeighborController {
 
     @GetMapping("/second-hand/{id}")
     public Result<Map<String, Object>> secondHandDetail(@PathVariable Long id) {
-        return Result.success(neighborService.secondHandDetail(id, AuthContext.getUserId()));
+        return Result.success(neighborService.secondHandDetail(id, AuthContext.getUserId(), AuthContext.getRole()));
     }
 
     @PostMapping("/second-hand/publish")
     public Result<SecondHand> publishSecond(@Valid @RequestBody PublishSecondHandReq req) {
         return Result.success(neighborService.publishSecondHand(requireUserId(), req));
+    }
+
+    @PostMapping("/second-hand/upload")
+    public Result<String> uploadSecondHandImage(@RequestParam("file") MultipartFile file) {
+        requireUserId();
+        return Result.success(neighborService.uploadSecondHandImage(file));
     }
 
     @PutMapping("/second-hand/{id}")
@@ -91,6 +98,18 @@ public class NeighborController {
                                                          @RequestParam(required = false) Integer status) {
         if (!isAdmin()) return Result.fail(StatusCode.FORBIDDEN, "forbidden");
         return Result.success(neighborService.pageSecondHandReports(page, size, status, AuthContext.getRole()));
+    }
+
+    @PostMapping("/admin/second-hand/{id}/image-audit/approve")
+    public Result<SecondHand> approveSecondHandImageAudit(@PathVariable Long id) {
+        if (!isAdmin()) return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+        return Result.success(neighborService.reviewSecondHandImageAudit(id, AuthContext.getRole(), true));
+    }
+
+    @PostMapping("/admin/second-hand/{id}/image-audit/reject")
+    public Result<SecondHand> rejectSecondHandImageAudit(@PathVariable Long id) {
+        if (!isAdmin()) return Result.fail(StatusCode.FORBIDDEN, "forbidden");
+        return Result.success(neighborService.reviewSecondHandImageAudit(id, AuthContext.getRole(), false));
     }
 
     @GetMapping("/lost-found/list")

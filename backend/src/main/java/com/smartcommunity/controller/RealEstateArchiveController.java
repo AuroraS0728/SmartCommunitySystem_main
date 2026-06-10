@@ -19,7 +19,9 @@ public class RealEstateArchiveController {
 
     @GetMapping("/archive")
     public Result<Map<String, Object>> archive(@RequestParam(required = false) String keyword,
-                                               @RequestParam(required = false) Integer status) {
-        return Result.success(realEstateArchiveService.archive(keyword, status));
+                                               @RequestParam(required = false) Integer status,
+                                               @RequestParam(defaultValue = "1") Integer pageNum,
+                                               @RequestParam(defaultValue = "20") Integer pageSize) {
+        return Result.success(realEstateArchiveService.archive(keyword, status, pageNum, pageSize));
     }
 }

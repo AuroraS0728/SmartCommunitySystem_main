@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">失物招领</view>
-    <view class="hero-desc">支持失物发布、招领认领与进度处理</view>
   </view>
 
   <view class="item search-card">

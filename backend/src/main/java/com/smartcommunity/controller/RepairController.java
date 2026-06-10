@@ -157,6 +157,8 @@ public class RepairController {
         order.setServiceType(serviceType);
         order.setServiceMajor(serviceMajor);
         order.setServiceSubType(serviceSubType);
+        order.setFacilityId(req.getFacilityId());
+        order.setFacilityName(StringUtils.hasText(req.getFacilityName()) ? req.getFacilityName().trim() : null);
         order.setAppointmentDate(appointmentDate);
         order.setAppointmentTimeSlot(appointmentTimeSlot);
         order.setCategory(category);
@@ -1159,6 +1161,8 @@ public class RepairController {
         row.put("serviceType", order.getServiceType());
         row.put("serviceMajor", order.getServiceMajor());
         row.put("serviceSubType", order.getServiceSubType());
+        row.put("facilityId", order.getFacilityId());
+        row.put("facilityName", order.getFacilityName());
         row.put("appointmentDate", order.getAppointmentDate());
         row.put("appointmentTimeSlot", order.getAppointmentTimeSlot());
         row.put("category", order.getCategory());

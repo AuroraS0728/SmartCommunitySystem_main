@@ -467,6 +467,8 @@ public class ActivityService {
         int score = 0;
         Set<String> reasons = new LinkedHashSet<>();
 
+        // 活动推荐是可解释的打分规则，分数越高越靠前。
+        // 如果老师要求调推荐效果，主要改下面这些加分值和关键词。
         if (truthy(user.getHasChild())) {
             if (Integer.valueOf(1).equals(activity.getWithChildRequired())) {
                 score += 5;
@@ -509,6 +511,7 @@ public class ActivityService {
 
     private String normalizeActivityText(Activity activity) {
         StringBuilder builder = new StringBuilder();
+        // 把活动类型、标题、简介、地点拼成一段文本，统一做关键词匹配。
         appendActivityText(builder, activity.getType());
         appendActivityText(builder, activity.getTitle());
         appendActivityText(builder, activity.getDescription());

@@ -2,7 +2,7 @@
   <div class="page-grid">
     <section class="panel">
       <div class="panel-header">
-        <h3>积分充值记录</h3>
+        <h3>积分充值管理</h3>
       </div>
 
       <el-form :inline="true" class="filter-form">

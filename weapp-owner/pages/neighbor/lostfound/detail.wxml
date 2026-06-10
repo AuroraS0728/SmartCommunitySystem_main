@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">失物详情</view>
-    <view class="hero-desc">查看信息、发起认领与处理认领记录</view>
   </view>
 
   <view wx:if="{{loading}}" class="meta">加载中...</view>

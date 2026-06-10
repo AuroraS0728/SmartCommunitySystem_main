@@ -2,31 +2,82 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.smartcommunity.mapper.PaymentReminderMapper">
     <select id="selectOverdueFeeBillsForReminder" resultType="com.smartcommunity.dto.response.OverdueFeeBillReminderRow">
-        SELECT
-            fb.id AS feeBillId,
-            fb.property_id AS propertyId,
-            up.user_id AS userId,
-            COALESCE(NULLIF(u.nickname, ''), NULLIF(p.owner_name, ''), CONCAT('用户', up.user_id)) AS ownerName,
-            fb.bill_period AS billPeriod,
-            fb.amount AS amount,
-            fb.paid_amount AS paidAmount,
-            fb.due_date AS dueDate
-        FROM fee_bill fb
-        INNER JOIN property p ON p.id = fb.property_id AND p.is_deleted = 0
-        INNER JOIN user_property up ON up.property_id = fb.property_id
-            AND up.is_deleted = 0
-            AND up.id = (
-                SELECT up2.id
-                FROM user_property up2
-                WHERE up2.property_id = fb.property_id
-                  AND up2.is_deleted = 0
-                ORDER BY up2.is_primary DESC, up2.id ASC
-                LIMIT 1
-            )
-        INNER JOIN `user` u ON u.id = up.user_id AND u.is_deleted = 0
-        WHERE fb.is_deleted = 0
-          AND fb.status &lt;&gt; 2
-          AND fb.due_date &lt; NOW()
-        ORDER BY fb.due_date ASC, fb.id ASC
+        SELECT *
+        FROM (
+            SELECT
+                fb.id AS feeBillId,
+                1 AS businessType,
+                fb.id AS businessId,
+                '物业费' AS businessTypeText,
+                fb.bill_period AS businessRef,
+                fb.property_id AS propertyId,
+                up.user_id AS userId,
+                COALESCE(NULLIF(u.nickname, ''), NULLIF(p.owner_name, ''), CONCAT('用户', up.user_id)) AS ownerName,
+                fb.bill_period AS billPeriod,
+                fb.amount AS amount,
+                fb.paid_amount AS paidAmount,
+                fb.due_date AS dueDate
+            FROM fee_bill fb
+            INNER JOIN property p ON p.id = fb.property_id AND p.is_deleted = 0
+            INNER JOIN user_property up ON up.property_id = fb.property_id
+                AND up.is_deleted = 0
+                AND up.id = (
+                    SELECT up2.id
+                    FROM user_property up2
+                    WHERE up2.property_id = fb.property_id
+                      AND up2.is_deleted = 0
+                    ORDER BY up2.is_primary DESC, up2.id ASC
+                    LIMIT 1
+                )
+            INNER JOIN `user` u ON u.id = up.user_id AND u.is_deleted = 0
+            WHERE fb.is_deleted = 0
+              AND fb.status &lt;&gt; 2
+              AND fb.due_date &lt; NOW()
+
+            UNION ALL
+
+            SELECT
+                po.id AS feeBillId,
+                2 AS businessType,
+                po.id AS businessId,
+                '停车费' AS businessTypeText,
+                COALESCE(NULLIF(po.vehicle_no, ''), CONCAT('停车订单#', po.id)) AS businessRef,
+                po.property_id AS propertyId,
+                po.user_id AS userId,
+                COALESCE(NULLIF(u.nickname, ''), NULLIF(p.owner_name, ''), CONCAT('用户', po.user_id)) AS ownerName,
+                NULL AS billPeriod,
+                po.amount AS amount,
+                0 AS paidAmount,
+                po.end_time AS dueDate
+            FROM parking_order po
+            LEFT JOIN property p ON p.id = po.property_id AND p.is_deleted = 0
+            INNER JOIN `user` u ON u.id = po.user_id AND u.is_deleted = 0
+            WHERE po.is_deleted = 0
+              AND po.status &lt;&gt; 1
+              AND po.end_time &lt; NOW()
+
+            UNION ALL
+
+            SELECT
+                rfb.id AS feeBillId,
+                3 AS businessType,
+                rfb.id AS businessId,
+                '维修费' AS businessTypeText,
+                CONCAT('工单#', rfb.order_id) AS businessRef,
+                rfb.property_id AS propertyId,
+                rfb.user_id AS userId,
+                COALESCE(NULLIF(u.nickname, ''), NULLIF(p.owner_name, ''), CONCAT('用户', rfb.user_id)) AS ownerName,
+                NULL AS billPeriod,
+                rfb.amount AS amount,
+                0 AS paidAmount,
+                rfb.due_date AS dueDate
+            FROM repair_fee_bill rfb
+            LEFT JOIN property p ON p.id = rfb.property_id AND p.is_deleted = 0
+            INNER JOIN `user` u ON u.id = rfb.user_id AND u.is_deleted = 0
+            WHERE rfb.is_deleted = 0
+              AND rfb.status &lt;&gt; 1
+              AND rfb.due_date &lt; NOW()
+        ) overdue_bills
+        ORDER BY dueDate ASC, businessType ASC, businessId ASC
     </select>
 </mapper>

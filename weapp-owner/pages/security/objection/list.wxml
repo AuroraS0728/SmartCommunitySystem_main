@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero security-hero">
     <view class="hero-title">费用异议审核</view>
-    <view class="hero-desc">查看业主提交的费用异议，并进行审核处理。</view>
   </view>
 
   <view class="item">

@@ -1,4 +1,4 @@
-const { request } = require("../../../api/request")
+const { request, uploadFile, resolveAssetUrl } = require("../../../api/request")
 
 const CATEGORIES = [
   { label: "家电", value: "appliance" },
@@ -9,19 +9,20 @@ const CATEGORIES = [
   { label: "其他", value: "other" }
 ]
 
-function readFileBase64(path) {
-  return new Promise((resolve, reject) => {
-    wx.getFileSystemManager().readFile({
-      filePath: path,
-      encoding: "base64",
-      success: (res) => resolve(res.data),
-      fail: () => reject(new Error("图片读取失败"))
-    })
-  })
+function parseImages(images) {
+  if (!images) return []
+  if (Array.isArray(images)) return images
+  try {
+    const parsed = JSON.parse(images)
+    return Array.isArray(parsed) ? parsed : []
+  } catch (error) {
+    return typeof images === "string" ? [images] : []
+  }
 }
 
 Page({
   data: {
+    id: null,
     categories: CATEGORIES,
     category: "other",
     title: "",
@@ -30,6 +31,29 @@ Page({
     contact: "",
     imageList: [],
     submitting: false
+  },
+
+  onLoad(options) {
+    const id = Number(options?.id || 0) || null
+    this.setData({ id })
+    if (id) this.loadDetail(id)
+  },
+
+  async loadDetail(id) {
+    try {
+      const data = await request({ url: `/neighbor/second-hand/${id}` })
+      const item = data?.item || {}
+      this.setData({
+        title: item.title || "",
+        description: item.description || "",
+        category: item.category || "other",
+        price: item.price === null || item.price === undefined ? "" : String(item.price),
+        contact: item.contact || "",
+        imageList: parseImages(item.images).map((url) => ({ url, displayUrl: resolveAssetUrl(url), uploaded: true }))
+      })
+    } catch (error) {
+      wx.showToast({ title: error?.message || "加载失败", icon: "none" })
+    }
   },
 
   onTitleInput(e) {
@@ -57,7 +81,7 @@ Page({
 
   async chooseImage() {
     if (this.data.imageList.length >= 3) {
-      wx.showToast({ title: "最多上传 3 张图片", icon: "none" })
+      wx.showToast({ title: "最多上传3张图片", icon: "none" })
       return
     }
     try {
@@ -67,15 +91,10 @@ Page({
         sourceType: ["camera", "album"]
       })
       const files = media?.tempFiles || []
-      if (!files.length) return
-      const encoded = []
-      for (const file of files) {
-        if (!file?.tempFilePath) continue
-        const base64 = await readFileBase64(file.tempFilePath)
-        encoded.push(`data:image/jpeg;base64,${base64}`)
-      }
-      const imageList = this.data.imageList.concat(encoded).slice(0, 3)
-      this.setData({ imageList })
+      const picked = files
+        .filter((file) => file?.tempFilePath)
+        .map((file) => ({ path: file.tempFilePath, displayUrl: file.tempFilePath, uploaded: false }))
+      this.setData({ imageList: this.data.imageList.concat(picked).slice(0, 3) })
     } catch (error) {
       if (error?.errMsg?.includes("cancel")) return
       wx.showToast({ title: error?.message || "选择图片失败", icon: "none" })
@@ -85,17 +104,26 @@ Page({
   removeImage(e) {
     const index = Number(e.currentTarget.dataset.index)
     if (Number.isNaN(index)) return
-    const imageList = this.data.imageList.filter((_, i) => i !== index)
-    this.setData({ imageList })
+    this.setData({ imageList: this.data.imageList.filter((_, i) => i !== index) })
   },
 
   previewImage(e) {
     const current = e.currentTarget.dataset.url
-    if (!current) return
-    wx.previewImage({
-      current,
-      urls: this.data.imageList
-    })
+    const urls = this.data.imageList.map((item) => item.displayUrl)
+    if (!current || !urls.length) return
+    wx.previewImage({ current, urls })
+  },
+
+  async uploadImages() {
+    const urls = []
+    for (const item of this.data.imageList) {
+      if (item.uploaded && item.url) {
+        urls.push(item.url)
+      } else if (item.path) {
+        urls.push(await uploadFile({ url: "/neighbor/second-hand/upload", filePath: item.path }))
+      }
+    }
+    return urls
   },
 
   async onSubmit() {
@@ -104,48 +132,31 @@ Page({
     const description = (this.data.description || "").trim()
     const contact = (this.data.contact || "").trim()
     const price = this.data.price === "" ? 0 : Number(this.data.price)
-
-    if (!title) {
-      wx.showToast({ title: "请输入标题", icon: "none" })
-      return
-    }
-    if (title.length > 60) {
-      wx.showToast({ title: "标题最多 60 个字", icon: "none" })
-      return
-    }
-    if (!description) {
-      wx.showToast({ title: "请输入商品描述", icon: "none" })
-      return
-    }
-    if (Number.isNaN(price) || price < 0) {
-      wx.showToast({ title: "价格格式不正确", icon: "none" })
-      return
-    }
-    if (!contact) {
-      wx.showToast({ title: "请填写联系方式", icon: "none" })
-      return
-    }
+    if (!title) return wx.showToast({ title: "请输入标题", icon: "none" })
+    if (!description) return wx.showToast({ title: "请输入商品描述", icon: "none" })
+    if (Number.isNaN(price) || price < 0) return wx.showToast({ title: "价格格式不正确", icon: "none" })
+    if (!contact) return wx.showToast({ title: "请填写联系方式", icon: "none" })
 
     this.setData({ submitting: true })
     try {
+      const imageUrls = await this.uploadImages()
+      const payload = {
+        title,
+        category: this.data.category || "other",
+        description,
+        price,
+        contact,
+        images: JSON.stringify(imageUrls)
+      }
       await request({
-        url: "/neighbor/second-hand/publish",
-        method: "POST",
-        data: {
-          title,
-          category: this.data.category || "other",
-          description,
-          price,
-          contact,
-          images: JSON.stringify(this.data.imageList)
-        }
+        url: this.data.id ? `/neighbor/second-hand/${this.data.id}` : "/neighbor/second-hand/publish",
+        method: this.data.id ? "PUT" : "POST",
+        data: payload
       })
-      wx.showToast({ title: "发布成功", icon: "success" })
-      setTimeout(() => {
-        wx.redirectTo({ url: "/pages/neighbor/secondhand/list" })
-      }, 320)
+      wx.showToast({ title: this.data.id ? "提交成功" : "发布成功", icon: "success" })
+      setTimeout(() => wx.redirectTo({ url: "/pages/neighbor/secondhand/list" }), 320)
     } catch (error) {
-      wx.showToast({ title: error?.message || "发布失败", icon: "none" })
+      wx.showToast({ title: error?.message || "提交失败", icon: "none" })
     } finally {
       this.setData({ submitting: false })
     }

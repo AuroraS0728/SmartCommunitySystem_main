@@ -1,4 +1,4 @@
-const { request } = require("../../../api/request")
+const { request, resolveAssetUrl } = require("../../../api/request")
 
 const CATEGORIES = [
   { label: "全部", value: "" },
@@ -19,9 +19,11 @@ const SORT_OPTIONS = [
 
 const MINE_STATUS = [
   { label: "全部", value: "", key: "" },
+  { label: "待审核", value: 0, key: "0" },
   { label: "在售", value: 1, key: "1" },
   { label: "已售", value: 2, key: "2" },
-  { label: "下架", value: 3, key: "3" }
+  { label: "下架", value: 3, key: "3" },
+  { label: "未通过", value: 4, key: "4" }
 ]
 
 const CATEGORY_LABELS = CATEGORIES.reduce((map, item) => {
@@ -47,8 +49,15 @@ function formatTime(value) {
 }
 
 function statusText(status) {
-  const map = { 1: "在售", 2: "已售", 3: "下架" }
-  return map[Number(status)] || "未知"
+  return ({ 0: "待审核未发布", 1: "在售", 2: "已售", 3: "下架", 4: "审核未通过" })[Number(status)] || "未知"
+}
+
+function imageAuditText(item) {
+  if (!item) return ""
+  if (Number(item.status) === 4) return "图片未通过，请重新上传"
+  if (Number(item.status) === 0 || item.imageRiskLevel === "HIGH" || item.imageAuditStatus === "MANUAL_REVIEW") return "图片待审核"
+  if (item.imageAuditStatus === "SUSPICIOUS") return "图片存疑"
+  return ""
 }
 
 Page({
@@ -120,13 +129,7 @@ Page({
       itemList: SORT_OPTIONS.map((item) => item.label),
       success: ({ tapIndex }) => {
         const target = SORT_OPTIONS[tapIndex] || SORT_OPTIONS[0]
-        this.setData(
-          {
-            sortBy: target.value,
-            sortLabel: target.label
-          },
-          () => this.reload()
-        )
+        this.setData({ sortBy: target.value, sortLabel: target.label }, () => this.reload())
       }
     })
   },
@@ -143,13 +146,7 @@ Page({
   },
 
   reload() {
-    this.setData({
-      page: 1,
-      total: 0,
-      list: [],
-      hasMore: true,
-      showSkeleton: true
-    })
+    this.setData({ page: 1, total: 0, list: [], hasMore: true, showSkeleton: true })
     return this.loadList(true)
   },
 
@@ -166,17 +163,11 @@ Page({
         keyword: this.data.keyword || undefined,
         sortBy: this.data.sortBy || undefined
       }
-      if (this.data.mine && this.data.mineStatus !== "") {
-        params.status = Number(this.data.mineStatus)
-      }
-      const data = await request({
-        url: "/neighbor/second-hand/list",
-        data: params,
-        skipAuth: !this.data.mine
-      })
+      if (this.data.mine && this.data.mineStatus !== "") params.status = Number(this.data.mineStatus)
+      const data = await request({ url: "/neighbor/second-hand/list", data: params, skipAuth: !this.data.mine })
       const items = Array.isArray(data?.items) ? data.items : []
       const mapped = items.map((item) => {
-        const imageList = parseImages(item.images)
+        const imageList = parseImages(item.images).map((url) => resolveAssetUrl(url)).filter(Boolean)
         const price = Number(item.price || 0)
         return {
           ...item,
@@ -184,6 +175,7 @@ Page({
           cover: imageList[0] || "",
           categoryLabel: CATEGORY_LABELS[item.category] || "其他",
           statusText: statusText(item.status),
+          imageAuditText: imageAuditText(item),
           timeText: formatTime(item.updateTime || item.createTime),
           priceText: price > 0 ? `¥${price.toFixed(2)}` : "面议"
         }
@@ -191,13 +183,7 @@ Page({
       const nextList = this.data.list.concat(mapped)
       const total = Number(data?.total || 0)
       const page = Number(data?.page || this.data.page)
-      const hasMore = nextList.length < total
-      this.setData({
-        list: nextList,
-        total,
-        page: page + 1,
-        hasMore
-      })
+      this.setData({ list: nextList, total, page: page + 1, hasMore: nextList.length < total })
     } catch (error) {
       wx.showToast({ title: error?.message || "加载失败", icon: "none" })
     } finally {

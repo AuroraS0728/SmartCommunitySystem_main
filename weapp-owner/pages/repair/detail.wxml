@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">工单详情</view>
-    <view class="hero-desc">提交报修 -> 派单核验 -> 服务执行 -> 费用结算 -> 评价</view>
   </view>
 
   <view wx:if="{{loading}}" class="empty">加载中...</view>

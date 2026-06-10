@@ -22,6 +22,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${activity.asset-dir:./activity-assets}")
     private String activityAssetDir;
 
+    @Value("${file.upload-dir:D:/upload}")
+    private String fileUploadDir;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtAuthInterceptor)
@@ -45,16 +48,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        Path assetPath = Paths.get(blogAssetDir).toAbsolutePath().normalize();
-        String location = assetPath.toUri().toString();
         registry.addResourceHandler("/api/blog/assets/**")
-                .addResourceLocations(location)
+                .addResourceLocations(toResourceLocation(blogAssetDir))
                 .setCachePeriod(31_536_000);
 
-        Path activityPath = Paths.get(activityAssetDir).toAbsolutePath().normalize();
-        String activityLocation = activityPath.toUri().toString();
         registry.addResourceHandler("/api/activity/assets/**")
-                .addResourceLocations(activityLocation)
+                .addResourceLocations(toResourceLocation(activityAssetDir))
                 .setCachePeriod(31_536_000);
+
+        registry.addResourceHandler("/files/**")
+                .addResourceLocations(toResourceLocation(fileUploadDir))
+                .setCachePeriod(31_536_000);
+    }
+
+    private String toResourceLocation(String dir) {
+        Path path = Paths.get(dir).toAbsolutePath().normalize();
+        String location = path.toUri().toString();
+        return location.endsWith("/") ? location : location + "/";
     }
 }

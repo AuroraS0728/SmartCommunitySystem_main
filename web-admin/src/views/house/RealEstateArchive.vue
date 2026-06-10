@@ -21,17 +21,17 @@
 
     <section class="panel">
       <div class="panel-header">
-        <h3>房产档案</h3>
+        <h3>住户信息管理</h3>
         <div class="actions">
           <el-input
             v-model="keyword"
             placeholder="按房产号/楼栋/单元/房号/业主/租户搜索"
             clearable
-            style="width: 320px"
-            @keyup.enter="loadData"
-            @clear="loadData"
+            class="keyword-input"
+            @keyup.enter="handleSearch"
+            @clear="handleSearch"
           />
-          <el-select v-model="statusFilter" clearable placeholder="状态" style="width: 140px" @change="loadData">
+          <el-select v-model="statusFilter" clearable placeholder="状态" style="width: 140px" @change="handleSearch">
             <el-option label="未售" :value="1" />
             <el-option label="已售" :value="2" />
             <el-option label="空置" :value="3" />
@@ -39,52 +39,63 @@
             <el-option label="已出租" :value="5" />
           </el-select>
           <el-button @click="loadData">刷新</el-button>
-          <el-button type="primary" @click="openCreate">新增档案</el-button>
+          <el-upload
+            :show-file-list="false"
+            accept=".csv"
+            :http-request="handleImport"
+          >
+            <el-button :loading="importing">导入CSV</el-button>
+          </el-upload>
+          <el-button :loading="exporting" @click="handleExport">导出CSV</el-button>
+          <el-button type="primary" @click="openCreate">新增住户信息</el-button>
         </div>
       </div>
 
-      <div class="content-grid">
-        <div class="building-panel">
-          <div class="sub-title">楼栋概览</div>
-          <el-table :data="buildingStats" max-height="520" stripe>
-            <el-table-column prop="building" label="楼栋" min-width="110" />
-            <el-table-column prop="propertyCount" label="房产数" width="92" />
-            <el-table-column prop="occupiedCount" label="入住" width="92" />
-            <el-table-column label="入住率" min-width="120">
-              <template #default="{ row }">{{ row.occupancyRate }}%</template>
-            </el-table-column>
-          </el-table>
-        </div>
-
-        <div class="table-panel">
-          <el-table :data="properties" stripe v-loading="loading">
-            <el-table-column prop="propertyCode" label="房产号" min-width="150" />
-            <el-table-column prop="community" label="小区" min-width="120" />
-            <el-table-column prop="building" label="楼栋" width="86" />
-            <el-table-column prop="unit" label="单元" width="86" />
-            <el-table-column prop="room" label="房号" width="86" />
-            <el-table-column prop="ownerName" label="业主" min-width="110" />
-            <el-table-column prop="tenantName" label="租户" min-width="110">
-              <template #default="{ row }">{{ row.tenantName || '--' }}</template>
-            </el-table-column>
-            <el-table-column prop="area" label="面积(m²)" width="108" />
-            <el-table-column label="状态" width="110">
-              <template #default="{ row }">
-                <el-tag :type="statusMeta(row.status).type">{{ statusMeta(row.status).text }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="160" fixed="right">
-              <template #default="{ row }">
-                <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
-                <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+      <div class="table-panel">
+        <el-table class="room-table" :data="properties" stripe v-loading="loading">
+          <el-table-column prop="propertyCode" label="房产号" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="community" label="小区" min-width="120" show-overflow-tooltip />
+          <el-table-column prop="building" label="楼栋" width="86" />
+          <el-table-column prop="unit" label="单元" width="86" />
+          <el-table-column prop="room" label="房号" width="86" />
+          <el-table-column prop="ownerName" label="业主" min-width="110" show-overflow-tooltip />
+          <el-table-column prop="tenantName" label="租户" min-width="110" show-overflow-tooltip>
+            <template #default="{ row }">{{ row.tenantName || '--' }}</template>
+          </el-table-column>
+          <el-table-column prop="area" label="面积(m²)" width="108" />
+          <el-table-column label="状态" width="110">
+            <template #default="{ row }">
+              <el-tag :type="statusMeta(row.status).type">{{ statusMeta(row.status).text }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="160" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
+              <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="pagination-bar">
+          <div class="page-shortcuts">
+            <el-button :disabled="pageNum <= 1 || loading" @click="goFirstPage">首页</el-button>
+            <el-button :disabled="pageNum >= lastPage || loading" @click="goLastPage">尾页</el-button>
+          </div>
+          <el-pagination
+            v-model:current-page="pageNum"
+            v-model:page-size="pageSize"
+            :total="total"
+            :page-sizes="[20, 50, 100]"
+            :disabled="loading"
+            background
+            layout="total, sizes, prev, pager, next, jumper"
+            @current-change="handlePageChange"
+            @size-change="handleSizeChange"
+          />
         </div>
       </div>
     </section>
 
-    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑房产档案' : '新增房产档案'" width="760px">
+    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑住户信息' : '新增住户信息'" width="760px">
       <el-form label-width="96px">
         <el-row :gutter="12">
           <el-col :span="12"><el-form-item label="小区"><el-input v-model="form.community" /></el-form-item></el-col>
@@ -133,19 +144,25 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { addHouse, deleteHouse, updateHouse } from '@/api/house'
+import { addHouse, deleteHouse, exportHouses, importHouses, updateHouse } from '@/api/house'
 import { getRealEstateArchive } from '@/api/realEstate'
 
 const loading = ref(false)
 const saving = ref(false)
+const importing = ref(false)
+const exporting = ref(false)
 const keyword = ref('')
 const statusFilter = ref(null)
 const summary = ref({})
-const buildingStats = ref([])
 const properties = ref([])
 const dialogVisible = ref(false)
+const pageNum = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
+
+const lastPage = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 
 const form = ref({
   id: null,
@@ -212,14 +229,45 @@ async function loadData() {
   try {
     const res = await getRealEstateArchive({
       keyword: keyword.value.trim() || undefined,
-      status: statusFilter.value || undefined
+      status: statusFilter.value || undefined,
+      pageNum: pageNum.value,
+      pageSize: pageSize.value
     })
     summary.value = res.data?.summary || {}
-    buildingStats.value = Array.isArray(res.data?.buildingStats) ? res.data.buildingStats : []
     properties.value = Array.isArray(res.data?.properties) ? res.data.properties : []
+    total.value = Number(res.data?.total || 0)
   } finally {
     loading.value = false
   }
+}
+
+function handleSearch() {
+  pageNum.value = 1
+  loadData()
+}
+
+function handlePageChange(value) {
+  pageNum.value = value
+  loadData()
+}
+
+function handleSizeChange(value) {
+  pageSize.value = value
+  pageNum.value = 1
+  loadData()
+}
+
+function goFirstPage() {
+  if (pageNum.value === 1) return
+  pageNum.value = 1
+  loadData()
+}
+
+function goLastPage() {
+  const target = lastPage.value
+  if (pageNum.value === target) return
+  pageNum.value = target
+  loadData()
 }
 
 async function submit() {
@@ -236,10 +284,10 @@ async function submit() {
   try {
     if (form.value.id) {
       await updateHouse(form.value.id, payload)
-      ElMessage.success('房产档案已更新')
+      ElMessage.success('住户信息已更新')
     } else {
       await addHouse(payload)
-      ElMessage.success('房产档案已创建')
+      ElMessage.success('住户信息已创建')
     }
     dialogVisible.value = false
     await loadData()
@@ -249,10 +297,50 @@ async function submit() {
 }
 
 async function handleDelete(row) {
-  await ElMessageBox.confirm(`确认删除房产档案 ${row.propertyCode || row.id} 吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除住户信息 ${row.propertyCode || row.id} 吗？`, '提示', { type: 'warning' })
   await deleteHouse(row.id)
   ElMessage.success('已删除')
   await loadData()
+}
+
+async function handleImport({ file }) {
+  if (!file) return
+  importing.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const res = await importHouses(formData)
+    const data = res.data || {}
+    const errors = Array.isArray(data.errors) ? data.errors : []
+    ElMessage.success(`导入完成：新增 ${data.created || 0}，更新 ${data.updated || 0}，跳过 ${data.skipped || 0}`)
+    if (errors.length) {
+      ElMessage.warning(`有 ${errors.length} 行导入失败，请检查CSV内容`)
+    }
+    await loadData()
+  } finally {
+    importing.value = false
+  }
+}
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    const res = await exportHouses({
+      keyword: keyword.value.trim() || undefined,
+      status: statusFilter.value || undefined
+    })
+    const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `house_export_${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } finally {
+    exporting.value = false
+  }
 }
 
 onMounted(loadData)
@@ -315,28 +403,61 @@ onMounted(loadData)
   font-size: 16px;
 }
 
-.content-grid {
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 16px;
+.keyword-input {
+  width: 320px;
 }
 
-.building-panel {
+.table-panel {
+  min-width: 0;
   display: grid;
-  gap: 10px;
+  gap: 14px;
+}
+
+.room-table {
+  width: 100%;
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 2px;
+  flex-wrap: wrap;
+}
+
+.page-shortcuts {
+  display: flex;
+  gap: 8px;
 }
 
 @media (max-width: 1200px) {
-  .summary-grid,
-  .content-grid {
+  .summary-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }
 
 @media (max-width: 900px) {
-  .summary-grid,
-  .content-grid {
+  .summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .keyword-input {
+    width: 100%;
+  }
+
+  .pagination-bar {
+    justify-content: flex-start;
   }
 }
 </style>

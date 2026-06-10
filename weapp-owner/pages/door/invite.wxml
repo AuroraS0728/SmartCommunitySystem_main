@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">访客邀请闭环</view>
-    <view class="hero-desc">提交邀请 -> 生成口令/链接 -> 门禁动态二维码核验 -> 入场通知</view>
   </view>
 
   <view class="item">
@@ -11,6 +10,9 @@
 
     <view class="field-label">访客手机号</view>
     <input class="input" value="{{visitorPhone}}" type="number" placeholder="请输入手机号" bindinput="onPhone" />
+
+    <view class="field-label">入院事由</view>
+    <input class="input" value="{{visitReason}}" placeholder="请输入入院事由" bindinput="onReason" />
 
     <view class="field-label">来访时间</view>
     <view class="time-row">
@@ -56,8 +58,9 @@
       <view class="status-tag">{{latestInvite.statusText || '未使用'}}</view>
     </view>
     <view class="code-line">{{latestInvite.code}}</view>
+    <view wx:if="{{latestInvite.visitReason}}" class="meta">入院事由：{{latestInvite.visitReason}}</view>
     <view class="meta">转发链接：{{latestInvite.shareLink}}</view>
-    <view class="meta">到达门禁后请打开“动态二维码核验页”，二维码每 30 秒自动刷新，截图会失效。</view>
+    <view class="meta">到达门禁后请打开动态二维码核验页，二维码每 30 秒自动刷新，截图无效。</view>
     <view class="action-row">
       <view class="mini-btn" bindtap="copyCode">复制口令</view>
       <view class="mini-btn mini-btn-plain" bindtap="copyShareLink">复制链接</view>
@@ -70,7 +73,10 @@
     <view class="item-title">邀请记录</view>
     <view wx:if="{{!invites.length}}" class="empty-small">暂无邀请记录</view>
     <view wx:for="{{invites}}" wx:key="id" class="invite-row">
-      <view class="invite-left">{{item.visitorName}}</view>
+      <view class="invite-left">
+        <view>{{item.visitorName}}</view>
+        <view wx:if="{{item.visitReason}}" class="history-meta">事由：{{item.visitReason}}</view>
+      </view>
       <view class="invite-mid">{{item.code}}</view>
       <view class="invite-right">
         <view class="countdown">{{item.countdownText}}</view>
@@ -90,13 +96,14 @@
       <view>
         <view class="history-name">{{item.visitorName}}</view>
         <view class="history-meta">{{item.visitorPhone}} · 邀请 {{item.totalInviteCount}} 次</view>
+        <view wx:if="{{item.visitReason}}" class="history-meta">最近事由：{{item.visitReason}}</view>
       </view>
       <view class="mini-btn mini-btn-plain" data-index="{{index}}" bindtap="useHistoryVisitor">再次邀请</view>
     </view>
   </view>
 
   <view class="item">
-    <view class="item-title">到访订阅消息</view>
+    <view class="item-title">到访通知</view>
     <view wx:if="{{!notifications.length}}" class="empty-small">暂无到访通知</view>
     <view wx:for="{{notifications}}" wx:key="id" class="notify-row">
       <view class="item-desc">{{item.content}}</view>

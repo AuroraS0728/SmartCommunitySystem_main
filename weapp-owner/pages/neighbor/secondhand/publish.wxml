@@ -1,18 +1,11 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">发布闲置</view>
-    <view class="hero-desc">填写商品信息，支持拍照上传与价格设置</view>
+    <view class="hero-title">{{id ? "重新上传" : "发布闲置"}}</view>
   </view>
 
   <view class="item">
     <view class="field-label">商品标题</view>
-    <input
-      class="input"
-      value="{{title}}"
-      maxlength="60"
-      placeholder="例如：九成新空气炸锅"
-      bindinput="onTitleInput"
-    />
+    <input class="input" value="{{title}}" maxlength="60" placeholder="例如：九成新空气炸锅" bindinput="onTitleInput" />
 
     <view class="field-label">分类</view>
     <view class="category-row">
@@ -28,22 +21,10 @@
     </view>
 
     <view class="field-label">价格（元）</view>
-    <input
-      class="input"
-      type="digit"
-      value="{{price}}"
-      placeholder="0 表示面议"
-      bindinput="onPriceInput"
-    />
+    <input class="input" type="digit" value="{{price}}" placeholder="0 表示面议" bindinput="onPriceInput" />
 
     <view class="field-label">联系方式</view>
-    <input
-      class="input"
-      value="{{contact}}"
-      maxlength="80"
-      placeholder="手机号 / 微信号"
-      bindinput="onContactInput"
-    />
+    <input class="input" value="{{contact}}" maxlength="80" placeholder="手机号 / 微信号" bindinput="onContactInput" />
 
     <view class="field-label">商品描述</view>
     <textarea
@@ -54,15 +35,15 @@
       bindinput="onDescInput"
     />
 
-    <view class="field-label">商品图片（最多 3 张）</view>
+    <view class="field-label">商品图片（最多3张）</view>
     <view class="image-grid">
       <view wx:for="{{imageList}}" wx:key="*this" class="image-item">
-        <image class="image" src="{{item}}" mode="aspectFill" data-url="{{item}}" bindtap="previewImage" />
+        <image class="image" src="{{item.displayUrl}}" mode="aspectFill" data-url="{{item.displayUrl}}" bindtap="previewImage" />
         <view class="remove" data-index="{{index}}" bindtap="removeImage">×</view>
       </view>
       <view wx:if="{{imageList.length < 3}}" class="image-add" bindtap="chooseImage">+ 添加</view>
     </view>
 
-    <view class="btn" bindtap="onSubmit">{{submitting ? "提交中..." : "发布商品"}}</view>
+    <view class="btn" bindtap="onSubmit">{{submitting ? "提交中..." : (id ? "重新提交审核" : "发布商品")}}</view>
   </view>
 </view>

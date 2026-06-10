@@ -2,7 +2,6 @@
   <view class="section">
     <view class="hero">
       <view class="hero-title">闲置交易</view>
-      <view class="hero-desc">社区邻里发布的二手物品，游客可浏览，发布和管理需登录。</view>
     </view>
 
     <view class="item search-card card">
@@ -87,6 +86,7 @@
             <view class="goods-title">{{item.title}}</view>
             <view class="status-tag">{{item.statusText}}</view>
           </view>
+          <view wx:if="{{item.imageAuditText}}" class="audit-notice">{{item.imageAuditText}}</view>
           <view class="goods-meta">{{item.categoryLabel}} · 浏览 {{item.viewCount || 0}}</view>
           <view class="row-between goods-footer">
             <view class="goods-price">{{item.priceText}}</view>
@@ -99,6 +99,6 @@
     <view wx:else class="empty">暂无交易数据</view>
 
     <view wx:if="{{loading && list.length}}" class="meta">加载中...</view>
-    <view wx:else-if="{{!hasMore && list.length}}" class="meta">没有更多了</view>
+    <view wx:elif="{{!hasMore && list.length}}" class="meta">没有更多了</view>
   </view>
 </view>

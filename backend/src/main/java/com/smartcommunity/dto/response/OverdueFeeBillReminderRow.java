@@ -8,6 +8,10 @@ import java.time.LocalDateTime;
 @Data
 public class OverdueFeeBillReminderRow {
     private Long feeBillId;
+    private Integer businessType;
+    private Long businessId;
+    private String businessTypeText;
+    private String businessRef;
     private Long propertyId;
     private Long userId;
     private String ownerName;

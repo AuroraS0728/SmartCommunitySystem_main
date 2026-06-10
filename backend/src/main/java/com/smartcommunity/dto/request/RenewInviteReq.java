@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class RenewInviteReq {
     private String visitTime;
+    private String visitReason;
     private String validityType;
     private String customExpireTime;
     private Integer maxUses;

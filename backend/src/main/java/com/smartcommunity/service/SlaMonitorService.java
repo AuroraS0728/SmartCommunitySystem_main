@@ -45,6 +45,10 @@ public class SlaMonitorService {
         scanAndUrge();
     }
 
+    /**
+     * SLA定时扫描。
+     * 每分钟检查待派单和处理中的工单，如果已经超过slaDeadline，就生成催办消息和催办记录。
+     */
     public int scanAndUrge() {
         LocalDateTime now = LocalDateTime.now();
         List<RepairOrder> overdueOrders = repairOrderMapper.selectList(new LambdaQueryWrapper<RepairOrder>()
@@ -87,6 +91,7 @@ public class SlaMonitorService {
             return;
         }
 
+        // 待派单超时主要提醒管理员；处理中超时同时提醒维修人员和管理员。
         if (current.getStatus() == STATUS_WAIT_DISPATCH) {
             urgeAdmins(current, now, "工单ID " + current.getId() + " 派单超时，请立即处理", "DISPATCH_TIMEOUT");
         } else {

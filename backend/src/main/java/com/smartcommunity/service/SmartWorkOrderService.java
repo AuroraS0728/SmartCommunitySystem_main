@@ -7,9 +7,11 @@ import com.smartcommunity.dto.request.SmartWorkOrderStatusReq;
 import com.smartcommunity.entity.RepairOrder;
 import com.smartcommunity.entity.RepairOrderWorker;
 import com.smartcommunity.entity.User;
+import com.smartcommunity.entity.WorkerStaffing;
 import com.smartcommunity.mapper.RepairOrderMapper;
 import com.smartcommunity.mapper.RepairOrderWorkerMapper;
 import com.smartcommunity.mapper.UserMapper;
+import com.smartcommunity.mapper.WorkerStaffingMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,15 +39,19 @@ public class SmartWorkOrderService {
     private static final int STATUS_WAIT_EVALUATE = 3;
     private static final int STATUS_COMPLETED = 4;
     private static final int STATUS_CANCELED = 5;
+    private static final String MANUAL_PRIORITY_MARK = "[manual-priority]";
 
     private final RepairOrderMapper repairOrderMapper;
     private final RepairOrderWorkerMapper repairOrderWorkerMapper;
     private final UserMapper userMapper;
+    private final WorkerStaffingMapper workerStaffingMapper;
     private final WorkerRecommendService workerRecommendService;
+    private final RepairGradingService repairGradingService;
     private final SlaMonitorService slaMonitorService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, Object> page(int pageNum, int pageSize, Integer status, Integer priority, String keyword, Boolean overdueOnly) {
+        backfillSmartFields();
         Page<RepairOrder> page = repairOrderMapper.selectPage(
                 new Page<>(Math.max(pageNum, 1), Math.min(Math.max(pageSize, 1), 100)),
                 buildPageWrapper(status, priority, keyword, overdueOnly)
@@ -58,9 +65,12 @@ public class SmartWorkOrderService {
         return payload;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, Object> detail(Long orderId) {
         RepairOrder order = requireOrder(orderId);
+        if (applySmartFields(order)) {
+            repairOrderMapper.updateById(order);
+        }
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("order", order);
         data.putAll(enrichRow(order));
@@ -150,6 +160,10 @@ public class SmartWorkOrderService {
         RepairOrder order = requireOrder(orderId);
         if (priority != null) {
             order.setPriority(priority);
+            if (!StringUtils.hasText(order.getRemark()) || !order.getRemark().contains(MANUAL_PRIORITY_MARK)) {
+                String oldRemark = StringUtils.hasText(order.getRemark()) ? order.getRemark().trim() + " " : "";
+                order.setRemark(oldRemark + MANUAL_PRIORITY_MARK);
+            }
         }
         if (suggestedWorkerId != null) {
             order.setSuggestedWorkerId(suggestedWorkerId);
@@ -203,17 +217,75 @@ public class SmartWorkOrderService {
         return order;
     }
 
+    private void backfillSmartFields() {
+        List<RepairOrder> missingOrders = repairOrderMapper.selectList(new LambdaQueryWrapper<RepairOrder>()
+                .eq(RepairOrder::getIsDeleted, 0)
+                .orderByDesc(RepairOrder::getId)
+                .last("LIMIT 500"));
+        for (RepairOrder order : missingOrders) {
+            if (applySmartFields(order)) {
+                repairOrderMapper.updateById(order);
+            }
+        }
+    }
+
+    private boolean applySmartFields(RepairOrder order) {
+        if (order == null) {
+            return false;
+        }
+        boolean changed = false;
+        if (!StringUtils.hasText(order.getRemark()) || !order.getRemark().contains(MANUAL_PRIORITY_MARK)) {
+            Integer calculatedPriority = repairGradingService.calculatePriority(order.getDescription(), order.getUserId());
+            if (!Objects.equals(order.getPriority(), calculatedPriority)) {
+                order.setPriority(calculatedPriority);
+                changed = true;
+            }
+        }
+        Long workerId = workerRecommendService.recommendWorker(recommendText(order));
+        if (workerId != null && !Objects.equals(order.getSuggestedWorkerId(), workerId)) {
+            order.setSuggestedWorkerId(workerId);
+            changed = true;
+        }
+        if (order.getSlaDeadline() == null) {
+            LocalDateTime base = order.getCreateTime() == null ? LocalDateTime.now() : order.getCreateTime();
+            order.setSlaDeadline(slaDeadlineByPriority(base, order.getPriority()));
+            changed = true;
+        }
+        if (changed) {
+            order.setUpdateTime(LocalDateTime.now());
+        }
+        return changed;
+    }
+
+    // 将工单的多个文本字段拼成一段，给智能派单规则做关键词匹配。
+    private String recommendText(RepairOrder order) {
+        return Stream.of(order.getCategory(), order.getServiceMajor(), order.getServiceSubType(), order.getDescription())
+                .filter(StringUtils::hasText)
+                .collect(Collectors.joining(" "));
+    }
+
+    // SLA截止时间按优先级生成：紧急30分钟，普通2小时，低优先级24小时。
+    private LocalDateTime slaDeadlineByPriority(LocalDateTime base, Integer priority) {
+        return switch (priority == null ? 2 : priority) {
+            case 1 -> base.plusMinutes(30);
+            case 3 -> base.plusHours(24);
+            default -> base.plusHours(2);
+        };
+    }
+
     private List<Map<String, Object>> enrichRows(List<RepairOrder> orders) {
         return orders.stream().map(this::enrichRow).toList();
     }
 
     private Map<String, Object> enrichRow(RepairOrder order) {
         Map<Long, User> users = userMap(collectRelatedUserIds(order));
+        Map<Long, WorkerStaffing> staffing = workerStaffingMap(collectRelatedUserIds(order));
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("id", order.getId());
         row.put("userId", order.getUserId());
         row.put("ownerName", displayName(users.get(order.getUserId()), "业主", order.getUserId()));
         row.put("category", order.getCategory());
+        row.put("categoryText", categoryText(order));
         row.put("serviceMajor", order.getServiceMajor());
         row.put("serviceSubType", order.getServiceSubType());
         row.put("description", order.getDescription());
@@ -222,9 +294,9 @@ public class SmartWorkOrderService {
         row.put("status", order.getStatus());
         row.put("statusText", statusText(order.getStatus()));
         row.put("assignee", order.getAssignee());
-        row.put("assigneeName", displayName(users.get(order.getAssignee()), "维修员", order.getAssignee()));
+        row.put("assigneeName", workerDisplayName(users.get(order.getAssignee()), staffing.get(order.getAssignee()), order.getAssignee()));
         row.put("suggestedWorkerId", order.getSuggestedWorkerId());
-        row.put("suggestedWorkerName", displayName(users.get(order.getSuggestedWorkerId()), "维修员", order.getSuggestedWorkerId()));
+        row.put("suggestedWorkerName", workerDisplayName(users.get(order.getSuggestedWorkerId()), staffing.get(order.getSuggestedWorkerId()), order.getSuggestedWorkerId()));
         row.put("assignedTime", order.getAssignedTime());
         row.put("slaDeadline", order.getSlaDeadline());
         row.put("slaOverdue", isOverdue(order));
@@ -258,6 +330,18 @@ public class SmartWorkOrderService {
                         .eq(User::getIsDeleted, 0))
                 .stream()
                 .collect(Collectors.toMap(User::getId, item -> item, (a, b) -> a));
+    }
+
+    private Map<Long, WorkerStaffing> workerStaffingMap(Collection<Long> ids) {
+        List<Long> validIds = ids.stream().filter(Objects::nonNull).distinct().toList();
+        if (validIds.isEmpty()) {
+            return Map.of();
+        }
+        return workerStaffingMapper.selectList(new LambdaQueryWrapper<WorkerStaffing>()
+                        .in(WorkerStaffing::getWorkerId, validIds)
+                        .eq(WorkerStaffing::getIsDeleted, 0))
+                .stream()
+                .collect(Collectors.toMap(WorkerStaffing::getWorkerId, item -> item, (a, b) -> a));
     }
 
     private List<Long> normalizeAssigneeIds(RepairOrder order, SmartWorkOrderDispatchReq req) {
@@ -306,10 +390,14 @@ public class SmartWorkOrderService {
                 .map(RepairOrderWorker::getWorkerId)
                 .filter(Objects::nonNull)
                 .toList());
+        Map<Long, WorkerStaffing> staffingMap = workerStaffingMap(participants.stream()
+                .map(RepairOrderWorker::getWorkerId)
+                .filter(Objects::nonNull)
+                .toList());
         return participants.stream().map(item -> {
             Map<String, Object> row = new HashMap<>();
             row.put("workerId", item.getWorkerId());
-            row.put("workerName", displayName(workerMap.get(item.getWorkerId()), "维修员", item.getWorkerId()));
+            row.put("workerName", workerDisplayName(workerMap.get(item.getWorkerId()), staffingMap.get(item.getWorkerId()), item.getWorkerId()));
             row.put("roleType", item.getRoleType());
             row.put("verifyPassed", item.getVerifyPassed());
             row.put("finishConfirmed", item.getFinishConfirmed());
@@ -364,6 +452,88 @@ public class SmartWorkOrderService {
             return user.getAccount();
         }
         return fallbackId == null ? "-" : prefix + fallbackId;
+    }
+
+    private String workerDisplayName(User user, WorkerStaffing staffing, Long fallbackId) {
+        if (fallbackId == null) {
+            return "-";
+        }
+        String name = user != null && StringUtils.hasText(user.getNickname()) && containsChinese(user.getNickname())
+                ? user.getNickname().trim()
+                : workerAlias(fallbackId);
+        return name + "-" + workerTrade(staffing);
+    }
+
+    private boolean containsChinese(String text) {
+        return text != null && text.codePoints()
+                .anyMatch(code -> Character.UnicodeScript.of(code) == Character.UnicodeScript.HAN);
+    }
+
+    private String workerAlias(Long workerId) {
+        if (workerId == null) {
+            return "维修员";
+        }
+        return switch (workerId.intValue()) {
+            case 20 -> "陈佳";
+            case 21 -> "李娜";
+            case 22 -> "王静";
+            case 23 -> "赵敏";
+            case 24 -> "周芳";
+            case 25 -> "吴洁";
+            case 26 -> "孙宁";
+            case 27 -> "郑欣";
+            case 28 -> "刘志国";
+            case 29 -> "陈建华";
+            case 30 -> "王立强";
+            case 31 -> "赵明";
+            default -> "维修员" + workerId;
+        };
+    }
+
+    private String workerTrade(WorkerStaffing staffing) {
+        if (staffing == null) {
+            return "维修";
+        }
+        String position = staffing.getPosition() == null ? "" : staffing.getPosition().toLowerCase();
+        String specialties = staffing.getSpecialties() == null ? "" : staffing.getSpecialties();
+        if (position.contains("plumber") || specialties.contains("水管") || specialties.contains("下水")) {
+            return "水工";
+        }
+        if (position.contains("electric") || specialties.contains("电路") || specialties.contains("灯具")) {
+            return "电工";
+        }
+        if (position.contains("appliance") || specialties.contains("家电")) {
+            return "家电维修";
+        }
+        if (position.contains("outsource") || specialties.contains("专项")) {
+            return "综合维修";
+        }
+        if (position.contains("housekeeping") || specialties.contains("保洁")) {
+            return "家政";
+        }
+        return "维修";
+    }
+
+    private String categoryText(RepairOrder order) {
+        if (StringUtils.hasText(order.getCategory())) {
+            return switch (order.getCategory().trim().toLowerCase()) {
+                case "security" -> "安防门禁";
+                case "plumbing" -> "管道疏通";
+                case "elevator" -> "电梯设施";
+                case "public" -> "公共设施";
+                case "electrical", "electric" -> "电路照明";
+                case "appliance" -> "家电维修";
+                case "door" -> "门窗门锁";
+                default -> order.getCategory();
+            };
+        }
+        if (StringUtils.hasText(order.getServiceSubType())) {
+            return order.getServiceSubType();
+        }
+        if (StringUtils.hasText(order.getServiceMajor())) {
+            return order.getServiceMajor();
+        }
+        return "维修工单";
     }
 
     private String statusText(Integer status) {

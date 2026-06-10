@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">业主注册</view>
-    <view class="hero-desc">请输入手机号与房产号完成注册</view>
   </view>
 
   <view class="item">

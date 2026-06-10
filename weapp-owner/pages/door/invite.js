@@ -13,7 +13,9 @@ function toDateTimeParts(date) {
 
 function formatCountdown(seconds) {
   const sec = Number(seconds || 0)
-  if (sec <= 0) return '已到期'
+  if (sec <= 0) {
+    return '已到期'
+  }
   const h = Math.floor(sec / 3600)
   const m = Math.floor((sec % 3600) / 60)
   const s = sec % 60
@@ -24,6 +26,7 @@ Page({
   data: {
     visitorName: '',
     visitorPhone: '',
+    visitReason: '',
     visitDate: '',
     visitClock: '',
     validityType: 'SINGLE_2H',
@@ -68,7 +71,9 @@ Page({
     this.stopTicker()
     const timer = setInterval(() => {
       const list = (this.data.invites || []).map((item) => {
-        if (item.status !== 'UNUSED') return item
+        if (item.status !== 'UNUSED') {
+          return item
+        }
         const left = Number(item.countdownSeconds || 0)
         if (left <= 0) {
           return {
@@ -80,7 +85,11 @@ Page({
             canRenew: true
           }
         }
-        return { ...item, countdownSeconds: left - 1, countdownText: formatCountdown(left - 1) }
+        return {
+          ...item,
+          countdownSeconds: left - 1,
+          countdownText: formatCountdown(left - 1)
+        }
       })
       this.setData({ invites: list })
     }, 1000)
@@ -95,11 +104,15 @@ Page({
   },
 
   onName(e) {
-    this.setData({ visitorName: e.detail.value })
+    this.setData({ visitorName: e.detail.value || '' })
   },
 
   onPhone(e) {
-    this.setData({ visitorPhone: e.detail.value })
+    this.setData({ visitorPhone: e.detail.value || '' })
+  },
+
+  onReason(e) {
+    this.setData({ visitReason: e.detail.value || '' })
   },
 
   onVisitDateChange(e) {
@@ -125,16 +138,21 @@ Page({
   useHistoryVisitor(e) {
     const idx = Number(e.currentTarget.dataset.index)
     const item = this.data.visitors[idx]
-    if (!item) return
+    if (!item) {
+      return
+    }
     this.setData({
       visitorName: item.visitorName || '',
-      visitorPhone: item.visitorPhone || ''
+      visitorPhone: item.visitorPhone || '',
+      visitReason: item.visitReason || ''
     })
     wx.showToast({ title: '已填入访客信息' })
   },
 
   composeDateTime(dateText, clockText) {
-    if (!dateText || !clockText) return ''
+    if (!dateText || !clockText) {
+      return ''
+    }
     return `${dateText} ${clockText}:00`
   },
 
@@ -179,12 +197,19 @@ Page({
   },
 
   async submitInvite() {
-    if (this.data.submitting) return
+    if (this.data.submitting) {
+      return
+    }
 
     const visitorName = (this.data.visitorName || '').trim()
     const visitorPhone = (this.data.visitorPhone || '').trim()
+    const visitReason = (this.data.visitReason || '').trim()
     if (!visitorName || !visitorPhone) {
       wx.showToast({ title: '请填写访客姓名和手机号', icon: 'none' })
+      return
+    }
+    if (!visitReason) {
+      wx.showToast({ title: '请填写入院事由', icon: 'none' })
       return
     }
 
@@ -197,6 +222,7 @@ Page({
     const payload = {
       visitorName,
       visitorPhone,
+      visitReason,
       visitTime,
       validityType: this.data.validityType
     }
@@ -229,13 +255,19 @@ Page({
 
   async renewInvite(e) {
     const id = e.currentTarget.dataset.id
-    if (!id) return
+    if (!id) {
+      return
+    }
 
     wx.showActionSheet({
       itemList: ['单次有效（2小时）', '当天有效（截止23:59）', '使用当前自定义时间'],
       success: async (res) => {
         const validityType = res.tapIndex === 0 ? 'SINGLE_2H' : res.tapIndex === 1 ? 'TODAY_END' : 'CUSTOM'
-        const payload = { validityType }
+        const payload = {
+          validityType,
+          visitTime: this.composeDateTime(this.data.visitDate, this.data.visitClock),
+          visitReason: (this.data.visitReason || '').trim() || undefined
+        }
 
         if (validityType === 'CUSTOM') {
           payload.customExpireTime = this.composeDateTime(this.data.customDate, this.data.customClock)
@@ -244,8 +276,6 @@ Page({
             return
           }
         }
-
-        payload.visitTime = this.composeDateTime(this.data.visitDate, this.data.visitClock)
 
         try {
           const data = await request({
@@ -265,13 +295,17 @@ Page({
 
   copyCode() {
     const code = this.data.latestInvite?.code
-    if (!code) return
+    if (!code) {
+      return
+    }
     wx.setClipboardData({ data: code })
   },
 
   copyShareLink() {
     const link = this.data.latestInvite?.shareLink
-    if (!link) return
+    if (!link) {
+      return
+    }
     wx.setClipboardData({ data: link })
   },
 
@@ -300,7 +334,9 @@ Page({
 
   async removeInvite(e) {
     const id = e.currentTarget.dataset.id
-    if (!id) return
+    if (!id) {
+      return
+    }
     try {
       await request({ url: `/access/invite/${id}`, method: 'DELETE' })
       wx.showToast({ title: '已删除' })

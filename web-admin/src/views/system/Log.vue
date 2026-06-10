@@ -2,7 +2,7 @@
   <div class="page-grid">
     <section class="panel">
       <div class="panel-header">
-        <h3>操作审计日志</h3>
+        <h3>系统日志管理</h3>
         <div class="actions">
           <el-input-number v-model="limit" :min="20" :max="1000" :step="20" />
           <el-button :loading="loading" @click="loadLogs">刷新</el-button>

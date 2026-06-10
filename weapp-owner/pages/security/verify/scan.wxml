@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero security-hero">
     <view class="hero-title">门禁扫码核验</view>
-    <view class="hero-desc">当前先支持模拟扫码核验，后续可切换到真实扫码流程</view>
   </view>
 
   <view class="item">
@@ -18,15 +17,9 @@
     </view>
   </view>
 
-  <view class="item" wx:if="{{cameraAuthorized}}">
-    <view class="item-title">相机预览（模拟扫码阶段）</view>
-    <view class="item-desc">当前阶段使用“模拟扫码核验”，相机仅用于权限确认与预览。</view>
-    <camera class="camera-preview" device-position="back" flash="off"></camera>
-  </view>
-
   <view class="item">
-    <view class="item-title">模拟扫码核验</view>
-    <view class="item-desc">粘贴扫码结果，例如 smartcommunity://visitor/dynamic?token=xxx，也可以直接粘贴 token。</view>
+    <view class="item-title">扫码核验</view>
+    <view class="item-desc">优先使用摄像头扫描访客二维码；无法扫码时可粘贴 smartcommunity://visitor/dynamic?token=xxx 或 token。</view>
     <textarea
       class="input textarea"
       placeholder="请输入扫码内容或 token"
@@ -35,8 +28,9 @@
     />
     <view class="meta">识别结果：{{token || '--'}}</view>
     <view class="action-row">
+      <view class="mini-btn" bindtap="scanCode">{{verifying ? '核验中...' : '扫码并核验'}}</view>
       <view class="mini-btn mini-btn-plain" bindtap="readFromClipboard">从剪贴板读取</view>
-      <view class="mini-btn" bindtap="simulateScanVerify">{{verifying ? '核验中...' : '开始核验'}}</view>
+      <view class="mini-btn mini-btn-plain" bindtap="simulateScanVerify">手动核验</view>
     </view>
   </view>
 

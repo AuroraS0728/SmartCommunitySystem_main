@@ -9,9 +9,13 @@ import com.smartcommunity.entity.ParkingOrder;
 import com.smartcommunity.entity.Property;
 import com.smartcommunity.entity.RepairOrder;
 import com.smartcommunity.entity.SecondHand;
+import com.smartcommunity.entity.ExpressPackage;
+import com.smartcommunity.entity.FacilityInfo;
 import com.smartcommunity.entity.User;
 import com.smartcommunity.entity.VisitorInvite;
+import com.smartcommunity.mapper.ExpressPackageMapper;
 import com.smartcommunity.mapper.AccessTokenMapper;
+import com.smartcommunity.mapper.FacilityInfoMapper;
 import com.smartcommunity.mapper.FeeBillMapper;
 import com.smartcommunity.mapper.NoticeMapper;
 import com.smartcommunity.mapper.ParkingOrderMapper;
@@ -23,6 +27,7 @@ import com.smartcommunity.mapper.VisitorInviteMapper;
 import com.smartcommunity.service.LocalCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,6 +65,8 @@ public class StatisticsController {
     private final AccessTokenMapper accessTokenMapper;
     private final NoticeMapper noticeMapper;
     private final VisitorInviteMapper visitorInviteMapper;
+    private final ExpressPackageMapper expressPackageMapper;
+    private final FacilityInfoMapper facilityInfoMapper;
     private final LocalCacheService localCacheService;
     @Qualifier("queryExecutor")
     private final Executor queryExecutor;
@@ -114,6 +121,18 @@ public class StatisticsController {
         CompletableFuture<Long> activeVisitorsFuture = CompletableFuture.supplyAsync(() -> visitorInviteMapper.selectCount(new LambdaQueryWrapper<VisitorInvite>()
                 .eq(VisitorInvite::getIsDeleted, 0)
                 .gt(VisitorInvite::getExpireTime, now)), queryExecutor);
+        CompletableFuture<Long> pendingExpressFuture = CompletableFuture.supplyAsync(() -> expressPackageMapper.selectCount(new LambdaQueryWrapper<ExpressPackage>()
+                .eq(ExpressPackage::getIsDeleted, 0)
+                .eq(ExpressPackage::getStatus, 0)), queryExecutor);
+        CompletableFuture<Long> todayExpressFuture = CompletableFuture.supplyAsync(() -> expressPackageMapper.selectCount(new LambdaQueryWrapper<ExpressPackage>()
+                .eq(ExpressPackage::getIsDeleted, 0)
+                .ge(ExpressPackage::getArrivedTime, today.atStartOfDay())), queryExecutor);
+        CompletableFuture<Long> facilityMaintenanceFuture = CompletableFuture.supplyAsync(() -> facilityInfoMapper.selectCount(new LambdaQueryWrapper<FacilityInfo>()
+                .eq(FacilityInfo::getIsDeleted, 0)
+                .eq(FacilityInfo::getStatus, 2)), queryExecutor);
+        CompletableFuture<Long> facilityDisabledFuture = CompletableFuture.supplyAsync(() -> facilityInfoMapper.selectCount(new LambdaQueryWrapper<FacilityInfo>()
+                .eq(FacilityInfo::getIsDeleted, 0)
+                .eq(FacilityInfo::getStatus, 3)), queryExecutor);
         CompletableFuture<Long> ownerTotalFuture = CompletableFuture.supplyAsync(() -> userMapper.selectCount(new LambdaQueryWrapper<User>()
                 .eq(User::getIsDeleted, 0)
                 .eq(User::getRole, 1)), queryExecutor);
@@ -122,7 +141,8 @@ public class StatisticsController {
         CompletableFuture.allOf(
                 totalPropertyFuture, occupiedFuture, billsFuture, ordersFuture, parkingOrdersFuture,
                 accessTokenTotalFuture, accessTokenOnlineFuture, latestNoticesFuture, latestVisitorsFuture,
-                latestSecondHandsFuture, activeVisitorsFuture, ownerTotalFuture, ownerGrowthFuture
+                latestSecondHandsFuture, activeVisitorsFuture, pendingExpressFuture, todayExpressFuture,
+                facilityMaintenanceFuture, facilityDisabledFuture, ownerTotalFuture, ownerGrowthFuture
         ).join();
 
         long totalProperty = totalPropertyFuture.join();
@@ -134,6 +154,10 @@ public class StatisticsController {
         List<VisitorInvite> latestVisitors = latestVisitorsFuture.join();
         List<SecondHand> latestSecondHands = latestSecondHandsFuture.join();
         long activeVisitors = activeVisitorsFuture.join();
+        long pendingExpress = pendingExpressFuture.join();
+        long todayExpress = todayExpressFuture.join();
+        long facilityMaintenance = facilityMaintenanceFuture.join();
+        long facilityDisabled = facilityDisabledFuture.join();
         long ownerTotal = ownerTotalFuture.join();
         double ownerGrowthRate = ownerGrowthFuture.join();
         long accessTokenTotal = accessTokenTotalFuture.join();
@@ -221,6 +245,10 @@ public class StatisticsController {
         data.put("repairUrgent", urgent);
         data.put("deviceOnlineRate", round1(deviceOnlineRate));
         data.put("activeVisitors", activeVisitors);
+        data.put("pendingExpress", pendingExpress);
+        data.put("todayExpress", todayExpress);
+        data.put("facilityMaintenance", facilityMaintenance);
+        data.put("facilityDisabled", facilityDisabled);
         data.put("trendLabels", trend.get("trendLabels"));
         data.put("newRepairs", trend.get("newRepairs"));
         data.put("finishedRepairs", trend.get("finishedRepairs"));
@@ -254,25 +282,46 @@ public class StatisticsController {
         for (SecondHand goods : secondHands) {
             Map<String, Object> item = new LinkedHashMap<>();
             String name = nicknameMap.getOrDefault(goods.getUserId(), "社区业主");
-            item.put("text", name + "业主刚刚发布了二手物品《" + safeTitle(goods.getTitle()) + "》");
-            item.put("time", relativeTime(goods.getCreateTime(), now));
+            item.put("id", goods.getId());
             item.put("type", "second-hand");
+            item.put("typeName", "二手物品");
+            item.put("title", safeTitle(goods.getTitle()));
+            item.put("text", name + "业主刚刚发布了二手物品《" + safeTitle(goods.getTitle()) + "》");
+            item.put("detail", goods.getDescription());
+            item.put("publisher", name);
+            item.put("price", goods.getPrice());
+            item.put("contact", goods.getContact());
+            item.put("community", goods.getCommunity());
+            item.put("time", relativeTime(goods.getCreateTime(), now));
             item.put("sortTime", goods.getCreateTime());
             items.add(item);
         }
         for (Notice notice : notices) {
             Map<String, Object> item = new LinkedHashMap<>();
-            item.put("text", "物业发布了社区公告《" + safeTitle(notice.getTitle()) + "》");
-            item.put("time", relativeTime(notice.getPublishTime(), now));
+            item.put("id", notice.getId());
             item.put("type", "notice");
+            item.put("typeName", "社区公告");
+            item.put("title", safeTitle(notice.getTitle()));
+            item.put("text", "物业发布了社区公告《" + safeTitle(notice.getTitle()) + "》");
+            item.put("detail", notice.getContent());
+            item.put("publisher", notice.getPublisher());
+            item.put("targetPath", "/notice/manage");
+            item.put("time", relativeTime(notice.getPublishTime(), now));
             item.put("sortTime", notice.getPublishTime());
             items.add(item);
         }
         for (VisitorInvite visitor : visitors) {
             Map<String, Object> item = new LinkedHashMap<>();
-            item.put("text", safeName(visitor.getVisitorName()) + "提交了访客通行申请");
-            item.put("time", relativeTime(visitor.getCreateTime(), now));
+            item.put("id", visitor.getId());
             item.put("type", "visitor");
+            item.put("typeName", "访客通行");
+            item.put("title", safeName(visitor.getVisitorName()) + "的访客通行申请");
+            item.put("text", safeName(visitor.getVisitorName()) + "提交了访客通行申请");
+            item.put("detail", StringUtils.hasText(visitor.getVisitReason()) ? visitor.getVisitReason() : visitorReason(visitor, now));
+            item.put("visitorName", visitor.getVisitorName());
+            item.put("visitorPhone", visitor.getVisitorPhone());
+            item.put("targetPath", "/visitor/record");
+            item.put("time", relativeTime(visitor.getCreateTime(), now));
             item.put("sortTime", visitor.getCreateTime());
             items.add(item);
         }

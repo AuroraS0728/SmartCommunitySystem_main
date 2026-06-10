@@ -27,6 +27,7 @@ public class ComplaintAnalysisService {
 
     public AnalysisResult analyze(String title, String content) {
         String text = joinText(title, content);
+        // 先用词典规则做情感分析，再用数据库中的紧急关键词做兜底提级。
         SentimentResult sentiment = SentimentAnalyzer.analyze(text);
         AnalysisResult result = new AnalysisResult();
         double score = sentiment.getScore();
@@ -62,6 +63,7 @@ public class ComplaintAnalysisService {
         if (!StringUtils.hasText(text)) {
             return false;
         }
+        // 紧急关键词放数据库里，后续可由后台维护，不需要每次都改代码。
         List<EmergencyKeyword> keywords = emergencyKeywordMapper.selectList(new LambdaQueryWrapper<EmergencyKeyword>()
                 .eq(EmergencyKeyword::getIsDeleted, 0)
                 .eq(EmergencyKeyword::getEnabled, 1));

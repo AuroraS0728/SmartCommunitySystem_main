@@ -1,7 +1,6 @@
 <view class="section">
   <view class="hero">
     <view class="hero-title">智慧社区统一端</view>
-    <view class="hero-desc">支持业主端、物业安防端、维修端登录</view>
   </view>
 
   <view class="item login-card">
