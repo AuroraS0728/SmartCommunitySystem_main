@@ -20,3 +20,46 @@
   font-weight: 700;
   letter-spacing: 4rpx;
 }
+
+.row-start {
+  align-items: flex-start;
+  gap: 18rpx;
+}
+
+.status-tag {
+  flex-shrink: 0;
+}
+
+.section-title {
+  margin: 34rpx 0 18rpx;
+  color: #4a4a4a;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.repair-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 16rpx;
+  background: #f1f5f9;
+}
+
+.objection-box {
+  margin-top: 20rpx;
+}
+
+.objection-box textarea {
+  width: 100%;
+  min-height: 140rpx;
+  box-sizing: border-box;
+  padding: 16rpx;
+  border-radius: 12rpx;
+  background: #f8fafc;
+}

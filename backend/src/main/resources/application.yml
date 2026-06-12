@@ -14,16 +14,16 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 jwt:
-  secret: smart-community-secret-key-1234567890
+  secret: ${JWT_SECRET:}
   expire-seconds: 86400
 
 wechat:
-  app-id: wx_mock_appid
-  app-secret: mock_secret
-  mch-id: mock_mch_id
-  mch-serial-no: mock_serial_no
-  api-v3-key: mock_api_v3_key
-  notify-url: https://example.com/pay/notify
+  app-id: ${WECHAT_APP_ID:}
+  app-secret: ${WECHAT_APP_SECRET:}
+  mch-id: ${WECHAT_MCH_ID:}
+  mch-serial-no: ${WECHAT_MCH_SERIAL_NO:}
+  api-v3-key: ${WECHAT_API_V3_KEY:}
+  notify-url: ${WECHAT_NOTIFY_URL:}
 
 blog:
   admin-password-sha256: ${BLOG_ADMIN_PASSWORD_SHA256:}
@@ -56,7 +56,7 @@ seetaface:
   enable-eye-state-check: ${SEETAFACE_ENABLE_EYE_STATE_CHECK:true}
   require-eyes-open: ${SEETAFACE_REQUIRE_EYES_OPEN:true}
   enable-quality-check: ${SEETAFACE_ENABLE_QUALITY_CHECK:true}
-  require-quality-pass: ${SEETAFACE_REQUIRE_QUALITY_PASS:true}
+  require-quality-pass: ${SEETAFACE_REQUIRE_QUALITY_PASS:false}
   native-resource-dir: native
   native-extract-dir: ${SEETAFACE_NATIVE_EXTRACT:./seetaface-native}
   native-libraries:

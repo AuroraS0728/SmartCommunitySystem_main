@@ -1,16 +1,23 @@
 <view class="section">
   <view class="hero">
-    <view class="hero-title">报修工单</view>
+    <view class="hero-title">我的报修</view>
+    <view class="hero-subtitle">查看已提交的报修工单和处理进度</view>
   </view>
 
   <view wx:if="{{!list.length}}" class="empty">暂无报修记录</view>
 
-  <view wx:for="{{list}}" wx:key="id" class="item">
+  <view
+    wx:for="{{list}}"
+    wx:key="id"
+    class="item"
+    bindtap="goDetail"
+    data-id="{{item.id}}"
+  >
     <view class="row-between">
       <view class="item-title">{{item.category || "未分类工单"}}</view>
-      <view class="status-tag">{{item.statusText}}</view>
+      <view class="status-tag {{item.statusClass}}">{{item.statusText}}</view>
     </view>
     <view class="item-desc">{{item.description || "暂无描述"}}</view>
-    <navigator class="link" url="/pages/repair/detail?id={{item.id}}">查看详情 ></navigator>
+    <view class="link">查看详情 ></view>
   </view>
 </view>

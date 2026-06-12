@@ -11,14 +11,20 @@
 
       <el-table :data="displayList" stripe>
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="nickname" label="姓名" min-width="120" />
+        <el-table-column label="姓名" min-width="140">
+          <template #default="{ row }">{{ workerOptionLabel(row) }}</template>
+        </el-table-column>
         <el-table-column prop="phone" label="电话" min-width="130" />
         <el-table-column label="人员类型" min-width="120">
           <template #default="{ row }">{{ staffTypeText(row.staffType) }}</template>
         </el-table-column>
-        <el-table-column prop="position" label="岗位" min-width="120" />
+        <el-table-column label="岗位" min-width="140">
+          <template #default="{ row }">{{ translateWorkerText(row.position) || '--' }}</template>
+        </el-table-column>
         <el-table-column prop="shiftGroup" label="排班" width="90" />
-        <el-table-column prop="specialties" label="擅长类型" min-width="220" show-overflow-tooltip />
+        <el-table-column label="擅长类型" min-width="240" show-overflow-tooltip>
+          <template #default="{ row }">{{ translateWorkerText(row.specialties) || '--' }}</template>
+        </el-table-column>
         <el-table-column label="状态" width="110">
           <template #default="{ row }">
             <el-tag :type="statusTagType(row.currentStatus)">{{ staffStatusText(row.currentStatus) }}</el-tag>
@@ -158,6 +164,7 @@ import {
   updateWorker
 } from '@/api/worker'
 import { getWorkerFaceStatus, registerWorkerFace } from '@/api/face'
+import { translateWorkerText, workerDisplayName, workerOptionLabel } from '@/utils/workerDisplay'
 
 const keyword = ref('')
 const list = ref([])
@@ -186,8 +193,10 @@ const displayList = computed(() => {
   return list.value.filter((item) => {
     return (
       String(item.nickname || '').includes(text) ||
+      workerDisplayName(item).includes(text) ||
       String(item.phone || '').includes(text) ||
-      String(item.specialties || '').includes(text)
+      String(item.specialties || '').includes(text) ||
+      translateWorkerText(item.specialties).includes(text)
     )
   })
 })
@@ -215,13 +224,13 @@ function openCreate() {
 function openEdit(row) {
   form.value = {
     id: row.id,
-    nickname: row.nickname || '',
+    nickname: workerDisplayName(row),
     phone: row.phone || '',
     staffType: Number(row.staffType || 2),
-    position: row.position || '',
+    position: translateWorkerText(row.position),
     shiftGroup: row.shiftGroup || 'A',
-    skills: row.specialties || '',
-    certificates: row.certificates || '',
+    skills: translateWorkerText(row.specialties),
+    certificates: translateWorkerText(row.certificates),
     maxDailyOrders: Number(row.maxDailyOrders || 5),
     currentStatus: Number(row.currentStatus || 1)
   }
@@ -339,11 +348,11 @@ async function submit() {
     const payload = {
       nickname: form.value.nickname,
       phone: form.value.phone,
-      skills: form.value.skills,
+      skills: translateWorkerText(form.value.skills),
       staffType: Number(form.value.staffType || 2),
-      position: form.value.position,
+      position: translateWorkerText(form.value.position),
       shiftGroup: form.value.shiftGroup,
-      certificates: form.value.certificates,
+      certificates: translateWorkerText(form.value.certificates),
       maxDailyOrders: Number(form.value.maxDailyOrders || 5),
       currentStatus: Number(form.value.currentStatus || 1)
     }

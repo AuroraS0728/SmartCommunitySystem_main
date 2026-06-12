@@ -33,7 +33,9 @@ Page({
     afterImages: "",
     verifyCode: "",
     verifyPassed: false,
+    selfVerifyPassed: false,
     pendingWorkerIds: [],
+    pendingWorkerText: "",
     participants: [],
     workerId: null,
     techFee: "",
@@ -58,14 +60,19 @@ Page({
       const detail = await request({ url: `/repair/${this.data.id}` })
       const order = detail?.order || null
       const participants = Array.isArray(detail?.participants) ? detail.participants : []
+      const self = participants.find((item) => Number(item?.workerId) === Number(this.data.workerId)) || null
+      const selfVerifyPassed = !!self?.verifyPassed
+      const pendingWorkerIds = Array.isArray(detail?.pendingWorkerIds) ? detail.pendingWorkerIds : []
       const feeDetails = Array.isArray(detail?.repairFeeDetails) ? detail.repairFeeDetails : []
       const selfFee = feeDetails.find((item) => Number(item?.workerId) === Number(this.data.workerId)) || {}
       this.setData({
         order,
         beforeImages: order?.beforeImages || "",
         afterImages: order?.afterImages || "",
-        verifyPassed: !!detail?.verifyPassed,
-        pendingWorkerIds: Array.isArray(detail?.pendingWorkerIds) ? detail.pendingWorkerIds : [],
+        verifyPassed: !!detail?.verifyPassed || selfVerifyPassed,
+        selfVerifyPassed,
+        pendingWorkerIds,
+        pendingWorkerText: pendingWorkerIds.join(","),
         participants,
         techFee: selfFee?.techFee == null ? "" : String(selfFee.techFee),
         materialFee: selfFee?.materialFee == null ? "" : String(selfFee.materialFee),
@@ -111,6 +118,14 @@ Page({
 
   onFeeRemarkInput(e) {
     this.setData({ feeRemark: e.detail.value })
+  },
+
+  goFaceVerify() {
+    if (!this.data.id) {
+      wx.showToast({ title: "工单ID无效", icon: "none" })
+      return
+    }
+    wx.navigateTo({ url: `/pages/worker/verify/face?orderId=${this.data.id}` })
   },
 
   async submitVerifyCode() {
@@ -169,7 +184,7 @@ Page({
       return
     }
     if (!this.data.verifyPassed) {
-      const pending = this.data.pendingWorkerIds.join(",")
+      const pending = this.data.pendingWorkerText
       wx.showToast({ title: pending ? `待核验工人:${pending}` : "请先完成现场核验", icon: "none" })
       return
     }
@@ -210,4 +225,3 @@ Page({
     })
   }
 })
-
