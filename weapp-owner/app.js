@@ -3,7 +3,7 @@ const CHANGE_PASSWORD_PAGE = '/pages/auth/change-password'
 const OWNER_HOME_PAGE = '/pages/index/index'
 const SECURITY_HOME_PAGE = '/pages/security/home/home'
 const WORKER_HOME_PAGE = '/pages/worker/home/home'
-const API_BASE_URL = 'http://39.106.14.166/api'
+const API_BASE_URL = 'https://wiseprop.online/api'
 
 function toRole(value) {
   const role = Number(value)
