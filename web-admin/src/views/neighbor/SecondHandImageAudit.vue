@@ -33,7 +33,11 @@
               :preview-src-list="imageUrls(row)"
               preview-teleported
               fit="cover"
-            />
+            >
+              <template #error>
+                <div class="image-error">加载失败</div>
+              </template>
+            </el-image>
             <span v-else class="muted">无图</span>
           </template>
         </el-table-column>
@@ -87,7 +91,18 @@
         <p class="muted">商品状态：{{ statusText(currentItem.status) }}，模型结果：{{ auditText(currentItem.imageAuditStatus) }}</p>
         <div v-if="auditRows(currentItem).length" class="result-list">
           <div v-for="row in auditRows(currentItem)" :key="row.id || row.imageUrl" class="result-card">
-            <el-image class="result-image" :src="assetUrl(row.imageUrl)" :preview-src-list="[assetUrl(row.imageUrl)]" fit="cover" />
+            <el-image
+              v-if="assetUrl(row.imageUrl)"
+              class="result-image"
+              :src="assetUrl(row.imageUrl)"
+              :preview-src-list="[assetUrl(row.imageUrl)]"
+              fit="cover"
+            >
+              <template #error>
+                <div class="image-error">加载失败</div>
+              </template>
+            </el-image>
+            <div v-else class="result-image image-error">无图</div>
             <div class="result-info">
               <div class="result-line">
                 <span>标签</span>
@@ -133,6 +148,7 @@ const size = ref(10)
 const total = ref(0)
 const drawerVisible = ref(false)
 const currentItem = ref(null)
+const invalidImageValues = new Set(['FAILED', 'ERROR', 'DETECT_FAILED', 'NULL', 'UNDEFINED'])
 
 const filteredItems = computed(() => {
   if (!auditFilter.value) return items.value
@@ -140,16 +156,19 @@ const filteredItems = computed(() => {
 })
 
 function baseAssetUrl() {
-  const base = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+  const base = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '')
+  if (!base || base === '/api') return window.location.origin
   return base.endsWith('/api') ? base.slice(0, -4) : base
 }
 
 // 后端保存的图片可能是相对路径，这里统一补成浏览器可以访问的完整地址。
 function assetUrl(value) {
-  if (!value) return ''
-  if (/^(https?:|data:|blob:)/i.test(value)) return value
-  if (value.startsWith('/files/') || value.startsWith('/api/')) return `${baseAssetUrl()}${value}`
-  return value
+  const text = typeof value === 'string' ? value.trim() : ''
+  if (!text || invalidImageValues.has(text.toUpperCase())) return ''
+  if (/^(https?:|data:|blob:)/i.test(text)) return text
+  if (text.startsWith('/files/') || text.startsWith('/api/')) return `${baseAssetUrl()}${text}`
+  if (text.startsWith('files/') || text.startsWith('api/')) return `${baseAssetUrl()}/${text}`
+  return text
 }
 
 // 兼容老数据：images字段可能是JSON数组，也可能是单个字符串。
@@ -351,6 +370,17 @@ onMounted(loadData)
   width: 120px;
   height: 120px;
   border-radius: 8px;
+  background: #f1f5f9;
+}
+
+.image-error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 12px;
   background: #f1f5f9;
 }
 
