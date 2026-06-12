@@ -19,16 +19,28 @@
 
   <view class="item">
     <view class="item-title">扫码核验</view>
-    <view class="item-desc">优先使用摄像头扫描访客二维码；无法扫码时可粘贴 smartcommunity://visitor/dynamic?token=xxx 或 token。</view>
+    <view class="item-desc">请将访客二维码放入扫描框内，识别后自动核验。</view>
+    <view class="scan-box">
+      <camera
+        class="scan-camera"
+        mode="scanCode"
+        device-position="back"
+        flash="off"
+        bindscancode="onCameraScan"
+        binderror="onCameraError"
+      ></camera>
+      <view class="scan-frame"></view>
+      <view class="scan-status">{{verifying ? '核验中...' : '对准二维码自动核验'}}</view>
+    </view>
+    <view wx:if="{{cameraError}}" class="meta error-text">{{cameraError}}</view>
     <textarea
       class="input textarea"
-      placeholder="请输入扫码内容或 token"
+      placeholder="请输入扫码内容"
       value="{{scanText}}"
       bindinput="onScanTextInput"
     />
     <view class="meta">识别结果：{{token || '--'}}</view>
     <view class="action-row">
-      <view class="mini-btn" bindtap="scanCode">{{verifying ? '核验中...' : '扫码并核验'}}</view>
       <view class="mini-btn mini-btn-plain" bindtap="readFromClipboard">从剪贴板读取</view>
       <view class="mini-btn mini-btn-plain" bindtap="simulateScanVerify">手动核验</view>
     </view>

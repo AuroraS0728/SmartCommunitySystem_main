@@ -11,6 +11,8 @@ function extractToken(raw) {
   return text
 }
 
+const SCAN_DEBOUNCE_MS = 2500
+
 Page({
   data: {
     cameraAuthorized: false,
@@ -18,6 +20,7 @@ Page({
     scanText: '',
     token: '',
     verifying: false,
+    cameraError: '',
     result: '',
     resultType: ''
   },
@@ -71,6 +74,25 @@ Page({
     this.setData({ scanText, token: extractToken(scanText) })
   },
 
+  onCameraScan(e) {
+    const scanText = e?.detail?.result || ''
+    const token = extractToken(scanText)
+    if (!token || this.data.verifying) return
+
+    const now = Date.now()
+    if (this.lastScanToken === token && now - (this.lastScanTime || 0) < SCAN_DEBOUNCE_MS) {
+      return
+    }
+    this.lastScanToken = token
+    this.lastScanTime = now
+    this.setData({ scanText, token, cameraError: '' })
+    this.verifyToken(token)
+  },
+
+  onCameraError(error) {
+    this.setData({ cameraError: error?.detail?.errMsg || '相机启动失败，请检查相机权限' })
+  },
+
   readFromClipboard() {
     wx.getClipboardData({
       success: ({ data }) => {
@@ -83,29 +105,11 @@ Page({
     })
   },
 
-  scanCode() {
-    if (this.data.verifying) return
-    wx.scanCode({
-      onlyFromCamera: true,
-      scanType: ['qrCode', 'barCode'],
-      success: ({ result }) => {
-        const scanText = result || ''
-        const token = extractToken(scanText)
-        this.setData({ scanText, token })
-        this.verifyToken(token)
-      },
-      fail: (error) => {
-        const message = error?.errMsg && error.errMsg.includes('cancel') ? '已取消扫码' : '扫码失败，请重试'
-        wx.showToast({ title: message, icon: 'none' })
-      }
-    })
-  },
-
   async verifyToken(tokenValue) {
     if (this.data.verifying) return
     const token = extractToken(tokenValue || this.data.scanText || this.data.token)
     if (!token) {
-      wx.showToast({ title: '请先输入扫码内容或 token', icon: 'none' })
+      wx.showToast({ title: '请先输入扫码内容', icon: 'none' })
       return
     }
 

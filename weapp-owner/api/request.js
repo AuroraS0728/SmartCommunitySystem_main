@@ -135,12 +135,17 @@ function assetBaseUrl() {
 }
 
 function resolveAssetUrl(value) {
-  if (!value || typeof value !== 'string') return ''
-  if (/^(https?:|data:|wxfile:|file:|blob:)/i.test(value)) return value
-  if (value.startsWith('/files/') || value.startsWith('/api/')) {
-    return `${assetBaseUrl()}${value}`
+  const text = typeof value === 'string' ? value.trim() : ''
+  if (!text) return ''
+  if (['FAILED', 'ERROR', 'DETECT_FAILED', 'NULL', 'UNDEFINED'].includes(text.toUpperCase())) return ''
+  if (/^(https?:|data:|wxfile:|file:|blob:)/i.test(text)) return text
+  if (text.startsWith('/files/') || text.startsWith('/api/')) {
+    return `${assetBaseUrl()}${text}`
   }
-  return value
+  if (text.startsWith('files/') || text.startsWith('api/')) {
+    return `${assetBaseUrl()}/${text}`
+  }
+  return text
 }
 
 module.exports = { request, uploadFile, resolveAssetUrl }

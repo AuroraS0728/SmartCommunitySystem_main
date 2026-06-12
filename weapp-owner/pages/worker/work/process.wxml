@@ -2,9 +2,9 @@
   <view class="item">
     <view class="item-title">工单ID：{{id || "--"}}</view>
     <view class="item-desc">当前状态：{{order ? order.status : "--"}}</view>
-    <view class="meta" wx:if="{{verifyPassed}}">现场核验：全部通过</view>
-    <view class="meta" wx:else>现场核验：未全部通过</view>
-    <view wx:if="{{pendingWorkerIds.length}}" class="meta">待核验工人：{{pendingWorkerIds.join(",")}}</view>
+    <view class="meta" wx:if="{{verifyPassed}}">现场核验：已通过</view>
+    <view class="meta" wx:else>现场核验：未通过</view>
+    <view wx:if="{{pendingWorkerIds.length}}" class="meta">待核验工人：{{pendingWorkerText}}</view>
   </view>
 
   <view class="item">
@@ -21,6 +21,14 @@
     <input class="input" value="{{verifyCode}}" bindinput="onVerifyCodeInput" placeholder="输入业主提供的验证码" />
     <view class="btn worker-btn worker-btn-secondary" bindtap="submitVerifyCode">
       {{verifying ? "校验中..." : "校验验证码"}}
+    </view>
+  </view>
+
+  <view class="item">
+    <view class="item-title">上门人脸核验</view>
+    <view class="item-desc">{{verifyPassed ? "当前维修人员已核验通过" : "相似度达到0.7后自动通过并进入服务流程"}}</view>
+    <view class="btn worker-btn" bindtap="goFaceVerify">
+      {{verifyPassed ? "继续人脸核验" : "开始人脸核验"}}
     </view>
   </view>
 
@@ -59,4 +67,3 @@
     {{loading ? "提交中..." : "确认结束（工人端）"}}
   </view>
 </view>
-

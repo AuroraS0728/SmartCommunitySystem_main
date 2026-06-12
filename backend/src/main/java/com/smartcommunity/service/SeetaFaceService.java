@@ -119,45 +119,22 @@ public class SeetaFaceService {
                 || quality.isPassed();
 
         if (!livenessPassed || !maskGatePassed || !eyeGatePassed || !qualityGatePassed) {
-            log.info("Worker live verify blocked. workerId={}, liveness={}, maskPass={}, eyePass={}, qualityPass={}",
+            log.info("Worker live verify precheck failed, continue similarity compare. workerId={}, liveness={}, maskPass={}, eyePass={}, qualityPass={}",
                     workerId, livenessLabel, maskGatePassed, eyeGatePassed, qualityGatePassed);
-            return new FaceLiveVerifyResult(
-                    false,
-                    0D,
-                    threshold,
-                    livenessPassed,
-                    livenessStatus,
-                    livenessLabel,
-                    mask.isSupported(),
-                    mask.isPassed(),
-                    mask.getStatus(),
-                    mask.getLabel(),
-                    eyeState.isSupported(),
-                    eyeState.isPassed(),
-                    eyeState.getLeftState(),
-                    eyeState.getLeftLabel(),
-                    eyeState.getRightState(),
-                    eyeState.getRightLabel(),
-                    quality.isSupported(),
-                    quality.isPassed(),
-                    quality.getScore(),
-                    quality.getLevel(),
-                    quality.getLevelLabel()
-            );
         }
 
         // 前置检测都通过后，再做人脸特征相似度比较。
         float[] current = extractFeature(imageData);
         float score = runtime.getEngine().calculateSimilarity(stored, current);
         boolean match = score >= threshold;
-        log.info("Worker live verify finished. workerId={}, score={}, threshold={}, match={}, liveness={}",
-                workerId, score, threshold, match, livenessLabel);
+        log.info("Worker live verify finished. workerId={}, score={}, threshold={}, match={}, liveness={}, maskPass={}, eyePass={}, qualityPass={}",
+                workerId, score, threshold, match, livenessLabel, maskGatePassed, eyeGatePassed, qualityGatePassed);
 
         return new FaceLiveVerifyResult(
                 match,
                 score,
                 threshold,
-                true,
+                livenessPassed,
                 livenessStatus,
                 livenessLabel,
                 mask.isSupported(),

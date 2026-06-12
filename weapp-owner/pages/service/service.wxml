@@ -19,6 +19,12 @@
       </view>
       <view class="service-name">报事报修</view>
     </view>
+    <view class="service-cell" data-url="/pages/repair/list" bindtap="goPage">
+      <view class="service-icon">
+        <image class="service-icon-image" src="/assets/icons/repair.png" mode="aspectFit" />
+      </view>
+      <view class="service-name">我的报修</view>
+    </view>
     <view class="service-cell" data-url="/pages/points/bills/index" bindtap="goPage">
       <view class="service-icon">
         <image class="service-icon-image" src="/assets/icons/fee.png" mode="aspectFit" />

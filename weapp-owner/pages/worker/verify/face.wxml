@@ -18,18 +18,26 @@
   <view class="item">
     <view class="item-title">检测状态</view>
     <view class="item-desc">{{statusText}}</view>
+    <view class="meta">工单现场核验：{{verifyStateText}}</view>
     <view class="meta">检测次数：{{attempts}}</view>
     <view class="meta">连续通过次数：{{passCount}}</view>
     <view class="meta">活体：{{livenessLabel}}</view>
-    <view class="meta">相似度：{{score.toFixed(4)}} / 阈值：{{threshold.toFixed(4)}}</view>
+    <view class="meta">相似度：{{scoreText}} / 阈值：{{thresholdText}}</view>
     <view wx:if="{{pendingWorkerIds.length}}" class="meta">
-      待通过工人：{{pendingWorkerIds.join(",")}}
+      待通过工人：{{pendingWorkerText}}
     </view>
     <view wx:if="{{resultRows.length}}" class="meta-list">
       <view wx:for="{{resultRows}}" wx:key="*this" class="meta">{{item}}</view>
+    </view>
+    <view wx:if="{{checkDetailRows.length}}" class="meta-list">
+      <view class="meta strong">未通过原因：</view>
+      <view wx:for="{{checkDetailRows}}" wx:key="*this" class="meta">{{item}}</view>
     </view>
   </view>
 
   <view wx:if="{{!running}}" class="btn worker-btn" bindtap="startLiveVerify">开始实时检测</view>
   <view wx:else class="btn worker-btn danger-btn" bindtap="stopLiveVerify">停止检测</view>
+  <view wx:if="{{siteVerifyPassed && orderId}}" class="btn worker-btn worker-btn-secondary" bindtap="goProcess">
+    进入服务流程
+  </view>
 </view>

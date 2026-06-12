@@ -683,13 +683,8 @@ public class RepairController {
             if (Integer.valueOf(STATUS_WAIT_EVALUATE).equals(order.getStatus())) {
                 return Result.fail(StatusCode.BAD_REQUEST, "order already waiting evaluation");
             }
-            if (role != null && role == 3 && !allParticipantsVerified(participants)) {
-                List<Long> pendingWorkerIds = participants.stream()
-                        .filter(item -> !isConfirmed(item.getVerifyPassed()))
-                        .map(RepairOrderWorker::getWorkerId)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-                return Result.fail(StatusCode.BAD_REQUEST, "verify not completed for workers: " + pendingWorkerIds);
+            if (role != null && role == 3 && !isConfirmed(currentParticipant.getVerifyPassed())) {
+                return Result.fail(StatusCode.BAD_REQUEST, "verify not completed for worker: " + uid);
             }
             if (role != null && role == 3) {
                 if (!StringUtils.hasText(req.getBeforeImages()) && !StringUtils.hasText(order.getBeforeImages())) {

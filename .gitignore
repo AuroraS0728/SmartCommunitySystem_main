@@ -106,11 +106,28 @@ pnpm-debug.log*
 # Local migration/temp artifacts
 # ----------------------------
 backend/online_smart_community_backup_*.sql
+backend/build/
+backend/models/
+backend/libs/
+backend/src/main/resources/native/
 backend/seetaface-jni-full/
 backend/seetaface-native/
+lib/
 
 # Personal site is maintained separately from this project.
 blog/
+tmp-blog/
+
+# Demo data / privacy-bearing local seed scripts.
+backend/src/main/resources/db/data.sql
+backend/src/main/resources/db/seed_demo.sql
+backend/src/main/resources/db/*_seed.sql
+backend/src/main/resources/db/property_700_seed.sql
+backend/src/main/resources/db/reset_owner_password_to_initials_123456.sql
+backend/src/main/resources/db/find_unregistered_owners.sql
+backend/src/main/resources/db/sync_owner_name_to_user_nickname.sql
+backend/src/main/resources/db/unsold_owner_cleanup.sql
+backend/src/main/resources/db/property_owner_randomize_non_unsold.sql
 
 # Local project documents and thesis artifacts.
 docs/**

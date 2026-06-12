@@ -107,7 +107,7 @@
             <el-option
               v-for="worker in workerOptions"
               :key="worker.id"
-              :label="`${worker.nickname || '未命名'}（ID:${worker.id}）`"
+              :label="workerOptionLabel(worker)"
               :value="worker.id"
             />
           </el-select>
@@ -129,6 +129,7 @@ import { computed, onMounted, ref } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
 import { assignRepair, autoAssignRepair, getRepairList, getRepairVerifyCode } from "@/api/repair"
 import { getWorkerList } from "@/api/worker"
+import { workerOptionLabel } from "@/utils/workerDisplay"
 
 const keyword = ref("")
 const statusFilter = ref(null)
@@ -165,7 +166,7 @@ const doneCount = computed(() => list.value.filter((item) => Number(item.status)
 const workerNameMap = computed(() => {
   const map = new Map()
   workerOptions.value.forEach((worker) => {
-    map.set(Number(worker.id), worker.nickname || worker.name || `维修员${worker.id}`)
+    map.set(Number(worker.id), workerOptionLabel(worker))
   })
   return map
 })

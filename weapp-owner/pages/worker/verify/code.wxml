@@ -12,6 +12,7 @@
   <view class="item" wx:if="{{result}}">
     <view class="item-title">校验结果</view>
     <view class="item-desc">{{result}}</view>
+    <view wx:if="{{verified}}" class="btn worker-btn" bindtap="goFaceVerify">继续人脸核验</view>
+    <view wx:if="{{verified}}" class="btn worker-btn worker-btn-secondary" bindtap="goProcess">进入服务流程</view>
   </view>
 </view>
-

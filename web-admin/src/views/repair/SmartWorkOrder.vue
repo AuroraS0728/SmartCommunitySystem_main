@@ -200,6 +200,7 @@ import {
   updateSmartWorkOrderStatus
 } from '@/api/smartWorkOrder'
 import { getWorkerList } from '@/api/worker'
+import { workerOptionLabel } from '@/utils/workerDisplay'
 
 const loading = ref(false)
 const dispatchLoading = ref(false)
@@ -267,42 +268,6 @@ function categoryText(value) {
   }
   const key = String(value || '').trim().toLowerCase()
   return map[key] || value
-}
-
-function workerOptionLabel(worker) {
-  if (!worker) return '维修员'
-  const aliases = {
-    20: '陈佳',
-    21: '李娜',
-    22: '王静',
-    23: '赵敏',
-    24: '周芳',
-    25: '吴洁',
-    26: '孙宁',
-    27: '郑欣',
-    28: '刘志国',
-    29: '陈建华',
-    30: '王立强',
-    31: '赵明'
-  }
-  const trades = {
-    20: '家政',
-    21: '家政',
-    22: '家电清洗',
-    23: '家电清洗',
-    24: '护理',
-    25: '家政',
-    26: '家政',
-    27: '家政',
-    28: '水工',
-    29: '电工',
-    30: '家电维修',
-    31: '综合维修'
-  }
-  const id = Number(worker.id)
-  const rawName = worker.nickname || worker.account || `维修员${worker.id}`
-  const name = /[\u4e00-\u9fa5]/.test(rawName) ? rawName : aliases[id] || rawName
-  return `${name}-${trades[id] || '维修'}`
 }
 
 async function loadWorkers() {

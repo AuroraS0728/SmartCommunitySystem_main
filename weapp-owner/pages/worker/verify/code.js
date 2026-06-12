@@ -4,7 +4,10 @@ Page({
   data: {
     orderId: "",
     code: "",
-    result: ""
+    result: "",
+    verified: false,
+    allVerified: false,
+    pendingWorkerIds: []
   },
 
   onLoad(query) {
@@ -38,22 +41,46 @@ Page({
       const pass = !!resp?.pass
       const allVerified = !!resp?.allVerified
       if (!pass) {
-        this.setData({ result: "验证码不正确，请重试" })
+        this.setData({
+          result: "验证码不正确，请重试",
+          verified: false,
+          allVerified: false,
+          pendingWorkerIds: []
+        })
         return
       }
+      const pendingWorkerIds = Array.isArray(resp?.pendingWorkerIds) ? resp.pendingWorkerIds : []
       this.setData({
+        verified: true,
+        allVerified,
+        pendingWorkerIds,
         result: allVerified
-          ? "验证码通过，全部工人已完成核验，可进入服务流程"
-          : `验证码通过，待核验工人：${(resp?.pendingWorkerIds || []).join(",") || "--"}`
+          ? "验证码通过，请继续完成人脸核验"
+          : `验证码通过，待核验工人：${pendingWorkerIds.join(",") || "--"}`
       })
       if (allVerified) {
         setTimeout(() => {
-          wx.navigateTo({ url: `/pages/worker/work/process?id=${this.data.orderId}` })
+          wx.navigateTo({ url: `/pages/worker/verify/face?orderId=${this.data.orderId}` })
         }, 400)
       }
     } catch (error) {
       wx.showToast({ title: error?.message || "校验失败", icon: "none" })
     }
+  },
+
+  goFaceVerify() {
+    if (!this.data.orderId) {
+      wx.showToast({ title: "工单ID无效", icon: "none" })
+      return
+    }
+    wx.navigateTo({ url: `/pages/worker/verify/face?orderId=${this.data.orderId}` })
+  },
+
+  goProcess() {
+    if (!this.data.orderId) {
+      wx.showToast({ title: "工单ID无效", icon: "none" })
+      return
+    }
+    wx.navigateTo({ url: `/pages/worker/work/process?id=${this.data.orderId}` })
   }
 })
-
