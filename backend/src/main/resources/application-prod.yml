@@ -5,7 +5,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:mysql://${MYSQL_ADDRESS:127.0.0.1:3306}/${MYSQL_DATABASE:smart_community}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
     username: ${DB_USERNAME:${MYSQL_USERNAME:root}}
-    password: ${DB_PASSWORD:${MYSQL_PASSWORD:123456}}
+    password: ${DB_PASSWORD:${MYSQL_PASSWORD:}}
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
