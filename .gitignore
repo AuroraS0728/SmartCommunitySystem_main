@@ -118,6 +118,15 @@ lib/
 blog/
 tmp-blog/
 
+# Local generated resume/interview artifacts.
+backend/*.docx
+backend/*.pdf
+backend/~$*.docx
+backend/ai-agent-skill-2day-notes.md
+
+# Separate local copy; keep it out of the SmartCommunity repository.
+face-verify-realtime/
+
 # Demo data / privacy-bearing local seed scripts.
 backend/src/main/resources/db/data.sql
 backend/src/main/resources/db/seed_demo.sql
