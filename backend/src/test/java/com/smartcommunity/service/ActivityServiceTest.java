@@ -5,6 +5,7 @@ import com.smartcommunity.entity.Activity;
 import com.smartcommunity.entity.ActivityRegistration;
 import com.smartcommunity.mapper.ActivityMapper;
 import com.smartcommunity.mapper.ActivityRegistrationMapper;
+import com.smartcommunity.mapper.UserMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,10 +27,12 @@ class ActivityServiceTest {
     private ActivityMapper activityMapper;
     @Mock
     private ActivityRegistrationMapper activityRegistrationMapper;
+    @Mock
+    private UserMapper userMapper;
 
     @Test
     void registerRejectsWhenAgeLimitDoesNotMatch() {
-        ActivityService service = new ActivityService(activityMapper, activityRegistrationMapper);
+        ActivityService service = new ActivityService(activityMapper, activityRegistrationMapper, userMapper);
         Activity activity = activity(11L);
         activity.setAgeLimit(">=18");
         when(activityMapper.selectById(11L)).thenReturn(activity);
@@ -46,7 +49,7 @@ class ActivityServiceTest {
 
     @Test
     void registerIncrementsParticipantsForPendingSignup() {
-        ActivityService service = new ActivityService(activityMapper, activityRegistrationMapper);
+        ActivityService service = new ActivityService(activityMapper, activityRegistrationMapper, userMapper);
         Activity activity = activity(12L);
         activity.setAgeLimit(">=18");
         activity.setCurrentParticipants(1);
